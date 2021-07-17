@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31005.135
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StorageFilters1.2", "1.2\StorageFilters1.2.csproj", "{9D497D56-778F-40D8-8906-277141F3FB9D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StorageFilters1.3", "1.3\StorageFilters1.3.csproj", "{36A4E7C3-FAC8-449B-92DC-9F32FA0EDA18}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9D497D56-778F-40D8-8906-277141F3FB9D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9D497D56-778F-40D8-8906-277141F3FB9D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9D497D56-778F-40D8-8906-277141F3FB9D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9D497D56-778F-40D8-8906-277141F3FB9D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{36A4E7C3-FAC8-449B-92DC-9F32FA0EDA18}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{36A4E7C3-FAC8-449B-92DC-9F32FA0EDA18}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{36A4E7C3-FAC8-449B-92DC-9F32FA0EDA18}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{36A4E7C3-FAC8-449B-92DC-9F32FA0EDA18}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {7FB246B9-D47B-4520-AB78-6F567EDF658A}
+	EndGlobalSection
+EndGlobal
