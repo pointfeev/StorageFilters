@@ -2,40 +2,52 @@
 using RimWorld;
 using Verse;
 using UnityEngine;
-using System;
+using System.Reflection;
 
 namespace StorageFilters
 {
     public static class StorageFilters
     {
-		public static void FillTab(Vector2 size)
+		public static void FillTab(ITab_Storage instance, Vector2 size)
         {
-			IStoreSettingsParent storeSettingsParent = StorageFiltersUtils.GetSelectedStoreSettingsParent();
-			if (storeSettingsParent == null)
+			try
             {
-				Log.Warning("Unable to retrieve selected storeSettingsParent");
-				return;
-            }
-			ExtraThingFilters tabFilters = StorageFiltersData.Filters.TryGetValue(storeSettingsParent);
-			if (tabFilters == null)
-			{
-				StorageFiltersData.Filters.SetOrAdd(storeSettingsParent, new ExtraThingFilters());
-				tabFilters = StorageFiltersData.Filters.TryGetValue(storeSettingsParent);
+				// if it can't get the TopAreaHeight, it means it's a container without priority and not actually storage
+				float TopAreaHeight = (float)instance.GetType().GetMethod("get_TopAreaHeight", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(instance, new object[] { });
+				// and thus it should error, stopping the rest of the function from executing
+
+				IStoreSettingsParent storeSettingsParent = StorageFiltersUtils.GetSelectedStoreSettingsParent();
+				if (storeSettingsParent == null)
+				{
+					Log.Warning("Unable to retrieve selected storeSettingsParent");
+					return;
+				}
+				ExtraThingFilters tabFilters = StorageFiltersData.Filters.TryGetValue(storeSettingsParent);
+				if (tabFilters == null)
+				{
+					StorageFiltersData.Filters.SetOrAdd(storeSettingsParent, new ExtraThingFilters());
+					tabFilters = StorageFiltersData.Filters.TryGetValue(storeSettingsParent);
+				}
+				string mainFilterString = StorageFiltersData.MainFilterString.TryGetValue(storeSettingsParent);
+				if (mainFilterString == null)
+				{
+					StorageFiltersData.MainFilterString.SetOrAdd(storeSettingsParent, StorageFiltersData.DefaultMainFilterString);
+					mainFilterString = StorageFiltersData.MainFilterString.TryGetValue(storeSettingsParent);
+				}
+				string tabFilter = StorageFiltersData.CurrentFilterKey.TryGetValue(storeSettingsParent);
+				if (tabFilter == null)
+				{
+					StorageFiltersData.CurrentFilterKey.SetOrAdd(storeSettingsParent, mainFilterString);
+					tabFilter = StorageFiltersData.CurrentFilterKey.TryGetValue(storeSettingsParent);
+				}
+
+				Rect window = new Rect(0, 0, size.x, size.y).ContractedBy(10f);
+				GUI.BeginGroup(window);
+				Rect position = new Rect(166f, 0, Text.CalcSize(tabFilter).x + 16f, TopAreaHeight - 6f);
+				StorageFiltersUtils.FilterSelectionButton(storeSettingsParent, tabFilters, mainFilterString, tabFilter, position);
+				GUI.EndGroup();
 			}
-			string mainFilterString = StorageFiltersData.MainFilterString.TryGetValue(storeSettingsParent);
-			if (mainFilterString == null)
-            {
-				StorageFiltersData.MainFilterString.SetOrAdd(storeSettingsParent, StorageFiltersData.DefaultMainFilterString);
-				mainFilterString = StorageFiltersData.MainFilterString.TryGetValue(storeSettingsParent);
-			}
-			string tabFilter = StorageFiltersData.CurrentFilterKey.TryGetValue(storeSettingsParent);
-			if (tabFilter == null)
-			{
-				StorageFiltersData.CurrentFilterKey.SetOrAdd(storeSettingsParent, mainFilterString);
-				tabFilter = StorageFiltersData.CurrentFilterKey.TryGetValue(storeSettingsParent);
-			}
-			Rect position = new Rect(0f, 0f, size.x, size.y).ContractedBy(10f);
-			StorageFiltersUtils.FilterSelectionButton(storeSettingsParent, tabFilters, mainFilterString, tabFilter, position);
+			catch { }
 		}
 
 		public static void DoThingFilterConfigWindow(ref ThingFilter filter)

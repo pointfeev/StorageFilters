@@ -19,6 +19,11 @@ namespace StorageFilters
             );
 
             harmony.Patch(
+                original: AccessTools.Method(typeof(ITab_Storage), "get_TopAreaHeight"),
+                postfix: new HarmonyMethod(typeof(HarmonyPatches), "TopAreaHeight")
+            );
+
+            harmony.Patch(
                 original: AccessTools.Method(typeof(ThingFilterUI), "DoThingFilterConfigWindow"),
                 prefix: new HarmonyMethod(typeof(HarmonyPatches), "DoThingFilterConfigWindow")
             );
@@ -44,9 +49,14 @@ namespace StorageFilters
             );
         }
 
-        public static void FillTab(Vector2 ___size)
+        public static void FillTab(ITab_Storage __instance, Vector2 ___size)
         {
-            StorageFilters.FillTab(___size);
+            StorageFilters.FillTab(__instance, ___size);
+        }
+
+        public static void TopAreaHeight(float __result)
+        {
+            __result = 35f;
         }
 
         public static bool DoThingFilterConfigWindow(ref ThingFilter filter)

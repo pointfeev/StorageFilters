@@ -40,10 +40,8 @@ namespace StorageFilters
 
 		public static void FilterSelectionButton(IStoreSettingsParent storeSettingsParent, ExtraThingFilters tabFilters, string mainFilterString, string tabFilter, Rect position)
 		{
-			GUI.BeginGroup(position);
 			Text.Font = GameFont.Small;
-			Rect rect = new Rect(166f, 0, Text.CalcSize(tabFilter).x + 16f, 29f);
-			if (Widgets.ButtonText(rect, tabFilter, true, true, true))
+			if (Widgets.ButtonText(position, tabFilter, true, true, true))
 			{
 				Dictionary<FloatMenuOption, int> floatMenuOptionOrder = new Dictionary<FloatMenuOption, int>();
 				Func<FloatMenuOption, FloatMenuOption> newFilterOption = delegate (FloatMenuOption floatMenuOption)
@@ -131,8 +129,7 @@ namespace StorageFilters
 				optionsFieldInfo.SetValue(filterFloatMenu, (from option in options orderby floatMenuOptionOrder.TryGetValue(option) ascending select option).ToList());
 				Find.WindowStack.Add(filterFloatMenu);
 			}
-			UIHighlighter.HighlightOpportunity(rect, "StorageFilters");
-			GUI.EndGroup();
+			UIHighlighter.HighlightOpportunity(position, "StorageFilters");
 		}
 	}
 }
