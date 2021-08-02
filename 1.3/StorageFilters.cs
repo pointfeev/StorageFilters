@@ -8,6 +8,8 @@ namespace StorageFilters
 {
     public static class StorageFilters
     {
+		public static Rect? StorageTabRect = null;
+
 		public static void FillTab(ITab_Storage instance, Vector2 size)
         {
 			float TopAreaHeight;
@@ -45,10 +47,11 @@ namespace StorageFilters
 				tabFilter = StorageFiltersData.CurrentFilterKey.TryGetValue(storeSettingsParent);
 			}
 
-			Rect window = new Rect(0, 0, size.x, size.y).ContractedBy(10f);
-			GUI.BeginGroup(window);
+			Rect window = new Rect(0, 0, size.x, size.y);
+			StorageTabRect = window;
+			GUI.BeginGroup(window.ContractedBy(10f));
 			Rect position = new Rect(166f, 0, Text.CalcSize(tabFilter).x + 16f, TopAreaHeight - 6f);
-			StorageFiltersUtils.FilterSelectionButton(storeSettingsParent, tabFilters, mainFilterString, tabFilter, position);
+			StorageFiltersUtils.FilterSelectionButton(instance, storeSettingsParent, tabFilters, mainFilterString, tabFilter, position);
 			GUI.EndGroup();
 		}
 

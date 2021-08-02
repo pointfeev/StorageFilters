@@ -14,19 +14,29 @@ namespace StorageFilters
 			}
 		}
 
-		public Dialog_RenameSavedFilter()
+		private Dialog_EditFilter editFilterDialog;
+		protected override void SetInitialSizeAndPosition()
 		{
-			forcePause = false;
+			windowRect = StorageFiltersUtils.GetDialogSizeAndPosition(this, editFilterDialog);
+		}
+
+		private ITab_Storage storageTab;
+		public Dialog_RenameSavedFilter(ITab_Storage instance, Dialog_EditFilter editDialog)
+		{
+			forcePause = true;
 			closeOnAccept = false;
 			closeOnCancel = false;
 			absorbInputAroundWindow = true;
+			focusWhenOpened = true;
+			forceCatchAcceptAndCancelEventEvenIfUnfocused = true;
+			storageTab = instance;
+			editFilterDialog = editDialog;
 		}
 
 		private string key;
 		private ExtraThingFilter value;
 		private string curName;
-
-		public Dialog_RenameSavedFilter(string key, ExtraThingFilter value) : this()
+		public Dialog_RenameSavedFilter(ITab_Storage instance, Dialog_EditFilter editDialog, string key, ExtraThingFilter value) : this(instance, editDialog)
         {
 			this.key = key;
 			this.value = value;
@@ -45,6 +55,7 @@ namespace StorageFilters
 						StorageFiltersData.SavedFilterNoLoad.Add(curName, value);
 						SaveUtils.Save();
 					}
+					Messages.Message("Renamed saved filter '" + key + "' to '" + curName + "'", MessageTypeDefOf.TaskCompletion, false);
 					Find.WindowStack.TryRemove(this, true);
 				}
 				else
@@ -60,6 +71,11 @@ namespace StorageFilters
 
 		public override void DoWindowContents(Rect winRect)
 		{
+			if (editFilterDialog is null || !editFilterDialog.IsOpen)
+			{
+				Find.WindowStack.TryRemove(this, false);
+				return;
+			}
 			bool esc = false;
 			if (Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.Escape)
 			{

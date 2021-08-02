@@ -4,7 +4,7 @@ using RimWorld;
 
 namespace StorageFilters
 {
-	public class Dialog_NewFilter : Window
+	internal class Dialog_NewFilter : Window
 	{
 		public override Vector2 InitialSize
 		{
@@ -14,22 +14,28 @@ namespace StorageFilters
 			}
 		}
 
-		public Dialog_NewFilter()
+		protected override void SetInitialSizeAndPosition()
 		{
-			forcePause = false;
+			windowRect = StorageFiltersUtils.GetDialogSizeAndPosition(this);
+		}
+
+		private ITab_Storage storageTab;
+		private IStoreSettingsParent storeSettingsParent;
+		public Dialog_NewFilter(ITab_Storage instance, IStoreSettingsParent storeSettingsParent)
+		{
+			forcePause = true;
 			closeOnAccept = false;
 			closeOnCancel = false;
-			absorbInputAroundWindow = true;
+			absorbInputAroundWindow = false;
+			storageTab = instance;
+			this.storeSettingsParent = storeSettingsParent;
 		}
 
 		private ExtraThingFilters tabFilters;
-		private IStoreSettingsParent storeSettingsParent;
 		private string curName;
-
-		public Dialog_NewFilter(ExtraThingFilters tabFilters, IStoreSettingsParent storeSettingsParent) : this()
+		public Dialog_NewFilter(ITab_Storage instance, IStoreSettingsParent storeSettingsParent, ExtraThingFilters tabFilters) : this(instance, storeSettingsParent)
 		{
 			this.tabFilters = tabFilters;
-			this.storeSettingsParent = storeSettingsParent;
 			curName = "Filter " + (tabFilters.Count + 1);
 		}
 
@@ -41,6 +47,7 @@ namespace StorageFilters
 				{
 					tabFilters.Add(curName, new ExtraThingFilter());
 					StorageFiltersData.CurrentFilterKey.SetOrAdd(storeSettingsParent, curName);
+					//Messages.Message("Added new filter named '" + curName + "' to the specified storage area", MessageTypeDefOf.TaskCompletion, false);
 					Find.WindowStack.TryRemove(this, true);
 				}
 				else
@@ -56,6 +63,11 @@ namespace StorageFilters
 
 		public override void DoWindowContents(Rect winRect)
 		{
+			if (!StorageFiltersUtils.IsStorageTabOpen(storageTab, storeSettingsParent))
+			{
+				Find.WindowStack.TryRemove(this, false);
+				return;
+			}
 			bool esc = false;
 			if (Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.Escape)
 			{

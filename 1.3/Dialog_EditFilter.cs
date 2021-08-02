@@ -15,12 +15,21 @@ namespace StorageFilters
 			}
 		}
 
-		public Dialog_EditFilter()
+		protected override void SetInitialSizeAndPosition()
 		{
-			forcePause = false;
+			windowRect = StorageFiltersUtils.GetDialogSizeAndPosition(this);
+		}
+
+		private ITab_Storage storageTab;
+		public Dialog_EditFilter(ITab_Storage instance, IStoreSettingsParent storeSettingsParent)
+		{
+			doCloseX = true;
+			forcePause = true;
 			closeOnAccept = false;
 			closeOnCancel = false;
 			absorbInputAroundWindow = false;
+			storageTab = instance;
+			this.storeSettingsParent = storeSettingsParent;
 		}
 
 		private bool keyIsMainFilterString;
@@ -31,27 +40,21 @@ namespace StorageFilters
 		private IStoreSettingsParent storeSettingsParent;
 		private string curName;
 		private Dialog_EditFilter previousDialog;
-
-		public Dialog_EditFilter(string key, ExtraThingFilter value, ExtraThingFilters tabFilters, IStoreSettingsParent storeSettingsParent) : this()
+		public Dialog_EditFilter(ITab_Storage instance, IStoreSettingsParent storeSettingsParent, string key, ExtraThingFilter value, ExtraThingFilters tabFilters = null, Dialog_EditFilter previousEditFilterDialog = null) : this(instance, storeSettingsParent)
         {
 			this.key = key;
 			this.value = value;
 			this.tabFilters = tabFilters;
-			this.storeSettingsParent = storeSettingsParent;
 			curName = key;
+			previousDialog = previousEditFilterDialog;
 			StorageFiltersData.CurrentlyEditingFilter = value;
 		}
 
-		public Dialog_EditFilter(string key, bool keyIsMainFilterString, ExtraThingFilters tabFilters, IStoreSettingsParent storeSettingsParent) : this(key, null, tabFilters, storeSettingsParent)
+		public Dialog_EditFilter(ITab_Storage instance, IStoreSettingsParent storeSettingsParent, string key, bool keyIsMainFilterString, ExtraThingFilters tabFilters) : this(instance, storeSettingsParent, key, null, tabFilters)
 		{
 			this.keyIsMainFilterString = keyIsMainFilterString;
 			valueMain = storeSettingsParent.GetStoreSettings().filter;
 			value = new ExtraThingFilter(valueMain);
-		}
-
-		public Dialog_EditFilter(string key, ExtraThingFilter value, Dialog_EditFilter previousEditFilterDialog) : this(key, value, null, null)
-		{
-			previousDialog = previousEditFilterDialog;
 		}
 
 		private bool CheckCurName()
@@ -76,6 +79,7 @@ namespace StorageFilters
 							StorageFiltersData.CurrentFilterKey.SetOrAdd(storeSettingsParent, curName);
 						}
 						key = curName;
+						StorageFiltersUtils.PlayClick();
 						return true;
 					}
 				}
@@ -93,183 +97,199 @@ namespace StorageFilters
 
 		public override void DoWindowContents(Rect winRect)
 		{
-			bool close = false;
-			if (Widgets.CloseButtonFor(winRect.AtZero()) || value is null)
+			if (!StorageFiltersUtils.IsStorageTabOpen(storageTab, storeSettingsParent))
 			{
-				close = true;
+				Find.WindowStack.TryRemove(this, false);
+				return;
 			}
-			else
+			if (Widgets.CloseButtonFor(windowRect.AtZero()))
+			{
+				Find.WindowStack.TryRemove(this, true);
+				Event.current.Use();
+				return;
+			}
+			if (value is null || (Event.current.type == EventType.KeyDown &&
+				(Event.current.keyCode == KeyCode.Escape || Event.current.keyCode == KeyCode.Return)))
+			{
+				Find.WindowStack.TryRemove(this, true);
+				Event.current.Use();
+				return;
+			}
+			StorageFiltersData.CurrentlyEditingFilter = value;
+			if (tabFilters != null)
             {
-				StorageFiltersData.CurrentlyEditingFilter = value;
-				if (storeSettingsParent != null)
-                {
-					string mainFilterString = StorageFiltersData.MainFilterString.TryGetValue(storeSettingsParent);
-					if (keyIsMainFilterString && mainFilterString != null)
-						StorageFiltersData.CurrentFilterKey.SetOrAdd(storeSettingsParent, mainFilterString);
-					else if (key != null)
-						StorageFiltersData.CurrentFilterKey.SetOrAdd(storeSettingsParent, key);
-				}
-				Text.Font = GameFont.Small;
-				string editString = "Editing filter: '" + key + "'";
-				float editStringY = Text.CalcSize(editString).y;
-				Widgets.Label(new Rect(0f, 0f, winRect.width, editStringY), editString);
-				float renameY = editStringY + 8f;
-				string renameString = "Rename".Translate();
-				float saveLoadY = renameY + 35f + 8f;
-				if (tabFilters != null && storeSettingsParent != null)
+				string mainFilterString = StorageFiltersData.MainFilterString.TryGetValue(storeSettingsParent);
+				if (keyIsMainFilterString && mainFilterString != null)
+					StorageFiltersData.CurrentFilterKey.SetOrAdd(storeSettingsParent, mainFilterString);
+				else if (key != null)
+					StorageFiltersData.CurrentFilterKey.SetOrAdd(storeSettingsParent, key);
+			}
+			Text.Font = GameFont.Small;
+			string editString = "Editing filter: '" + key + "'";
+			float editStringY = Text.CalcSize(editString).y;
+			Widgets.Label(new Rect(0f, 0f, winRect.width, editStringY), editString);
+			float renameY = editStringY + 8f;
+			string renameString = "Rename".Translate();
+			float saveLoadY = renameY + 35f + 8f;
+			if (tabFilters != null)
+			{
+				float renameStringX = Text.CalcSize(renameString).x + 30f;
+				curName = Widgets.TextField(new Rect(0f, renameY, winRect.width - 8f - renameStringX, 35f), curName);
+				if (Text.CalcSize(curName).x > StorageFiltersData.MaxFilterStringWidth)
 				{
-					float renameStringX = Text.CalcSize(renameString).x + 30f;
-					curName = Widgets.TextField(new Rect(0f, renameY, winRect.width - 8f - renameStringX, 35f), curName);
-					if (Text.CalcSize(curName).x > StorageFiltersData.MaxFilterStringWidth)
+					curName = curName.Substring(0, curName.Length - 1);
+				}
+				if (Widgets.ButtonText(new Rect(winRect.width - renameStringX, renameY, renameStringX, 35f), renameString))
+				{
+					CheckCurName();
+					Event.current.Use();
+				}
+				if (Widgets.ButtonText(new Rect(0f, saveLoadY, winRect.width / 2f - 4f, 35f), "Save".Translate()))
+				{
+					if (StorageFiltersData.SavedFilter.TryGetValue(key) != null)
 					{
-						curName = curName.Substring(0, curName.Length - 1);
-					}
-					if (Widgets.ButtonText(new Rect(winRect.width - renameStringX, renameY, renameStringX, 35f), renameString))
-					{
-						CheckCurName();
-						Event.current.Use();
-					}
-					if (Widgets.ButtonText(new Rect(0f, saveLoadY, winRect.width / 2f - 4f, 35f), "Save".Translate()))
-					{
-						if (StorageFiltersData.SavedFilter.TryGetValue(key) != null)
-						{
-							Find.WindowStack.Add(new Dialog_Confirmation("Are you sure you want to overwrite the saved filter '" + key + "'?", delegate ()
-							{
-								StorageFiltersData.SavedFilter.SetOrAdd(key, value);
-								SaveUtils.Save();
-								Messages.Message("Saved filter '" + key + "'", MessageTypeDefOf.TaskCompletion, false);
-							}));
-						}
-						else
+						Find.WindowStack.Add(new Dialog_Confirmation(storageTab, storeSettingsParent, "Are you sure you want to overwrite the saved filter '" + key + "'?", delegate ()
 						{
 							StorageFiltersData.SavedFilter.SetOrAdd(key, value);
 							SaveUtils.Save();
 							Messages.Message("Saved filter '" + key + "'", MessageTypeDefOf.TaskCompletion, false);
-						}
-						Event.current.Use();
+						}, this));
 					}
-					if (Widgets.ButtonText(new Rect(winRect.width / 2f + 4f, saveLoadY, winRect.width / 2f - 4f, 35f), "Load".Translate()))
+					else
 					{
-						if (StorageFiltersData.SavedFilter.Count > 0)
+						StorageFiltersData.SavedFilter.SetOrAdd(key, value);
+						SaveUtils.Save();
+						Messages.Message("Saved filter '" + key + "'", MessageTypeDefOf.TaskCompletion, false);
+					}
+					Event.current.Use();
+				}
+				if (Widgets.ButtonText(new Rect(winRect.width / 2f + 4f, saveLoadY, winRect.width / 2f - 4f, 35f), "Load".Translate()))
+				{
+					if (StorageFiltersData.SavedFilter.Count > 0)
+					{
+						List<FloatMenuOption> filterFloatMenuOptions = new List<FloatMenuOption>();
+						FloatMenu filterFloatMenu = null;
+						foreach (KeyValuePair<string, ExtraThingFilter> entry in StorageFiltersData.SavedFilter)
 						{
-							List<FloatMenuOption> filterFloatMenuOptions = new List<FloatMenuOption>();
-							FloatMenu filterFloatMenu = null;
-							foreach (KeyValuePair<string, ExtraThingFilter> entry in StorageFiltersData.SavedFilter)
+							filterFloatMenuOptions.Add(new FloatMenuOption(entry.Key, delegate ()
 							{
-								filterFloatMenuOptions.Add(new FloatMenuOption(entry.Key, delegate ()
-								{
-									string oldCurName = curName;
-									curName = entry.Key;
-									if (CheckCurName())
-                                    {
-										if (keyIsMainFilterString && valueMain != null)
-										{
-											valueMain.CopyAllowancesFrom(entry.Value);
-										}
-										else
-										{
-											value.CopyFrom(entry.Value);
-										}
+								string oldCurName = curName;
+								curName = entry.Key;
+								if (CheckCurName())
+                                {
+									if (keyIsMainFilterString && valueMain != null)
+									{
+										valueMain.CopyAllowancesFrom(entry.Value);
 									}
 									else
-                                    {
-										curName = oldCurName;
+									{
+										value.CopyFrom(entry.Value);
 									}
-								}, extraPartWidth: 120f, extraPartOnGUI: delegate (Rect extraRect)
+								}
+								else
+                                {
+									curName = oldCurName;
+								}
+							}, extraPartWidth: 120f, extraPartOnGUI: delegate (Rect extraRect)
+							{
+								Rect renameRect = extraRect;
+								renameRect.width /= 2f;
+								new FloatMenuOption(renameString, delegate ()
 								{
-									Rect renameRect = extraRect;
-									renameRect.width /= 2f;
-									new FloatMenuOption(renameString, delegate ()
+									filterFloatMenu.Close();
+									Find.WindowStack.Add(new Dialog_RenameSavedFilter(storageTab, this, entry.Key, entry.Value));
+								}).DoGUI(renameRect, false, null);
+								Rect removeRect = extraRect;
+								removeRect.width /= 2f;
+								removeRect.x += renameRect.width;
+								new FloatMenuOption("Delete".Translate(), delegate ()
+								{
+									filterFloatMenu.Close();
+									Find.WindowStack.Add(new Dialog_Confirmation(storageTab, storeSettingsParent, "Are you sure you want to delete the saved filter '" + entry.Key + "'?", delegate ()
 									{
-										filterFloatMenu.Close();
-										Find.WindowStack.Add(new Dialog_RenameSavedFilter(entry.Key, entry.Value));
-									}).DoGUI(renameRect, false, null);
-									Rect removeRect = extraRect;
-									removeRect.width /= 2f;
-									removeRect.x += renameRect.width;
-									new FloatMenuOption("Delete".Translate(), delegate ()
-									{
-										filterFloatMenu.Close();
-										Find.WindowStack.Add(new Dialog_Confirmation("Are you sure you want to delete the saved filter '" + entry.Key + "'?", delegate ()
-										{
-											StorageFiltersData.SavedFilter.Remove(entry.Key);
-											SaveUtils.Save();
-											Messages.Message("Deleted saved filter '" + entry.Key + "'", MessageTypeDefOf.TaskCompletion, false);
-										}));
-									}).DoGUI(removeRect, false, null);
-									return false;
-								}));
-							}
-							filterFloatMenu = new FloatMenu(filterFloatMenuOptions);
-							Find.WindowStack.Add(filterFloatMenu);
+										StorageFiltersData.SavedFilter.Remove(entry.Key);
+										SaveUtils.Save();
+										Messages.Message("Deleted saved filter '" + entry.Key + "'", MessageTypeDefOf.TaskCompletion, false);
+									}, this));
+								}).DoGUI(removeRect, false, null);
+								return false;
+							}));
 						}
-						else
-						{
-							Messages.Message("No saved filters", MessageTypeDefOf.RejectInput, false);
-						}
+						filterFloatMenu = new FloatMenu(filterFloatMenuOptions);
+						Find.WindowStack.Add(filterFloatMenu);
+					}
+					else
+					{
+						Messages.Message("No saved filters", MessageTypeDefOf.RejectInput, false);
+					}
+					Event.current.Use();
+				}
+			}
+			else
+            {
+				if (Widgets.ButtonText(new Rect(0f, renameY, winRect.width, 35f), "Remove This Next-In-Priority Filter"))
+				{
+					Find.WindowStack.Add(new Dialog_Confirmation(storageTab, storeSettingsParent, "Are you sure you want to remove the next-in-priority filter '" + key + "'?", !(value.NextInPriorityFilter is null) ? "This will also remove all next-in-priority filters from this point onward!" : null, delegate ()
+					{
+						value.NextInPriorityFilterParent.NextInPriorityFilter = null;
+						value = null;
+						if (!(previousDialog is null))
+							Find.WindowStack.Add(previousDialog);
+					}, this));
+					Event.current.Use();
+				}
+			}
+			if (!keyIsMainFilterString)
+            {
+				float priorityY = saveLoadY + 35f + 8f;
+
+				float X = 0f;
+				float width = winRect.width;
+				if (!(previousDialog is null))
+				{
+					string backString = "Back";
+					float backStringX = Text.CalcSize(backString).x + 30f;
+					if (Widgets.ButtonText(new Rect(X, priorityY, backStringX, 35f), backString))
+					{
+						Find.WindowStack.Add(previousDialog);
+						Event.current.Use();
+					}
+					X += backStringX + 8f;
+					width -= backStringX + 8f;
+				}
+
+				void EditNIPF()
+                {
+					string key_NIP;
+					if (value.NextInPriorityFilterParent != null)
+					{
+						key_NIP = key.Substring(0, key.Length - (value.NextInPriorityFilter.NextInPriorityFilterDepth - 1).ToString().Length) + value.NextInPriorityFilter.NextInPriorityFilterDepth;
+					}
+					else
+					{
+						key_NIP = key + " - N.I.P.F. #" + value.NextInPriorityFilter.NextInPriorityFilterDepth;
+					}
+					Find.WindowStack.Add(new Dialog_EditFilter(storageTab, storeSettingsParent, key_NIP, value.NextInPriorityFilter, previousEditFilterDialog: this));
+				}
+				if (value.NextInPriorityFilter is null)
+				{
+					if (Widgets.ButtonText(new Rect(X, priorityY, width, 35f), "Add Next-In-Priority Filter"))
+					{
+						value.NextInPriorityFilter = new ExtraThingFilter();
+						value.NextInPriorityFilter.NextInPriorityFilter = null;
+						value.NextInPriorityFilter.NextInPriorityFilterDepth = value.NextInPriorityFilterDepth + 1;
+						EditNIPF();
 						Event.current.Use();
 					}
 				}
 				else
-                {
-					if (Widgets.ButtonText(new Rect(0f, renameY, winRect.width, 35f), "Remove This Next-In-Priority Filter"))
+				{
+					if (Widgets.ButtonText(new Rect(X, priorityY, width, 35f), "Edit Next-In-Priority Filter"))
 					{
-						Find.WindowStack.Add(new Dialog_Confirmation("Are you sure you want to remove the next-in-priority filter '" + key + "'?", delegate ()
-						{
-							value.NextInPriorityFilterParent.NextInPriorityFilter = null;
-							value = null;
-						}));
+						EditNIPF();
 						Event.current.Use();
 					}
 				}
-				if (!keyIsMainFilterString)
-                {
-					float priorityY = saveLoadY + 35f + 8f;
-					if (value.NextInPriorityFilter is null)
-					{
-						if (Widgets.ButtonText(new Rect(0f, priorityY, winRect.width, 35f), "Add Next-In-Priority Filter"))
-						{
-							value.NextInPriorityFilter = new ExtraThingFilter();
-							value.NextInPriorityFilter.NextInPriorityFilter = null;
-							value.NextInPriorityFilter.NextInPriorityFilterDepth = value.NextInPriorityFilterDepth + 1;
-							Event.current.Use();
-						}
-					}
-					else
-					{
-						if (Widgets.ButtonText(new Rect(0f, priorityY, winRect.width, 35f), "Edit Next-In-Priority Filter"))
-						{
-							string key_NIP;
-							if (value.NextInPriorityFilterParent != null)
-							{
-								key_NIP = key.Substring(0, key.Length - (value.NextInPriorityFilter.NextInPriorityFilterDepth - 1).ToString().Length) + value.NextInPriorityFilter.NextInPriorityFilterDepth;
-							}
-							else
-							{
-								key_NIP = key + " - N.I.P.F. #" + value.NextInPriorityFilter.NextInPriorityFilterDepth;
-							}
-							Find.WindowStack.Add(new Dialog_EditFilter(key_NIP, value.NextInPriorityFilter, this));
-							Event.current.Use();
-						}
-					}
-				}
-			}
-			if (Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.Escape)
-			{
-				close = true;
-			}
-			if (Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.Return)
-			{
-				close = true;
-			}
-			if (close)
-			{
-				Find.WindowStack.TryRemove(this, true);
-				if (previousDialog != null)
-				{
-					Find.WindowStack.Add(previousDialog);
-				}
-				Event.current.Use();
 			}
 		}
 
