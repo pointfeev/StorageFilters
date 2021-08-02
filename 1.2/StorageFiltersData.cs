@@ -128,11 +128,9 @@ namespace StorageFilters
         {
             base.ExposeData();
 
-            _ = Filters;
             Scribe_Collections.Look(ref filters, "filters", LookMode.Reference, LookMode.Deep, ref filterKeys, ref filterValues);
             _ = Filters;
 
-            _ = MainFilterString;
             Scribe_Collections.Look(ref mainFilterString, "mainFilterString", LookMode.Reference, LookMode.Value, ref mainFilterStringKeys, ref mainFilterStringValues);
             _ = MainFilterString;
         }
