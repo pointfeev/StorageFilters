@@ -12,10 +12,9 @@ namespace StorageFilters
 
 		public static void FillTab(ITab_Storage instance, Vector2 size)
         {
-			float TopAreaHeight;
 			try
             {
-				TopAreaHeight = (float)instance.GetType().GetMethod("get_TopAreaHeight", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(instance, new object[] { });
+				_ = (float)instance.GetType().GetMethod("get_TopAreaHeight", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(instance, new object[] { });
 			}
 			catch
 			{
@@ -50,7 +49,7 @@ namespace StorageFilters
 			Rect window = new Rect(0, 0, size.x, size.y);
 			StorageTabRect = window;
 			GUI.BeginGroup(window.ContractedBy(10f));
-			Rect position = new Rect(166f, 0, Text.CalcSize(tabFilter).x + 16f, TopAreaHeight - 6f);
+			Rect position = new Rect(166f, 0, Text.CalcSize(tabFilter).x + 16f, 29f);
 			StorageFiltersUtils.FilterSelectionButton(instance, storeSettingsParent, tabFilters, mainFilterString, tabFilter, position);
 			GUI.EndGroup();
 		}
