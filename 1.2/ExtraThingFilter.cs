@@ -52,9 +52,11 @@ namespace StorageFilters
 
         public ExtraThingFilter() : base() { }
 
-        public ExtraThingFilter(ThingFilter filter) : this()
+        public ThingFilter OriginalFilter = null;
+        public ExtraThingFilter(ThingFilter originalFilter) : this()
         {
-            CopyAllowancesFrom(filter);
+            CopyAllowancesFrom(originalFilter);
+            OriginalFilter = originalFilter;
         }
 
         public void CopyFrom(ExtraThingFilter otherFilter)
@@ -65,7 +67,11 @@ namespace StorageFilters
             {
                 NextInPriorityFilter = otherFilter.NextInPriorityFilter.Copy();
             }
-            CopyAllowancesFrom(otherFilter as ThingFilter);
+            CopyAllowancesFrom(otherFilter);
+            if (!(OriginalFilter is null))
+            {
+                OriginalFilter.CopyAllowancesFrom(this);
+            }
         }
 
         public ExtraThingFilter Copy()
@@ -75,13 +81,64 @@ namespace StorageFilters
             return copy;
         }
 
+        private void SyncWithMainFilter()
+        {
+            if (!(OriginalFilter is null))
+            {
+                OriginalFilter.CopyAllowancesFrom(this);
+            }
+        }
+        public new void SetAllow(ThingDef thingDef, bool allow)
+        {
+            base.SetAllow(thingDef, allow);
+            SyncWithMainFilter();
+        }
+        public new void SetAllow(SpecialThingFilterDef sfDef, bool allow)
+        {
+            base.SetAllow(sfDef, allow);
+            SyncWithMainFilter();
+        }
+        public new void SetAllow(ThingCategoryDef categoryDef, bool allow, IEnumerable<ThingDef> exceptedDefs = null, IEnumerable<SpecialThingFilterDef> exceptedFilters = null)
+        {
+            base.SetAllow(categoryDef, allow, exceptedDefs, exceptedFilters);
+            SyncWithMainFilter();
+        }
+        public new void SetAllow(StuffCategoryDef cat, bool allow)
+        {
+            base.SetAllow(cat, allow);
+            SyncWithMainFilter();
+        }
+        public new void SetAllowAllWhoCanMake(ThingDef thing)
+        {
+            base.SetAllowAllWhoCanMake(thing);
+            SyncWithMainFilter();
+        }
+        public new void SetFromPreset(StorageSettingsPreset preset)
+        {
+            base.SetFromPreset(preset);
+            SyncWithMainFilter();
+        }
+        public new void SetDisallowAll(IEnumerable<ThingDef> exceptedDefs = null, IEnumerable<SpecialThingFilterDef> exceptedFilters = null)
+        {
+            base.SetDisallowAll(exceptedDefs, exceptedFilters);
+            SyncWithMainFilter();
+        }
+        public new void SetAllowAll(ThingFilter parentFilter, bool includeNonStorable = false)
+        {
+            base.SetAllowAll(parentFilter, includeNonStorable);
+            SyncWithMainFilter();
+        }
+
         public override void ExposeData()
         {
             base.ExposeData();
 
-            Scribe_Values.Look(ref Enabled, "Enabled", true);
-            Scribe_Deep.Look(ref NextInPriorityFilter, false, "NextInPriorityFilter");
-            Scribe_Values.Look(ref NextInPriorityFilterDepth, "NextInPriorityFilterDepth", 0);
+            if (OriginalFilter is null)
+            {
+                Scribe_Values.Look(ref Enabled, "Enabled", true);
+                Scribe_Deep.Look(ref NextInPriorityFilter, false, "NextInPriorityFilter");
+                Scribe_Values.Look(ref NextInPriorityFilterDepth, "NextInPriorityFilterDepth", 0);
+            }
         }
     }
 }

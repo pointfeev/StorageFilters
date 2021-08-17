@@ -35,7 +35,6 @@ namespace StorageFilters
 		private bool keyIsMainFilterString;
 		private string key;
 		private ExtraThingFilter value;
-		private ThingFilter valueMain;
 		private ExtraThingFilters tabFilters;
 		private IStoreSettingsParent storeSettingsParent;
 		private string curName;
@@ -53,8 +52,7 @@ namespace StorageFilters
 		public Dialog_EditFilter(ITab_Storage instance, IStoreSettingsParent storeSettingsParent, string key, bool keyIsMainFilterString, ExtraThingFilters tabFilters) : this(instance, storeSettingsParent, key, null, tabFilters)
 		{
 			this.keyIsMainFilterString = keyIsMainFilterString;
-			valueMain = storeSettingsParent.GetStoreSettings().filter;
-			value = new ExtraThingFilter(valueMain);
+			value = new ExtraThingFilter(storeSettingsParent.GetStoreSettings().filter);
 		}
 
 		private bool CheckCurName()
@@ -177,14 +175,7 @@ namespace StorageFilters
 								curName = entry.Key;
 								if (CheckCurName())
                                 {
-									if (keyIsMainFilterString && valueMain != null)
-									{
-										valueMain.CopyAllowancesFrom(entry.Value);
-									}
-									else
-									{
-										value.CopyFrom(entry.Value);
-									}
+									value.CopyFrom(entry.Value);
 								}
 								else
                                 {
