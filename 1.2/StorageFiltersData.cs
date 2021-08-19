@@ -8,8 +8,6 @@ namespace StorageFilters
     {
         public StorageFiltersData(Game _) { }
 
-        public static ExtraThingFilter CurrentlyEditingFilter;
-
         public static readonly string DefaultMainFilterString = "Main filter";
         public static readonly float MaxFilterStringWidth = 84f;
 

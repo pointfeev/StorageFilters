@@ -56,7 +56,7 @@ namespace StorageFilters
 
         public static void TopAreaHeight(float __result)
         {
-            __result = 35f;
+            __result = Math.Max(__result, 35f);
         }
 
         public static bool DoThingFilterConfigWindow(ref ThingFilter filter)

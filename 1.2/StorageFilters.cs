@@ -61,22 +61,15 @@ namespace StorageFilters
 			{
 				StorageSettings settings = storeSettingsParent.GetStoreSettings();
 				if (settings != null && settings.filter == filter)
-				{
-					if (StorageFiltersData.CurrentlyEditingFilter != null)
+				{ 
+					ExtraThingFilters tabFilters = StorageFiltersData.Filters.TryGetValue(storeSettingsParent);
+					string tabFilter = StorageFiltersData.CurrentFilterKey.TryGetValue(storeSettingsParent);
+					if (tabFilters != null && tabFilter != null)
 					{
-						filter = StorageFiltersData.CurrentlyEditingFilter;
-					}
-					else
-                    {
-						ExtraThingFilters tabFilters = StorageFiltersData.Filters.TryGetValue(storeSettingsParent);
-						string tabFilter = StorageFiltersData.CurrentFilterKey.TryGetValue(storeSettingsParent);
-						if (tabFilters != null && tabFilter != null)
+						ExtraThingFilter _filter = tabFilters.Get(tabFilter);
+						if (_filter != null)
 						{
-							ExtraThingFilter _filter = tabFilters.Get(tabFilter);
-							if (_filter != null)
-							{
-								filter = _filter;
-							}
+							filter = _filter;
 						}
 					}
 				}

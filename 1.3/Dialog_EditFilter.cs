@@ -46,7 +46,6 @@ namespace StorageFilters
 			this.tabFilters = tabFilters;
 			curName = key;
 			previousDialog = previousEditFilterDialog;
-			StorageFiltersData.CurrentlyEditingFilter = value;
 		}
 
 		public Dialog_EditFilter(ITab_Storage instance, IStoreSettingsParent storeSettingsParent, string key, bool keyIsMainFilterString, ExtraThingFilters tabFilters) : this(instance, storeSettingsParent, key, null, tabFilters)
@@ -113,7 +112,6 @@ namespace StorageFilters
 				Event.current.Use();
 				return;
 			}
-			StorageFiltersData.CurrentlyEditingFilter = value;
 			if (tabFilters != null)
             {
 				string mainFilterString = StorageFiltersData.MainFilterString.TryGetValue(storeSettingsParent);
@@ -287,7 +285,6 @@ namespace StorageFilters
         public override void PreClose()
         {
             base.PreClose();
-			StorageFiltersData.CurrentlyEditingFilter = null;
 		}
     }
 }
