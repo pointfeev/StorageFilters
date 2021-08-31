@@ -48,7 +48,7 @@ namespace StorageFilters
             }
         }
         public ExtraThingFilter NextInPriorityFilter = null;
-        public int NextInPriorityFilterDepth = 0;
+        public int FilterDepth = 0;
 
         public ExtraThingFilter() : base() { }
 
@@ -62,7 +62,7 @@ namespace StorageFilters
         public void CopyFrom(ExtraThingFilter otherFilter)
         {
             Enabled = otherFilter.Enabled;
-            NextInPriorityFilterDepth = otherFilter.NextInPriorityFilterDepth;
+            FilterDepth = otherFilter.FilterDepth;
             if (otherFilter.NextInPriorityFilter != null)
             {
                 NextInPriorityFilter = otherFilter.NextInPriorityFilter.Copy();
@@ -137,7 +137,7 @@ namespace StorageFilters
             {
                 Scribe_Values.Look(ref Enabled, "Enabled", true);
                 Scribe_Deep.Look(ref NextInPriorityFilter, false, "NextInPriorityFilter");
-                Scribe_Values.Look(ref NextInPriorityFilterDepth, "NextInPriorityFilterDepth", 0);
+                Scribe_Values.Look(ref FilterDepth, "NextInPriorityFilterDepth", 0);
             }
         }
     }

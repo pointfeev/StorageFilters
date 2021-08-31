@@ -22,27 +22,28 @@ namespace StorageFilters
 			}
 
 			IStoreSettingsParent storeSettingsParent = StorageFiltersUtils.GetSelectedStoreSettingsParent();
-			if (storeSettingsParent == null)
+			if (storeSettingsParent is null)
 			{
 				Log.Warning("[StorageFilters] Unable to retrieve selected storeSettingsParent");
 				return;
 			}
 			ExtraThingFilters tabFilters = StorageFiltersData.Filters.TryGetValue(storeSettingsParent);
-			if (tabFilters == null)
+			if (tabFilters is null)
 			{
 				StorageFiltersData.Filters.SetOrAdd(storeSettingsParent, new ExtraThingFilters());
 				tabFilters = StorageFiltersData.Filters.TryGetValue(storeSettingsParent);
 			}
 			string mainFilterString = StorageFiltersData.MainFilterString.TryGetValue(storeSettingsParent);
-			if (mainFilterString == null)
+			if (mainFilterString is null)
 			{
 				StorageFiltersData.MainFilterString.SetOrAdd(storeSettingsParent, StorageFiltersData.DefaultMainFilterString);
 				mainFilterString = StorageFiltersData.MainFilterString.TryGetValue(storeSettingsParent);
 			}
 			string tabFilter = StorageFiltersData.CurrentFilterKey.TryGetValue(storeSettingsParent);
-			if (tabFilter == null)
+			if (tabFilter is null)
 			{
 				StorageFiltersData.CurrentFilterKey.SetOrAdd(storeSettingsParent, mainFilterString);
+				StorageFiltersData.CurrentFilterDepth.SetOrAdd(storeSettingsParent, 0);
 				tabFilter = StorageFiltersData.CurrentFilterKey.TryGetValue(storeSettingsParent);
 			}
 
@@ -64,10 +65,15 @@ namespace StorageFilters
 				{ 
 					ExtraThingFilters tabFilters = StorageFiltersData.Filters.TryGetValue(storeSettingsParent);
 					string tabFilter = StorageFiltersData.CurrentFilterKey.TryGetValue(storeSettingsParent);
-					if (tabFilters != null && tabFilter != null)
+					int tabFilterDepth = StorageFiltersData.CurrentFilterDepth.TryGetValue(storeSettingsParent);
+					if (!(tabFilters is null) && !(tabFilter is null))
 					{
 						ExtraThingFilter _filter = tabFilters.Get(tabFilter);
-						if (_filter != null)
+						while (!(_filter is null) && _filter.FilterDepth < tabFilterDepth)
+                        {
+							_filter = _filter.NextInPriorityFilter;
+                        }
+						if (!(_filter is null))
 						{
 							filter = _filter;
 						}

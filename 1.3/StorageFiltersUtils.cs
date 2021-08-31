@@ -95,6 +95,7 @@ namespace StorageFilters
 						Find.WindowStack.Add(new Dialog_EditFilter(instance, storeSettingsParent, mainFilterString, true, tabFilters));
 					}
 					StorageFiltersData.CurrentFilterKey.SetOrAdd(storeSettingsParent, mainFilterString);
+					StorageFiltersData.CurrentFilterDepth.SetOrAdd(storeSettingsParent, 0);
 				}, extraPartWidth: 60f, extraPartOnGUI: delegate (Rect extraRect)
 				{
 					new FloatMenuOption("Edit", delegate ()
@@ -102,6 +103,7 @@ namespace StorageFilters
 						filterFloatMenu.Close();
 						Find.WindowStack.Add(new Dialog_EditFilter(instance, storeSettingsParent, mainFilterString, true, tabFilters));
 						StorageFiltersData.CurrentFilterKey.SetOrAdd(storeSettingsParent, mainFilterString);
+						StorageFiltersData.CurrentFilterDepth.SetOrAdd(storeSettingsParent, 0);
 					}).DoGUI(extraRect, false, null);
 					return false;
 				})));
@@ -116,6 +118,7 @@ namespace StorageFilters
 								Find.WindowStack.Add(new Dialog_EditFilter(instance, storeSettingsParent, entry.Key, entry.Value, tabFilters));
 							}
 							StorageFiltersData.CurrentFilterKey.SetOrAdd(storeSettingsParent, entry.Key);
+							StorageFiltersData.CurrentFilterDepth.SetOrAdd(storeSettingsParent, 0);
 						};
 						FloatMenuOption floatMenuOption = null;
 						floatMenuOption = newFilterOption(new FloatMenuOption(entry.Key, action, extraPartWidth: 180f, extraPartOnGUI: delegate (Rect extraRect)
@@ -127,6 +130,7 @@ namespace StorageFilters
 								filterFloatMenu.Close();
 								Find.WindowStack.Add(new Dialog_EditFilter(instance, storeSettingsParent, entry.Key, entry.Value, tabFilters));
 								StorageFiltersData.CurrentFilterKey.SetOrAdd(storeSettingsParent, entry.Key);
+								StorageFiltersData.CurrentFilterDepth.SetOrAdd(storeSettingsParent, 0);
 							}).DoGUI(renameRect, false, null);
 							Rect toggleRect = extraRect;
 							toggleRect.width /= 3f;
@@ -157,6 +161,7 @@ namespace StorageFilters
 									{
 										Find.WindowStack.TryRemove(typeof(Dialog_EditFilter), true);
 										StorageFiltersData.CurrentFilterKey.SetOrAdd(storeSettingsParent, mainFilterString);
+										StorageFiltersData.CurrentFilterDepth.SetOrAdd(storeSettingsParent, 0);
 									}
 								}));
 							}).DoGUI(removeRect, false, null);

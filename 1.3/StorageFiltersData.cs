@@ -24,20 +24,21 @@ namespace StorageFilters
         private static Dictionary<IStoreSettingsParent, string> mainFilterString = MainFilterString;
 
         private static Dictionary<IStoreSettingsParent, string> currentFilterKey = CurrentFilterKey;
+        private static Dictionary<IStoreSettingsParent, int> currentFilterDepth = CurrentFilterDepth;
 
         public static Dictionary<string, ExtraThingFilter> SavedFilterNoLoad
         {
             get
             {
-                if (savedFilter == null)
+                if (savedFilter is null)
                 {
                     savedFilter = new Dictionary<string, ExtraThingFilter>();
                 }
-                if (savedFilterKeys == null)
+                if (savedFilterKeys is null)
                 {
                     savedFilterKeys = new List<string>();
                 }
-                if (savedFilterValues == null)
+                if (savedFilterValues is null)
                 {
                     savedFilterValues = new List<ExtraThingFilter>();
                 }
@@ -61,15 +62,15 @@ namespace StorageFilters
         {
             get
             {
-                if (filters == null)
+                if (filters is null)
                 {
                     filters = new Dictionary<IStoreSettingsParent, ExtraThingFilters>();
                 }
-                if (filterKeys == null)
+                if (filterKeys is null)
                 {
                     filterKeys = new List<IStoreSettingsParent>();
                 }
-                if (filterValues == null)
+                if (filterValues is null)
                 {
                     filterValues = new List<ExtraThingFilters>();
                 }
@@ -84,15 +85,15 @@ namespace StorageFilters
         {
             get
             {
-                if (mainFilterString == null)
+                if (mainFilterString is null)
                 {
                     mainFilterString = new Dictionary<IStoreSettingsParent, string>();
                 }
-                if (mainFilterStringKeys == null)
+                if (mainFilterStringKeys is null)
                 {
                     mainFilterStringKeys = new List<IStoreSettingsParent>();
                 }
-                if (mainFilterStringValues == null)
+                if (mainFilterStringValues is null)
                 {
                     mainFilterStringValues = new List<string>();
                 }
@@ -107,7 +108,7 @@ namespace StorageFilters
         {
             get
             {
-                if (currentFilterKey == null)
+                if (currentFilterKey is null)
                 {
                     currentFilterKey = new Dictionary<IStoreSettingsParent, string>();
                 }
@@ -116,10 +117,27 @@ namespace StorageFilters
             }
         }
 
+        public static Dictionary<IStoreSettingsParent, int> CurrentFilterDepth
+        {
+            get
+            {
+                if (currentFilterDepth is null)
+                {
+                    currentFilterDepth = new Dictionary<IStoreSettingsParent, int>();
+                }
+                currentFilterDepth.RemoveAll((KeyValuePair<IStoreSettingsParent, int> entry) => entry.Key is null);
+                return currentFilterDepth;
+            }
+        }
+
         public static void ExposeSavedFilter()
         {
             Scribe_Collections.Look(ref savedFilter, "savedFilter", LookMode.Value, LookMode.Deep, ref savedFilterKeys, ref savedFilterValues);
-            _ = SavedFilterNoLoad;
+
+            if (Scribe.mode == LoadSaveMode.PostLoadInit)
+            {
+                _ = SavedFilterNoLoad;
+            }
         }
 
         public override void ExposeData()
@@ -127,10 +145,13 @@ namespace StorageFilters
             base.ExposeData();
 
             Scribe_Collections.Look(ref filters, "filters", LookMode.Reference, LookMode.Deep, ref filterKeys, ref filterValues);
-            _ = Filters;
-
             Scribe_Collections.Look(ref mainFilterString, "mainFilterString", LookMode.Reference, LookMode.Value, ref mainFilterStringKeys, ref mainFilterStringValues);
-            _ = MainFilterString;
+            
+            if (Scribe.mode == LoadSaveMode.PostLoadInit)
+            {
+                _ = Filters;
+                _ = MainFilterString;
+            }
         }
     }
 }

@@ -32,9 +32,10 @@ namespace StorageFilters
 			this.storeSettingsParent = storeSettingsParent;
 		}
 
+		public ExtraThingFilter Filter;
+
 		private bool keyIsMainFilterString;
 		private string key;
-		private ExtraThingFilter value;
 		private ExtraThingFilters tabFilters;
 		private IStoreSettingsParent storeSettingsParent;
 		private string curName;
@@ -42,7 +43,7 @@ namespace StorageFilters
 		public Dialog_EditFilter(ITab_Storage instance, IStoreSettingsParent storeSettingsParent, string key, ExtraThingFilter value, ExtraThingFilters tabFilters = null, Dialog_EditFilter previousEditFilterDialog = null) : this(instance, storeSettingsParent)
         {
 			this.key = key;
-			this.value = value;
+			Filter = value;
 			this.tabFilters = tabFilters;
 			curName = key;
 			previousDialog = previousEditFilterDialog;
@@ -51,7 +52,7 @@ namespace StorageFilters
 		public Dialog_EditFilter(ITab_Storage instance, IStoreSettingsParent storeSettingsParent, string key, bool keyIsMainFilterString, ExtraThingFilters tabFilters) : this(instance, storeSettingsParent, key, null, tabFilters)
 		{
 			this.keyIsMainFilterString = keyIsMainFilterString;
-			value = new ExtraThingFilter(storeSettingsParent.GetStoreSettings().filter);
+			Filter = new ExtraThingFilter(storeSettingsParent.GetStoreSettings().filter);
 		}
 
 		private bool CheckCurName()
@@ -69,7 +70,7 @@ namespace StorageFilters
 						else
 						{
 							tabFilters.Remove(key);
-							tabFilters.Add(curName, value);
+							tabFilters.Add(curName, Filter);
 						}
 						if (StorageFiltersData.CurrentFilterKey.TryGetValue(storeSettingsParent) == key)
 						{
@@ -105,7 +106,7 @@ namespace StorageFilters
 				Event.current.Use();
 				return;
 			}
-			if (value is null || (Event.current.type == EventType.KeyDown &&
+			if (Filter is null || (Event.current.type == EventType.KeyDown &&
 				(Event.current.keyCode == KeyCode.Escape || Event.current.keyCode == KeyCode.Return)))
 			{
 				Find.WindowStack.TryRemove(this, true);
@@ -119,6 +120,7 @@ namespace StorageFilters
 					StorageFiltersData.CurrentFilterKey.SetOrAdd(storeSettingsParent, mainFilterString);
 				else if (key != null)
 					StorageFiltersData.CurrentFilterKey.SetOrAdd(storeSettingsParent, key);
+				StorageFiltersData.CurrentFilterDepth.SetOrAdd(storeSettingsParent, Filter.FilterDepth);
 			}
 			Text.Font = GameFont.Small;
 			string editString = "Editing filter: '" + key + "'";
@@ -146,14 +148,14 @@ namespace StorageFilters
 					{
 						Find.WindowStack.Add(new Dialog_Confirmation(storageTab, storeSettingsParent, "Are you sure you want to overwrite the saved filter '" + key + "'?", delegate ()
 						{
-							StorageFiltersData.SavedFilter.SetOrAdd(key, value);
+							StorageFiltersData.SavedFilter.SetOrAdd(key, Filter);
 							SaveUtils.Save();
 							Messages.Message("Saved filter '" + key + "'", MessageTypeDefOf.TaskCompletion, false);
 						}, this));
 					}
 					else
 					{
-						StorageFiltersData.SavedFilter.SetOrAdd(key, value);
+						StorageFiltersData.SavedFilter.SetOrAdd(key, Filter);
 						SaveUtils.Save();
 						Messages.Message("Saved filter '" + key + "'", MessageTypeDefOf.TaskCompletion, false);
 					}
@@ -173,7 +175,7 @@ namespace StorageFilters
 								curName = entry.Key;
 								if (CheckCurName())
                                 {
-									value.CopyFrom(entry.Value);
+									Filter.CopyFrom(entry.Value);
 								}
 								else
                                 {
@@ -218,11 +220,12 @@ namespace StorageFilters
             {
 				if (Widgets.ButtonText(new Rect(0f, renameY, winRect.width, 35f), "Remove This Next-In-Priority Filter"))
 				{
-					Find.WindowStack.Add(new Dialog_Confirmation(storageTab, storeSettingsParent, "Are you sure you want to remove the next-in-priority filter '" + key + "'?", !(value.NextInPriorityFilter is null) ? "This will also remove all next-in-priority filters from this point onward!" : null, delegate ()
+					Find.WindowStack.Add(new Dialog_Confirmation(storageTab, storeSettingsParent, "Are you sure you want to remove the next-in-priority filter '" + key + "'?", !(Filter.NextInPriorityFilter is null) ? "This will also remove all next-in-priority filters from this point onward!" : null, delegate ()
 					{
-						value.NextInPriorityFilterParent.NextInPriorityFilter = null;
-						value = null;
+						Filter.NextInPriorityFilterParent.NextInPriorityFilter = null;
+						Filter = null;
 						if (!(previousDialog is null))
+							StorageFiltersData.CurrentFilterDepth.SetOrAdd(storeSettingsParent, previousDialog.Filter.FilterDepth);
 							Find.WindowStack.Add(previousDialog);
 					}, this));
 					Event.current.Use();
@@ -240,6 +243,7 @@ namespace StorageFilters
 					float backStringX = Text.CalcSize(backString).x + 30f;
 					if (Widgets.ButtonText(new Rect(X, priorityY, backStringX, 35f), backString))
 					{
+						StorageFiltersData.CurrentFilterDepth.SetOrAdd(storeSettingsParent, previousDialog.Filter.FilterDepth);
 						Find.WindowStack.Add(previousDialog);
 						Event.current.Use();
 					}
@@ -250,23 +254,24 @@ namespace StorageFilters
 				void EditNIPF()
                 {
 					string key_NIP;
-					if (value.NextInPriorityFilterParent != null)
+					if (Filter.NextInPriorityFilterParent != null)
 					{
-						key_NIP = key.Substring(0, key.Length - (value.NextInPriorityFilter.NextInPriorityFilterDepth - 1).ToString().Length) + value.NextInPriorityFilter.NextInPriorityFilterDepth;
+						key_NIP = key.Substring(0, key.Length - (Filter.NextInPriorityFilter.FilterDepth - 1).ToString().Length) + Filter.NextInPriorityFilter.FilterDepth;
 					}
 					else
 					{
-						key_NIP = key + " - N.I.P.F. #" + value.NextInPriorityFilter.NextInPriorityFilterDepth;
+						key_NIP = key + " - N.I.P.F. #" + Filter.NextInPriorityFilter.FilterDepth;
 					}
-					Find.WindowStack.Add(new Dialog_EditFilter(storageTab, storeSettingsParent, key_NIP, value.NextInPriorityFilter, previousEditFilterDialog: this));
+					StorageFiltersData.CurrentFilterDepth.SetOrAdd(storeSettingsParent, Filter.NextInPriorityFilter.FilterDepth);
+					Find.WindowStack.Add(new Dialog_EditFilter(storageTab, storeSettingsParent, key_NIP, Filter.NextInPriorityFilter, previousEditFilterDialog: this));
 				}
-				if (value.NextInPriorityFilter is null)
+				if (Filter.NextInPriorityFilter is null)
 				{
 					if (Widgets.ButtonText(new Rect(X, priorityY, width, 35f), "Add Next-In-Priority Filter"))
 					{
-						value.NextInPriorityFilter = new ExtraThingFilter();
-						value.NextInPriorityFilter.NextInPriorityFilter = null;
-						value.NextInPriorityFilter.NextInPriorityFilterDepth = value.NextInPriorityFilterDepth + 1;
+						Filter.NextInPriorityFilter = new ExtraThingFilter();
+						Filter.NextInPriorityFilter.NextInPriorityFilter = null;
+						Filter.NextInPriorityFilter.FilterDepth = Filter.FilterDepth + 1;
 						EditNIPF();
 						Event.current.Use();
 					}
@@ -280,11 +285,6 @@ namespace StorageFilters
 					}
 				}
 			}
-		}
-
-        public override void PreClose()
-        {
-            base.PreClose();
 		}
     }
 }
