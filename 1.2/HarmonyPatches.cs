@@ -11,7 +11,7 @@ namespace StorageFilters
     {
         static HarmonyPatches()
         {
-            var harmony = new Harmony("pointfeev.storagefilters");
+            Harmony harmony = new Harmony("pointfeev.storagefilters");
 
             harmony.Patch(
                 original: AccessTools.Method(typeof(ITab_Storage), "FillTab"),

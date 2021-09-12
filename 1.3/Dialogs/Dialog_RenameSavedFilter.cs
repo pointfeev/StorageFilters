@@ -14,13 +14,13 @@ namespace StorageFilters
             }
         }
 
-        private Dialog_EditFilter editFilterDialog;
+        private readonly Dialog_EditFilter editFilterDialog;
         protected override void SetInitialSizeAndPosition()
         {
             windowRect = GenUtils.GetDialogSizeAndPosition(this, editFilterDialog);
         }
 
-        private ITab_Storage storageTab;
+        private readonly ITab_Storage storageTab;
         public Dialog_RenameSavedFilter(ITab_Storage instance, Dialog_EditFilter editDialog)
         {
             forcePause = true;
@@ -33,8 +33,8 @@ namespace StorageFilters
             editFilterDialog = editDialog;
         }
 
-        private string key;
-        private ExtraThingFilter value;
+        private readonly string key;
+        private readonly ExtraThingFilter value;
         private string curName;
         public Dialog_RenameSavedFilter(ITab_Storage instance, Dialog_EditFilter editDialog, string key, ExtraThingFilter value) : this(instance, editDialog)
         {

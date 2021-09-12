@@ -20,7 +20,7 @@ namespace StorageFilters
             windowRect = GenUtils.GetDialogSizeAndPosition(this);
         }
 
-        private ITab_Storage storageTab;
+        private readonly ITab_Storage storageTab;
         public Dialog_EditFilter(ITab_Storage instance, IStoreSettingsParent storeSettingsParent)
         {
             doCloseX = true;
@@ -34,12 +34,12 @@ namespace StorageFilters
 
         public ExtraThingFilter Filter;
 
-        private bool keyIsMainFilterString;
+        private readonly bool keyIsMainFilterString;
         private string key;
-        private ExtraThingFilters tabFilters;
-        private IStoreSettingsParent storeSettingsParent;
+        private readonly ExtraThingFilters tabFilters;
+        private readonly IStoreSettingsParent storeSettingsParent;
         private string curName;
-        private Dialog_EditFilter previousDialog;
+        private readonly Dialog_EditFilter previousDialog;
         public Dialog_EditFilter(ITab_Storage instance, IStoreSettingsParent storeSettingsParent, string key, ExtraThingFilter value, ExtraThingFilters tabFilters = null, Dialog_EditFilter previousEditFilterDialog = null) : this(instance, storeSettingsParent)
         {
             this.key = key;

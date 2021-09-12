@@ -19,8 +19,8 @@ namespace StorageFilters
             windowRect = GenUtils.GetDialogSizeAndPosition(this);
         }
 
-        private ITab_Storage storageTab;
-        private IStoreSettingsParent storeSettingsParent;
+        private readonly ITab_Storage storageTab;
+        private readonly IStoreSettingsParent storeSettingsParent;
         public Dialog_NewFilter(ITab_Storage instance, IStoreSettingsParent storeSettingsParent)
         {
             forcePause = true;
@@ -31,7 +31,7 @@ namespace StorageFilters
             this.storeSettingsParent = storeSettingsParent;
         }
 
-        private ExtraThingFilters tabFilters;
+        private readonly ExtraThingFilters tabFilters;
         private string curName;
         public Dialog_NewFilter(ITab_Storage instance, IStoreSettingsParent storeSettingsParent, ExtraThingFilters tabFilters) : this(instance, storeSettingsParent)
         {

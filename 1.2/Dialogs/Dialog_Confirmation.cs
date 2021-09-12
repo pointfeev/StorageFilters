@@ -16,14 +16,14 @@ namespace StorageFilters
             }
         }
 
-        private Dialog_EditFilter editFilterDialog;
+        private readonly Dialog_EditFilter editFilterDialog;
         protected override void SetInitialSizeAndPosition()
         {
             windowRect = GenUtils.GetDialogSizeAndPosition(this, editFilterDialog);
         }
 
-        private ITab_Storage storageTab;
-        private IStoreSettingsParent storeSettingsParent;
+        private readonly ITab_Storage storageTab;
+        private readonly IStoreSettingsParent storeSettingsParent;
         public Dialog_Confirmation(ITab_Storage instance, IStoreSettingsParent storeSettingsParent, Dialog_EditFilter editDialog = null)
         {
             forcePause = true;
@@ -36,8 +36,8 @@ namespace StorageFilters
             editFilterDialog = editDialog;
         }
 
-        private string question;
-        private Action action;
+        private readonly string question;
+        private readonly Action action;
         public Dialog_Confirmation(ITab_Storage instance, IStoreSettingsParent storeSettingsParent, string confirmQuestion, Action confirmAction, Dialog_EditFilter editDialog = null) : this(instance, storeSettingsParent, editDialog)
         {
             question = confirmQuestion;
@@ -48,7 +48,7 @@ namespace StorageFilters
             SetInitialSizeAndPosition();
         }
 
-        private string questionExtra;
+        private readonly string questionExtra;
         public Dialog_Confirmation(ITab_Storage instance, IStoreSettingsParent storeSettingsParent, string confirmQuestion, string confirmQuestionExtra, Action confirmAction, Dialog_EditFilter editDialog = null) : this(instance, storeSettingsParent, editDialog)
         {
             question = confirmQuestion;
