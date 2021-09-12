@@ -41,18 +41,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Dialog_Confirmation.cs" />
-    <Compile Include="Dialog_EditFilter.cs" />
-    <Compile Include="Dialog_NewFilter.cs" />
-    <Compile Include="Dialog_RenameSavedFilter.cs" />
+    <Compile Include="Dialogs\Dialog_Confirmation.cs" />
+    <Compile Include="Dialogs\Dialog_EditFilter.cs" />
+    <Compile Include="Dialogs\Dialog_NewFilter.cs" />
+    <Compile Include="Dialogs\Dialog_RenameSavedFilter.cs" />
     <Compile Include="ExtraThingFilter.cs" />
     <Compile Include="ExtraThingFilters.cs" />
     <Compile Include="HarmonyPatches.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SaveUtils.cs" />
+    <Compile Include="Utilities\SaveUtils.cs" />
     <Compile Include="StorageFilters.cs" />
     <Compile Include="StorageFiltersData.cs" />
-    <Compile Include="StorageFiltersUtils.cs" />
+    <Compile Include="Utilities\GenUtils.cs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Krafs.Rimworld.Ref">

@@ -1,8 +1,8 @@
-﻿using RimWorld;
-using Verse;
-using UnityEngine;
-using HarmonyLib;
+﻿using HarmonyLib;
+using RimWorld;
 using System;
+using UnityEngine;
+using Verse;
 
 namespace StorageFilters
 {

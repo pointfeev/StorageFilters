@@ -1,6 +1,6 @@
 ﻿using RimWorld;
-using Verse;
 using System.Collections.Generic;
+using Verse;
 
 namespace StorageFilters
 {
@@ -146,7 +146,7 @@ namespace StorageFilters
 
             Scribe_Collections.Look(ref filters, "filters", LookMode.Reference, LookMode.Deep, ref filterKeys, ref filterValues);
             Scribe_Collections.Look(ref mainFilterString, "mainFilterString", LookMode.Reference, LookMode.Value, ref mainFilterStringKeys, ref mainFilterStringValues);
-            
+
             if (Scribe.mode == LoadSaveMode.PostLoadInit)
             {
                 _ = Filters;

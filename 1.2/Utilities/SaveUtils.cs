@@ -7,10 +7,10 @@ namespace StorageFilters
 {
     public static class SaveUtils
     {
-		public static string FolderPath
-		{
-			get
-			{
+        public static string FolderPath
+        {
+            get
+            {
                 string result;
                 try
                 {
@@ -26,14 +26,14 @@ namespace StorageFilters
                 }
                 return result;
             }
-		}
+        }
 
         private static readonly string oldFileName = "StorageFilters.pcc";
         private static readonly string fileName = "StorageFilters.xml";
 
         public static string FilePath
         {
-			get
+            get
             {
                 string oldFilePath = Path.Combine(FolderPath, oldFileName);
                 string filePath = Path.Combine(FolderPath, fileName);
@@ -48,8 +48,8 @@ namespace StorageFilters
                         File.Move(oldFilePath, filePath);
                     }
                 }
-				return filePath;
-			}
+                return filePath;
+            }
         }
 
         public static void Save()
