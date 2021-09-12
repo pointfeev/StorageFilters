@@ -6,18 +6,9 @@ namespace StorageFilters
 {
     internal class Dialog_NewFilter : Window
     {
-        public override Vector2 InitialSize
-        {
-            get
-            {
-                return new Vector2(240f, 150f);
-            }
-        }
+        public override Vector2 InitialSize => new Vector2(240f, 150f);
 
-        protected override void SetInitialSizeAndPosition()
-        {
-            windowRect = GenUtils.GetDialogSizeAndPosition(this);
-        }
+        protected override void SetInitialSizeAndPosition() => windowRect = GenUtils.GetDialogSizeAndPosition(this);
 
         private readonly ITab_Storage storageTab;
         private readonly IStoreSettingsParent storeSettingsParent;

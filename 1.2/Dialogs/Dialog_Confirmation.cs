@@ -8,19 +8,10 @@ namespace StorageFilters
     internal class Dialog_Confirmation : Window
     {
         private Vector2 initialSize = new Vector2(600f, 108f);
-        public override Vector2 InitialSize
-        {
-            get
-            {
-                return initialSize;
-            }
-        }
+        public override Vector2 InitialSize => initialSize;
 
         private readonly Dialog_EditFilter editFilterDialog;
-        protected override void SetInitialSizeAndPosition()
-        {
-            windowRect = GenUtils.GetDialogSizeAndPosition(this, editFilterDialog);
-        }
+        protected override void SetInitialSizeAndPosition() => windowRect = GenUtils.GetDialogSizeAndPosition(this, editFilterDialog);
 
         private readonly ITab_Storage storageTab;
         private readonly IStoreSettingsParent storeSettingsParent;
@@ -58,7 +49,10 @@ namespace StorageFilters
             Vector2 size1 = Text.CalcSize(confirmQuestion);
             Vector2 size2 = Text.CalcSize(confirmQuestionExtra);
             if (confirmQuestionExtra is null || confirmQuestionExtra.Length == 0)
+            {
                 size2 = Vector2.zero;
+            }
+
             initialSize = new Vector2(Math.Max(size1.x, size2.x) + 36f, initialSize.y + size2.y + 2f);
             SetInitialSizeAndPosition();
         }

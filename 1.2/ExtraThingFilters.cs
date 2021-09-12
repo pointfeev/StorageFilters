@@ -9,26 +9,11 @@ namespace StorageFilters
         private List<string> filterKeys = new List<string>();
         private List<ExtraThingFilter> filterValues = new List<ExtraThingFilter>();
 
-        public ExtraThingFilters()
-        {
-            filters = new Dictionary<string, ExtraThingFilter>();
-        }
+        public ExtraThingFilters() => filters = new Dictionary<string, ExtraThingFilter>();
 
-        public Dictionary<string, ExtraThingFilter>.KeyCollection Keys
-        {
-            get
-            {
-                return filters.Keys;
-            }
-        }
+        public Dictionary<string, ExtraThingFilter>.KeyCollection Keys => filters.Keys;
 
-        public int Count
-        {
-            get
-            {
-                return filters.Count;
-            }
-        }
+        public int Count => filters.Count;
 
         public Dictionary<string, ExtraThingFilter>.Enumerator GetEnumerator() => filters.GetEnumerator();
 
@@ -42,9 +27,6 @@ namespace StorageFilters
 
         public bool ContainsKey(string key) => filters.ContainsKey(key);
 
-        public void ExposeData()
-        {
-            Scribe_Collections.Look(ref filters, "filters", LookMode.Value, LookMode.Deep, ref filterKeys, ref filterValues);
-        }
+        public void ExposeData() => Scribe_Collections.Look(ref filters, "filters", LookMode.Value, LookMode.Deep, ref filterKeys, ref filterValues);
     }
 }

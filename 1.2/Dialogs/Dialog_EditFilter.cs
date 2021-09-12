@@ -7,18 +7,9 @@ namespace StorageFilters
 {
     internal class Dialog_EditFilter : Window
     {
-        public override Vector2 InitialSize
-        {
-            get
-            {
-                return new Vector2(320f, 187f);
-            }
-        }
+        public override Vector2 InitialSize => new Vector2(320f, 187f);
 
-        protected override void SetInitialSizeAndPosition()
-        {
-            windowRect = GenUtils.GetDialogSizeAndPosition(this);
-        }
+        protected override void SetInitialSizeAndPosition() => windowRect = GenUtils.GetDialogSizeAndPosition(this);
 
         private readonly ITab_Storage storageTab;
         public Dialog_EditFilter(ITab_Storage instance, IStoreSettingsParent storeSettingsParent)
@@ -117,9 +108,14 @@ namespace StorageFilters
             {
                 string mainFilterString = StorageFiltersData.MainFilterString.TryGetValue(storeSettingsParent);
                 if (keyIsMainFilterString && mainFilterString != null)
+                {
                     StorageFiltersData.CurrentFilterKey.SetOrAdd(storeSettingsParent, mainFilterString);
+                }
                 else if (key != null)
+                {
                     StorageFiltersData.CurrentFilterKey.SetOrAdd(storeSettingsParent, key);
+                }
+
                 StorageFiltersData.CurrentFilterDepth.SetOrAdd(storeSettingsParent, Filter.FilterDepth);
             }
             Text.Font = GameFont.Small;
@@ -225,7 +221,10 @@ namespace StorageFilters
                         Filter.NextInPriorityFilterParent.NextInPriorityFilter = null;
                         Filter = null;
                         if (!(previousDialog is null))
+                        {
                             StorageFiltersData.CurrentFilterDepth.SetOrAdd(storeSettingsParent, previousDialog.Filter.FilterDepth);
+                        }
+
                         Find.WindowStack.Add(previousDialog);
                     }, this));
                     Event.current.Use();
@@ -269,9 +268,11 @@ namespace StorageFilters
                 {
                     if (Widgets.ButtonText(new Rect(X, priorityY, width, 35f), "Add Next-In-Priority Filter"))
                     {
-                        Filter.NextInPriorityFilter = new ExtraThingFilter();
-                        Filter.NextInPriorityFilter.NextInPriorityFilter = null;
-                        Filter.NextInPriorityFilter.FilterDepth = Filter.FilterDepth + 1;
+                        Filter.NextInPriorityFilter = new ExtraThingFilter
+                        {
+                            NextInPriorityFilter = null,
+                            FilterDepth = Filter.FilterDepth + 1
+                        };
                         EditNIPF();
                         Event.current.Use();
                     }

@@ -85,9 +85,14 @@ namespace StorageFilters
         public static bool AllowsThingOrThingDef(this ThingFilter thingFilter, object thingOrThingDef)
         {
             if (thingOrThingDef is Thing)
+            {
                 return thingFilter.Allows(thingOrThingDef as Thing);
+            }
             else if (thingOrThingDef is ThingDef)
+            {
                 return thingFilter.Allows(thingOrThingDef as ThingDef);
+            }
+
             Log.Error("[StorageFilters] AllowsThingOrThingDef called with an object that is not a Thing nor ThingDef");
             return false;
         }
@@ -95,9 +100,14 @@ namespace StorageFilters
         public static bool AllowedToAcceptThingOrThingDef(this StorageSettings storageSettings, object thingOrThingDef)
         {
             if (thingOrThingDef is Thing)
+            {
                 return storageSettings.AllowedToAccept(thingOrThingDef as Thing);
+            }
             else if (thingOrThingDef is ThingDef)
+            {
                 return storageSettings.AllowedToAccept(thingOrThingDef as ThingDef);
+            }
+
             Log.Error("[StorageFilters] AllowedToAcceptThingOrThingDef called with an object that is not a Thing nor ThingDef");
             return false;
         }
@@ -111,7 +121,10 @@ namespace StorageFilters
         public static void AllowedToAccept(IStoreSettingsParent owner, ThingFilter filter, object thingOrThingDef, ref bool result)
         {
             if (!(thingOrThingDef is Thing) && !(thingOrThingDef is ThingDef))
+            {
                 Log.Error("[StorageFilters] AllowedToAccept called with an object that is not a Thing nor ThingDef");
+            }
+
             ExtraThingFilters tabFilters = null;
             if (owner != null)
             {
@@ -206,15 +219,9 @@ namespace StorageFilters
             result = true;
         }
 
-        public static void AllowedToAccept(IStoreSettingsParent owner, ThingFilter filter, ThingDef thingDef, ref bool result)
-        {
-            AllowedToAccept(owner, filter, thingDef as object, ref result);
-        }
+        public static void AllowedToAccept(IStoreSettingsParent owner, ThingFilter filter, ThingDef thingDef, ref bool result) => AllowedToAccept(owner, filter, thingDef as object, ref result);
 
-        public static void AllowedToAccept(IStoreSettingsParent owner, ThingFilter filter, Thing thing, ref bool result)
-        {
-            AllowedToAccept(owner, filter, thing as object, ref result);
-        }
+        public static void AllowedToAccept(IStoreSettingsParent owner, ThingFilter filter, Thing thing, ref bool result) => AllowedToAccept(owner, filter, thing as object, ref result);
 
         private static ExtraThingFilters copiedFilters = null;
         private static string copiedMainFilterString = null;

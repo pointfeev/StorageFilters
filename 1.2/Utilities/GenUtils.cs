@@ -14,19 +14,27 @@ namespace StorageFilters
         public static bool IsStorageTabOpen(ITab_Storage storageTab, IStoreSettingsParent storeSettingsParent)
         {
             if (storageTab is null || !storageTab.IsVisible)
+            {
                 return false;
+            }
+
             if (GetSelectedStoreSettingsParent() != storeSettingsParent)
+            {
                 return false;
+            }
+
             foreach (Window window in Find.WindowStack.Windows)
+            {
                 if (window.ID == -235086)
+                {
                     return window.IsOpen;
+                }
+            }
+
             return false;
         }
 
-        public static void PlayClick()
-        {
-            SoundDefOf.Click.PlayOneShotOnCamera(null);
-        }
+        public static void PlayClick() => SoundDefOf.Click.PlayOneShotOnCamera(null);
 
         public static Rect GetDialogSizeAndPosition(Window dialog, Window editDialog = null)
         {
@@ -52,7 +60,10 @@ namespace StorageFilters
             {
                 IStoreSettingsParent storeSettingsParent = obj as IStoreSettingsParent;
                 if (storeSettingsParent != null)
+                {
                     return storeSettingsParent;
+                }
+
                 ThingWithComps thingWithComps = obj as ThingWithComps;
                 if (thingWithComps != null)
                 {
@@ -70,10 +81,7 @@ namespace StorageFilters
             return null;
         }
 
-        public static IStoreSettingsParent GetSelectedStoreSettingsParent()
-        {
-            return GetStoreSettingsParent(Find.Selector.SingleSelectedObject);
-        }
+        public static IStoreSettingsParent GetSelectedStoreSettingsParent() => GetStoreSettingsParent(Find.Selector.SingleSelectedObject);
 
         public static void FilterSelectionButton(ITab_Storage instance, IStoreSettingsParent storeSettingsParent, ExtraThingFilters tabFilters, string mainFilterString, string tabFilter, Rect position)
         {
