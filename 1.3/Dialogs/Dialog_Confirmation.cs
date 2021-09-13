@@ -11,7 +11,10 @@ namespace StorageFilters
         public override Vector2 InitialSize => initialSize;
 
         private readonly Dialog_EditFilter editFilterDialog;
-        protected override void SetInitialSizeAndPosition() => windowRect = GenUtils.GetDialogSizeAndPosition(this, editFilterDialog);
+        protected override void SetInitialSizeAndPosition()
+        {
+            windowRect = GenUtils.GetDialogSizeAndPosition(this, editFilterDialog);
+        }
 
         private readonly ITab_Storage storageTab;
         private readonly IStoreSettingsParent storeSettingsParent;

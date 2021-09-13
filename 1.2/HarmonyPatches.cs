@@ -49,9 +49,15 @@ namespace StorageFilters
             );
         }
 
-        public static void FillTab(ITab_Storage __instance, Vector2 ___size) => StorageFilters.FillTab(__instance, ___size);
+        public static void FillTab(ITab_Storage __instance, Vector2 ___size)
+        {
+            StorageFilters.FillTab(__instance, ___size);
+        }
 
-        public static void TopAreaHeight(float __result) => __result = Math.Max(__result, 35f);
+        public static void TopAreaHeight(float __result)
+        {
+            __result = Math.Max(__result, 35f);
+        }
 
         public static bool DoThingFilterConfigWindow(ref ThingFilter filter)
         {
@@ -71,8 +77,14 @@ namespace StorageFilters
             return false;
         }
 
-        public static void Copy(StorageSettings s) => StorageFilters.Copy(s);
+        public static void Copy(StorageSettings s)
+        {
+            StorageFilters.Copy(s);
+        }
 
-        public static void PasteInto(StorageSettings s) => StorageFilters.Paste(s);
+        public static void PasteInto(StorageSettings s)
+        {
+            StorageFilters.Paste(s);
+        }
     }
 }

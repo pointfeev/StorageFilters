@@ -219,9 +219,15 @@ namespace StorageFilters
             result = true;
         }
 
-        public static void AllowedToAccept(IStoreSettingsParent owner, ThingFilter filter, ThingDef thingDef, ref bool result) => AllowedToAccept(owner, filter, thingDef as object, ref result);
+        public static void AllowedToAccept(IStoreSettingsParent owner, ThingFilter filter, ThingDef thingDef, ref bool result)
+        {
+            AllowedToAccept(owner, filter, thingDef as object, ref result);
+        }
 
-        public static void AllowedToAccept(IStoreSettingsParent owner, ThingFilter filter, Thing thing, ref bool result) => AllowedToAccept(owner, filter, thing as object, ref result);
+        public static void AllowedToAccept(IStoreSettingsParent owner, ThingFilter filter, Thing thing, ref bool result)
+        {
+            AllowedToAccept(owner, filter, thing as object, ref result);
+        }
 
         private static ExtraThingFilters copiedFilters = null;
         private static string copiedMainFilterString = null;

@@ -9,7 +9,10 @@ namespace StorageFilters
         public override Vector2 InitialSize => new Vector2(260f, 150f);
 
         private readonly Dialog_EditFilter editFilterDialog;
-        protected override void SetInitialSizeAndPosition() => windowRect = GenUtils.GetDialogSizeAndPosition(this, editFilterDialog);
+        protected override void SetInitialSizeAndPosition()
+        {
+            windowRect = GenUtils.GetDialogSizeAndPosition(this, editFilterDialog);
+        }
 
         private readonly ITab_Storage storageTab;
         public Dialog_RenameSavedFilter(ITab_Storage instance, Dialog_EditFilter editDialog)

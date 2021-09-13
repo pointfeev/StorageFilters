@@ -34,7 +34,10 @@ namespace StorageFilters
             return false;
         }
 
-        public static void PlayClick() => SoundDefOf.Click.PlayOneShotOnCamera(null);
+        public static void PlayClick()
+        {
+            SoundDefOf.Click.PlayOneShotOnCamera(null);
+        }
 
         public static Rect GetDialogSizeAndPosition(Window dialog, Window editDialog = null)
         {
@@ -81,7 +84,10 @@ namespace StorageFilters
             return null;
         }
 
-        public static IStoreSettingsParent GetSelectedStoreSettingsParent() => GetStoreSettingsParent(Find.Selector.SingleSelectedObject);
+        public static IStoreSettingsParent GetSelectedStoreSettingsParent()
+        {
+            return GetStoreSettingsParent(Find.Selector.SingleSelectedObject);
+        }
 
         public static void FilterSelectionButton(ITab_Storage instance, IStoreSettingsParent storeSettingsParent, ExtraThingFilters tabFilters, string mainFilterString, string tabFilter, Rect position)
         {
