@@ -102,6 +102,8 @@ namespace StorageFilters
                 };
                 List<FloatMenuOption> filterFloatMenuOptions = new List<FloatMenuOption>();
                 FloatMenu filterFloatMenu = null;
+                string editString = "ASF_EditFilter".Translate();
+                float editX = Text.CalcSize(editString).x + 8f;
                 filterFloatMenuOptions.Add(newFilterOption(new FloatMenuOption(mainFilterString, delegate ()
                 {
                     if (!(Find.WindowStack.WindowOfType<Dialog_EditFilter>() is null))
@@ -110,9 +112,9 @@ namespace StorageFilters
                     }
                     StorageFiltersData.CurrentFilterKey.SetOrAdd(storeSettingsParent, mainFilterString);
                     StorageFiltersData.CurrentFilterDepth.SetOrAdd(storeSettingsParent, 0);
-                }, extraPartWidth: 60f, extraPartOnGUI: delegate (Rect extraRect)
+                }, extraPartWidth: editX, extraPartOnGUI: delegate (Rect extraRect)
                 {
-                    new FloatMenuOption("ASF_EditFilter".Translate(), delegate ()
+                    new FloatMenuOption(editString, delegate ()
                     {
                         filterFloatMenu.Close();
                         Find.WindowStack.Add(new Dialog_EditFilter(instance, storeSettingsParent, mainFilterString, true, tabFilters));
@@ -135,11 +137,16 @@ namespace StorageFilters
                             StorageFiltersData.CurrentFilterDepth.SetOrAdd(storeSettingsParent, 0);
                         };
                         FloatMenuOption floatMenuOption = null;
-                        floatMenuOption = newFilterOption(new FloatMenuOption(entry.Key, action, extraPartWidth: 180f, extraPartOnGUI: delegate (Rect extraRect)
+                        string enableString = "ASF_EnableFilter".Translate();
+                        string disableString = "ASF_DisableFilter".Translate();
+                        float toggleX = Math.Max(Text.CalcSize(enableString).x, Text.CalcSize(disableString).x) + 8f;
+                        string removeString = "ASF_RemoveFilter".Translate();
+                        float removeX = Text.CalcSize(removeString).x + 8f;
+                        floatMenuOption = newFilterOption(new FloatMenuOption(entry.Key, action, extraPartWidth: editX + toggleX + removeX, extraPartOnGUI: delegate (Rect extraRect)
                         {
                             Rect renameRect = extraRect;
-                            renameRect.width /= 3f;
-                            new FloatMenuOption("ASF_EditFilter".Translate(), delegate ()
+                            renameRect.width = editX;
+                            new FloatMenuOption(editString, delegate ()
                             {
                                 filterFloatMenu.Close();
                                 Find.WindowStack.Add(new Dialog_EditFilter(instance, storeSettingsParent, entry.Key, entry.Value, tabFilters));
@@ -147,9 +154,9 @@ namespace StorageFilters
                                 StorageFiltersData.CurrentFilterDepth.SetOrAdd(storeSettingsParent, 0);
                             }).DoGUI(renameRect, false, null);
                             Rect toggleRect = extraRect;
-                            toggleRect.width /= 3f;
+                            toggleRect.width = toggleX;
                             toggleRect.x += renameRect.width;
-                            new FloatMenuOption(entry.Value.Enabled ? "ASF_DisableFilter".Translate() : "ASF_EnableFilter".Translate(), delegate ()
+                            new FloatMenuOption(entry.Value.Enabled ? enableString : disableString, delegate ()
                             {
                                 entry.Value.Enabled = !entry.Value.Enabled;
                                 if (entry.Value.Enabled)
@@ -163,9 +170,9 @@ namespace StorageFilters
                                 PlayClick();
                             }).DoGUI(toggleRect, false, null);
                             Rect removeRect = extraRect;
-                            removeRect.width /= 3f;
+                            removeRect.width = removeX;
                             removeRect.x += renameRect.width + toggleRect.width;
-                            new FloatMenuOption("ASF_RemoveFilter".Translate(), delegate ()
+                            new FloatMenuOption(removeString, delegate ()
                             {
                                 filterFloatMenu.Close();
                                 Find.WindowStack.Add(new Dialog_Confirmation(instance, storeSettingsParent, "ASF_ConfirmRemoveFilter".Translate(entry.Key), delegate ()
@@ -196,6 +203,7 @@ namespace StorageFilters
                 optionsFieldInfo.SetValue(filterFloatMenu, (from option in options orderby floatMenuOptionOrder.TryGetValue(option) ascending select option).ToList());
                 Find.WindowStack.Add(filterFloatMenu);
             }
+
             UIHighlighter.HighlightOpportunity(position, "StorageFilters");
         }
     }
