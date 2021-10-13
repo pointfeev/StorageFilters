@@ -47,12 +47,16 @@ namespace StorageFilters
                 }
             }
         }
+
         public ExtraThingFilter NextInPriorityFilter = null;
         public int FilterDepth = 0;
 
-        public ExtraThingFilter() : base() { }
+        public ExtraThingFilter() : base()
+        {
+        }
 
         public ThingFilter OriginalFilter = null;
+
         public ExtraThingFilter(ThingFilter originalFilter) : this()
         {
             CopyAllowancesFrom(originalFilter);
@@ -88,41 +92,49 @@ namespace StorageFilters
                 OriginalFilter.CopyAllowancesFrom(this);
             }
         }
+
         public new void SetAllow(ThingDef thingDef, bool allow)
         {
             base.SetAllow(thingDef, allow);
             SyncWithMainFilter();
         }
+
         public new void SetAllow(SpecialThingFilterDef sfDef, bool allow)
         {
             base.SetAllow(sfDef, allow);
             SyncWithMainFilter();
         }
+
         public new void SetAllow(ThingCategoryDef categoryDef, bool allow, IEnumerable<ThingDef> exceptedDefs = null, IEnumerable<SpecialThingFilterDef> exceptedFilters = null)
         {
             base.SetAllow(categoryDef, allow, exceptedDefs, exceptedFilters);
             SyncWithMainFilter();
         }
+
         public new void SetAllow(StuffCategoryDef cat, bool allow)
         {
             base.SetAllow(cat, allow);
             SyncWithMainFilter();
         }
+
         public new void SetAllowAllWhoCanMake(ThingDef thing)
         {
             base.SetAllowAllWhoCanMake(thing);
             SyncWithMainFilter();
         }
+
         public new void SetFromPreset(StorageSettingsPreset preset)
         {
             base.SetFromPreset(preset);
             SyncWithMainFilter();
         }
+
         public new void SetDisallowAll(IEnumerable<ThingDef> exceptedDefs = null, IEnumerable<SpecialThingFilterDef> exceptedFilters = null)
         {
             base.SetDisallowAll(exceptedDefs, exceptedFilters);
             SyncWithMainFilter();
         }
+
         public new void SetAllowAll(ThingFilter parentFilter, bool includeNonStorable = false)
         {
             base.SetAllowAll(parentFilter, includeNonStorable);

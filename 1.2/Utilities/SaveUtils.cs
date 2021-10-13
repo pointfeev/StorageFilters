@@ -21,7 +21,7 @@ namespace StorageFilters
                 }
                 catch (Exception ex)
                 {
-                    Log.Error("[StorageFilters] Failed to get save directory");
+                    Log.Warning("ASF_ModPrefix".Translate() + "ASF_SaveDirectoryError".Translate());
                     throw ex;
                 }
                 return result;
@@ -61,7 +61,7 @@ namespace StorageFilters
             }
             catch (Exception ex)
             {
-                Log.Error("[StorageFilters] Saving failed");
+                Log.Warning("ASF_ModPrefix".Translate() + "ASF_SaveError".Translate());
                 throw ex;
             }
             finally
@@ -82,7 +82,7 @@ namespace StorageFilters
                 }
                 catch (Exception ex)
                 {
-                    Log.Error("[StorageFilters] Loading failed");
+                    Log.Warning("ASF_ModPrefix".Translate() + "ASF_LoadError".Translate());
                     throw ex;
                 }
                 finally

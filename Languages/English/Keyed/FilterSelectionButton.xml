@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LanguageData>
+	<ASF_EditFilter>Edit</ASF_EditFilter>
+	<ASF_EnableFilter>Enable</ASF_EnableFilter>
+	<ASF_DisableFilter>Disable</ASF_DisableFilter>
+	<ASF_RemoveFilter>Remove</ASF_RemoveFilter>
+	<ASF_ConfirmRemoveFilter>Are you sure you want to remove the filter "{0}"?</ASF_ConfirmRemoveFilter>
+	<ASF_NewFilter>New filter</ASF_NewFilter>
+</LanguageData>

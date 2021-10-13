@@ -24,7 +24,7 @@ namespace StorageFilters
             IStoreSettingsParent storeSettingsParent = GenUtils.GetSelectedStoreSettingsParent();
             if (storeSettingsParent is null)
             {
-                Log.Warning("[StorageFilters] Unable to retrieve selected storeSettingsParent");
+                Log.Warning("ASF_ModPrefix".Translate() + "ASF_StoreSettingsParentError".Translate());
                 return;
             }
             ExtraThingFilters tabFilters = StorageFiltersData.Filters.TryGetValue(storeSettingsParent);
@@ -92,8 +92,6 @@ namespace StorageFilters
             {
                 return thingFilter.Allows(thingOrThingDef as ThingDef);
             }
-
-            Log.Error("[StorageFilters] AllowsThingOrThingDef called with an object that is not a Thing nor ThingDef");
             return false;
         }
 
@@ -107,8 +105,6 @@ namespace StorageFilters
             {
                 return storageSettings.AllowedToAccept(thingOrThingDef as ThingDef);
             }
-
-            Log.Error("[StorageFilters] AllowedToAcceptThingOrThingDef called with an object that is not a Thing nor ThingDef");
             return false;
         }
 
@@ -120,11 +116,6 @@ namespace StorageFilters
 
         public static void AllowedToAccept(IStoreSettingsParent owner, ThingFilter filter, object thingOrThingDef, ref bool result)
         {
-            if (!(thingOrThingDef is Thing) && !(thingOrThingDef is ThingDef))
-            {
-                Log.Error("[StorageFilters] AllowedToAccept called with an object that is not a Thing nor ThingDef");
-            }
-
             ExtraThingFilters tabFilters = null;
             if (owner != null)
             {

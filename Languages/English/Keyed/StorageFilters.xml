@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LanguageData>
+	<ASF_MainFilter>Main filter</ASF_MainFilter>
+	<ASF_ModPrefix>[StorageFilters] </ASF_ModPrefix>
+	<ASF_StoreSettingsParentError>Unable to retrieve selected storeSettingsParent</ASF_StoreSettingsParentError>
+	<ASF_SaveDirectoryError>Failed to get save directory</ASF_SaveDirectoryError>
+	<ASF_SaveError>Saving failed</ASF_SaveError>
+	<ASF_LoadError>Loading failed</ASF_LoadError>
+</LanguageData>

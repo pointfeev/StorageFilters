@@ -9,12 +9,14 @@ namespace StorageFilters
         public override Vector2 InitialSize => new Vector2(260f, 150f);
 
         private readonly Dialog_EditFilter editFilterDialog;
+
         protected override void SetInitialSizeAndPosition()
         {
             windowRect = GenUtils.GetDialogSizeAndPosition(this, editFilterDialog);
         }
 
         private readonly ITab_Storage storageTab;
+
         public Dialog_RenameSavedFilter(ITab_Storage instance, Dialog_EditFilter editDialog)
         {
             forcePause = true;
@@ -30,6 +32,7 @@ namespace StorageFilters
         private readonly string key;
         private readonly ExtraThingFilter value;
         private string curName;
+
         public Dialog_RenameSavedFilter(ITab_Storage instance, Dialog_EditFilter editDialog, string key, ExtraThingFilter value) : this(instance, editDialog)
         {
             this.key = key;
@@ -49,17 +52,17 @@ namespace StorageFilters
                         StorageFiltersData.SavedFilterNoLoad.Add(curName, value);
                         SaveUtils.Save();
                     }
-                    Messages.Message("Renamed saved filter '" + key + "' to '" + curName + "'", MessageTypeDefOf.TaskCompletion, false);
+                    Messages.Message("ASF_RenamedSavedFilter".Translate(key, curName), MessageTypeDefOf.TaskCompletion, false);
                     Find.WindowStack.TryRemove(this, true);
                 }
                 else
                 {
-                    Messages.Message("A saved filter named '" + curName + "' already exists", MessageTypeDefOf.RejectInput, false);
+                    Messages.Message("ASF_SavedFilterExists".Translate(curName), MessageTypeDefOf.RejectInput, false);
                 }
             }
             else
             {
-                Messages.Message("Invalid string", MessageTypeDefOf.RejectInput, false);
+                Messages.Message("ASF_InvalidString".Translate(), MessageTypeDefOf.RejectInput, false);
             }
         }
 
@@ -83,7 +86,7 @@ namespace StorageFilters
                 Event.current.Use();
             }
             Text.Font = GameFont.Small;
-            string renameString = "Renaming saved filter: '" + key + "'";
+            string renameString = "ASF_RenamingSavedFilter".Translate(key);
             float renameStringY = Text.CalcSize(renameString).y;
             Widgets.Label(new Rect(0f, 0f, winRect.width, renameStringY), renameString);
             float nameY = renameStringY + 8f;
@@ -93,12 +96,12 @@ namespace StorageFilters
                 curName = curName.Substring(0, curName.Length - 1);
             }
             float cancelRenameY = nameY + 35f + 12f;
-            if (Widgets.ButtonText(new Rect(0f, cancelRenameY, winRect.width / 2f - 4f, 35f), "CancelButton".Translate()) || esc)
+            if (Widgets.ButtonText(new Rect(0f, cancelRenameY, winRect.width / 2f - 4f, 35f), "ASF_Cancel".Translate()) || esc)
             {
                 Find.WindowStack.TryRemove(this, true);
                 Event.current.Use();
             }
-            if (Widgets.ButtonText(new Rect(winRect.width / 2f + 4f, cancelRenameY, winRect.width / 2f - 4f, 35f), "Rename".Translate()) || enter)
+            if (Widgets.ButtonText(new Rect(winRect.width / 2f + 4f, cancelRenameY, winRect.width / 2f - 4f, 35f), "ASF_RenameFilter".Translate()) || enter)
             {
                 CheckCurName();
                 Event.current.Use();

@@ -6,9 +6,11 @@ namespace StorageFilters
 {
     public class StorageFiltersData : GameComponent
     {
-        public StorageFiltersData(Game _) { }
+        public StorageFiltersData(Game _)
+        {
+        }
 
-        public static readonly string DefaultMainFilterString = "Main filter";
+        public static readonly string DefaultMainFilterString = "ASF_MainFilter".Translate();
         public static readonly float MaxFilterStringWidth = 84f;
 
         private static List<string> savedFilterKeys;

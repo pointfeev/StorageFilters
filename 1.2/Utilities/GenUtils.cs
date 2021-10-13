@@ -112,7 +112,7 @@ namespace StorageFilters
                     StorageFiltersData.CurrentFilterDepth.SetOrAdd(storeSettingsParent, 0);
                 }, extraPartWidth: 60f, extraPartOnGUI: delegate (Rect extraRect)
                 {
-                    new FloatMenuOption("Edit", delegate ()
+                    new FloatMenuOption("ASF_EditFilter".Translate(), delegate ()
                     {
                         filterFloatMenu.Close();
                         Find.WindowStack.Add(new Dialog_EditFilter(instance, storeSettingsParent, mainFilterString, true, tabFilters));
@@ -139,7 +139,7 @@ namespace StorageFilters
                         {
                             Rect renameRect = extraRect;
                             renameRect.width /= 3f;
-                            new FloatMenuOption("Edit", delegate ()
+                            new FloatMenuOption("ASF_EditFilter".Translate(), delegate ()
                             {
                                 filterFloatMenu.Close();
                                 Find.WindowStack.Add(new Dialog_EditFilter(instance, storeSettingsParent, entry.Key, entry.Value, tabFilters));
@@ -149,7 +149,7 @@ namespace StorageFilters
                             Rect toggleRect = extraRect;
                             toggleRect.width /= 3f;
                             toggleRect.x += renameRect.width;
-                            new FloatMenuOption(entry.Value.Enabled ? "Disable" : "Enable", delegate ()
+                            new FloatMenuOption(entry.Value.Enabled ? "ASF_DisableFilter".Translate() : "ASF_EnableFilter".Translate(), delegate ()
                             {
                                 entry.Value.Enabled = !entry.Value.Enabled;
                                 if (entry.Value.Enabled)
@@ -165,10 +165,10 @@ namespace StorageFilters
                             Rect removeRect = extraRect;
                             removeRect.width /= 3f;
                             removeRect.x += renameRect.width + toggleRect.width;
-                            new FloatMenuOption("Remove", delegate ()
+                            new FloatMenuOption("ASF_RemoveFilter".Translate(), delegate ()
                             {
                                 filterFloatMenu.Close();
-                                Find.WindowStack.Add(new Dialog_Confirmation(instance, storeSettingsParent, "Are you sure you want to remove the filter '" + entry.Key + "'?", delegate ()
+                                Find.WindowStack.Add(new Dialog_Confirmation(instance, storeSettingsParent, "ASF_ConfirmRemoveFilter".Translate(entry.Key), delegate ()
                                 {
                                     tabFilters.Remove(entry.Key);
                                     if (StorageFiltersData.CurrentFilterKey.TryGetValue(storeSettingsParent) == entry.Key)
@@ -185,7 +185,7 @@ namespace StorageFilters
                         filterFloatMenuOptions.Add(floatMenuOption);
                     }
                 }
-                filterFloatMenuOptions.Add(newFilterOption(new FloatMenuOption("New filter", delegate ()
+                filterFloatMenuOptions.Add(newFilterOption(new FloatMenuOption("ASF_NewFilter".Translate(), delegate ()
                 {
                     Find.WindowStack.TryRemove(typeof(Dialog_EditFilter), false);
                     Find.WindowStack.Add(new Dialog_NewFilter(instance, storeSettingsParent, tabFilters));

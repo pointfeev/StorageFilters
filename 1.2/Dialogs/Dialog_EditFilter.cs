@@ -15,6 +15,7 @@ namespace StorageFilters
         }
 
         private readonly ITab_Storage storageTab;
+
         public Dialog_EditFilter(ITab_Storage instance, IStoreSettingsParent storeSettingsParent)
         {
             doCloseX = true;
@@ -34,6 +35,7 @@ namespace StorageFilters
         private readonly IStoreSettingsParent storeSettingsParent;
         private string curName;
         private readonly Dialog_EditFilter previousDialog;
+
         public Dialog_EditFilter(ITab_Storage instance, IStoreSettingsParent storeSettingsParent, string key, ExtraThingFilter value, ExtraThingFilters tabFilters = null, Dialog_EditFilter previousEditFilterDialog = null) : this(instance, storeSettingsParent)
         {
             this.key = key;
@@ -77,12 +79,12 @@ namespace StorageFilters
                 }
                 else
                 {
-                    Messages.Message("Storage area already has a filter named '" + curName + "'", MessageTypeDefOf.RejectInput, false);
+                    Messages.Message("ASF_StorageAreaAlreadyHasFilterNamed".Translate(curName), MessageTypeDefOf.RejectInput, false);
                 }
             }
             else
             {
-                Messages.Message("Invalid string", MessageTypeDefOf.RejectInput, false);
+                Messages.Message("ASF_InvalidString".Translate(), MessageTypeDefOf.RejectInput, false);
             }
             return false;
         }
@@ -122,11 +124,11 @@ namespace StorageFilters
                 StorageFiltersData.CurrentFilterDepth.SetOrAdd(storeSettingsParent, Filter.FilterDepth);
             }
             Text.Font = GameFont.Small;
-            string editString = "Editing filter: '" + key + "'";
+            string editString = "ASF_EditingFilter".Translate(key);
             float editStringY = Text.CalcSize(editString).y;
             Widgets.Label(new Rect(0f, 0f, winRect.width, editStringY), editString);
             float renameY = editStringY + 8f;
-            string renameString = "Rename".Translate();
+            string renameString = "ASF_RenameFilter".Translate();
             float saveLoadY = renameY + 35f + 8f;
             if (tabFilters != null)
             {
@@ -141,26 +143,26 @@ namespace StorageFilters
                     CheckCurName();
                     Event.current.Use();
                 }
-                if (Widgets.ButtonText(new Rect(0f, saveLoadY, winRect.width / 2f - 4f, 35f), "Save".Translate()))
+                if (Widgets.ButtonText(new Rect(0f, saveLoadY, winRect.width / 2f - 4f, 35f), "ASF_SaveFilter".Translate()))
                 {
                     if (StorageFiltersData.SavedFilter.TryGetValue(key) != null)
                     {
-                        Find.WindowStack.Add(new Dialog_Confirmation(storageTab, storeSettingsParent, "Are you sure you want to overwrite the saved filter '" + key + "'?", delegate ()
+                        Find.WindowStack.Add(new Dialog_Confirmation(storageTab, storeSettingsParent, "ASF_ConfirmOverwriteSavedFilter".Translate(key), delegate ()
                         {
                             StorageFiltersData.SavedFilter.SetOrAdd(key, Filter);
                             SaveUtils.Save();
-                            Messages.Message("Saved filter '" + key + "'", MessageTypeDefOf.TaskCompletion, false);
+                            Messages.Message("ASF_SavedFilter".Translate(key), MessageTypeDefOf.TaskCompletion, false);
                         }, this));
                     }
                     else
                     {
                         StorageFiltersData.SavedFilter.SetOrAdd(key, Filter);
                         SaveUtils.Save();
-                        Messages.Message("Saved filter '" + key + "'", MessageTypeDefOf.TaskCompletion, false);
+                        Messages.Message("ASF_SavedFilter".Translate(key), MessageTypeDefOf.TaskCompletion, false);
                     }
                     Event.current.Use();
                 }
-                if (Widgets.ButtonText(new Rect(winRect.width / 2f + 4f, saveLoadY, winRect.width / 2f - 4f, 35f), "Load".Translate()))
+                if (Widgets.ButtonText(new Rect(winRect.width / 2f + 4f, saveLoadY, winRect.width / 2f - 4f, 35f), "ASF_LoadSavedFilter".Translate()))
                 {
                     if (StorageFiltersData.SavedFilter.Count > 0)
                     {
@@ -192,14 +194,14 @@ namespace StorageFilters
                                 Rect removeRect = extraRect;
                                 removeRect.width /= 2f;
                                 removeRect.x += renameRect.width;
-                                new FloatMenuOption("Delete".Translate(), delegate ()
+                                new FloatMenuOption("ASF_DeleteSavedFilter".Translate(), delegate ()
                                 {
                                     filterFloatMenu.Close();
-                                    Find.WindowStack.Add(new Dialog_Confirmation(storageTab, storeSettingsParent, "Are you sure you want to delete the saved filter '" + entry.Key + "'?", delegate ()
+                                    Find.WindowStack.Add(new Dialog_Confirmation(storageTab, storeSettingsParent, "ASF_ConfirmDeleteSavedFilter".Translate(entry.Key), delegate ()
                                     {
                                         StorageFiltersData.SavedFilter.Remove(entry.Key);
                                         SaveUtils.Save();
-                                        Messages.Message("Deleted saved filter '" + entry.Key + "'", MessageTypeDefOf.TaskCompletion, false);
+                                        Messages.Message("ASF_DeletedSavedFilter".Translate(entry.Key), MessageTypeDefOf.TaskCompletion, false);
                                     }, this));
                                 }).DoGUI(removeRect, false, null);
                                 return false;
@@ -210,16 +212,16 @@ namespace StorageFilters
                     }
                     else
                     {
-                        Messages.Message("No saved filters", MessageTypeDefOf.RejectInput, false);
+                        Messages.Message("ASF_NoSavedFilters".Translate(), MessageTypeDefOf.RejectInput, false);
                     }
                     Event.current.Use();
                 }
             }
             else
             {
-                if (Widgets.ButtonText(new Rect(0f, renameY, winRect.width, 35f), "Remove This Next-In-Priority Filter"))
+                if (Widgets.ButtonText(new Rect(0f, renameY, winRect.width, 35f), "ASF_RemoveThisNIPF".Translate()))
                 {
-                    Find.WindowStack.Add(new Dialog_Confirmation(storageTab, storeSettingsParent, "Are you sure you want to remove the next-in-priority filter '" + key + "'?", !(Filter.NextInPriorityFilter is null) ? "This will also remove all next-in-priority filters from this point onward!" : null, delegate ()
+                    Find.WindowStack.Add(new Dialog_Confirmation(storageTab, storeSettingsParent, "ASF_ConfirmRemoveNIPF".Translate(key), !(Filter.NextInPriorityFilter is null) ? "ASF_ConfirmRemoveNIPF_RemoveMore".Translate() : null, delegate ()
                     {
                         Filter.NextInPriorityFilterParent.NextInPriorityFilter = null;
                         Filter = null;
@@ -241,7 +243,7 @@ namespace StorageFilters
                 float width = winRect.width;
                 if (!(previousDialog is null))
                 {
-                    string backString = "Back";
+                    string backString = "ASF_PreviousNIPF".Translate();
                     float backStringX = Text.CalcSize(backString).x + 30f;
                     if (Widgets.ButtonText(new Rect(X, priorityY, backStringX, 35f), backString))
                     {
@@ -262,14 +264,14 @@ namespace StorageFilters
                     }
                     else
                     {
-                        key_NIP = key + " - N.I.P.F. #" + Filter.NextInPriorityFilter.FilterDepth;
+                        key_NIP = "ASF_HierarchyNIPF".Translate(key, Filter.NextInPriorityFilter.FilterDepth);
                     }
                     StorageFiltersData.CurrentFilterDepth.SetOrAdd(storeSettingsParent, Filter.NextInPriorityFilter.FilterDepth);
                     Find.WindowStack.Add(new Dialog_EditFilter(storageTab, storeSettingsParent, key_NIP, Filter.NextInPriorityFilter, previousEditFilterDialog: this));
                 }
                 if (Filter.NextInPriorityFilter is null)
                 {
-                    if (Widgets.ButtonText(new Rect(X, priorityY, width, 35f), "Add Next-In-Priority Filter"))
+                    if (Widgets.ButtonText(new Rect(X, priorityY, width, 35f), "ASF_AddNIPF".Translate()))
                     {
                         Filter.NextInPriorityFilter = new ExtraThingFilter
                         {
@@ -282,7 +284,7 @@ namespace StorageFilters
                 }
                 else
                 {
-                    if (Widgets.ButtonText(new Rect(X, priorityY, width, 35f), "Edit Next-In-Priority Filter"))
+                    if (Widgets.ButtonText(new Rect(X, priorityY, width, 35f), "ASF_EditNIPF".Translate()))
                     {
                         EditNIPF();
                         Event.current.Use();

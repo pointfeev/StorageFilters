@@ -11,6 +11,7 @@ namespace StorageFilters
         public override Vector2 InitialSize => initialSize;
 
         private readonly Dialog_EditFilter editFilterDialog;
+
         protected override void SetInitialSizeAndPosition()
         {
             windowRect = GenUtils.GetDialogSizeAndPosition(this, editFilterDialog);
@@ -18,6 +19,7 @@ namespace StorageFilters
 
         private readonly ITab_Storage storageTab;
         private readonly IStoreSettingsParent storeSettingsParent;
+
         public Dialog_Confirmation(ITab_Storage instance, IStoreSettingsParent storeSettingsParent, Dialog_EditFilter editDialog = null)
         {
             forcePause = true;
@@ -32,6 +34,7 @@ namespace StorageFilters
 
         private readonly string question;
         private readonly Action action;
+
         public Dialog_Confirmation(ITab_Storage instance, IStoreSettingsParent storeSettingsParent, string confirmQuestion, Action confirmAction, Dialog_EditFilter editDialog = null) : this(instance, storeSettingsParent, editDialog)
         {
             question = confirmQuestion;
@@ -43,6 +46,7 @@ namespace StorageFilters
         }
 
         private readonly string questionExtra;
+
         public Dialog_Confirmation(ITab_Storage instance, IStoreSettingsParent storeSettingsParent, string confirmQuestion, string confirmQuestionExtra, Action confirmAction, Dialog_EditFilter editDialog = null) : this(instance, storeSettingsParent, editDialog)
         {
             question = confirmQuestion;
@@ -98,9 +102,9 @@ namespace StorageFilters
                 Widgets.Label(new Rect(X, yesNoY - 6f, confirmExtraStringSize.x, confirmExtraStringY), confirmExtraString);
                 yesNoY += confirmExtraStringY + 6f;
             }
-            string yesString = "Yes".Translate();
+            string yesString = "ASF_Confirm".Translate();
             float yesStringX = Text.CalcSize(yesString).x;
-            string noString = "No".Translate();
+            string noString = "ASF_Deny".Translate();
             float noStringX = Text.CalcSize(noString).x;
             if (Widgets.ButtonText(new Rect(winRect.width / 2f - yesStringX - 28f, yesNoY, yesStringX + 24f, 35f), yesString) || enter)
             {
