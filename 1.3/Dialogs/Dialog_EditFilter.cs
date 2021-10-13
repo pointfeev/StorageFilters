@@ -1,4 +1,5 @@
 ﻿using RimWorld;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using Verse;
@@ -168,6 +169,9 @@ namespace StorageFilters
                     {
                         List<FloatMenuOption> filterFloatMenuOptions = new List<FloatMenuOption>();
                         FloatMenu filterFloatMenu = null;
+                        string removeString = "ASF_DeleteSavedFilter".Translate();
+                        float renameX = Text.CalcSize(renameString).x + 8f;
+                        float removeX = Text.CalcSize(removeString).x + 8f;
                         foreach (KeyValuePair<string, ExtraThingFilter> entry in StorageFiltersData.SavedFilter)
                         {
                             filterFloatMenuOptions.Add(new FloatMenuOption(entry.Key, delegate ()
@@ -182,19 +186,19 @@ namespace StorageFilters
                                 {
                                     curName = oldCurName;
                                 }
-                            }, extraPartWidth: 120f, extraPartOnGUI: delegate (Rect extraRect)
+                            }, extraPartWidth: renameX + removeX, extraPartOnGUI: delegate (Rect extraRect)
                             {
                                 Rect renameRect = extraRect;
-                                renameRect.width /= 2f;
+                                renameRect.width = renameX;
                                 new FloatMenuOption(renameString, delegate ()
                                 {
                                     filterFloatMenu.Close();
                                     Find.WindowStack.Add(new Dialog_RenameSavedFilter(storageTab, this, entry.Key, entry.Value));
                                 }).DoGUI(renameRect, false, null);
                                 Rect removeRect = extraRect;
-                                removeRect.width /= 2f;
+                                removeRect.width = removeX;
                                 removeRect.x += renameRect.width;
-                                new FloatMenuOption("ASF_DeleteSavedFilter".Translate(), delegate ()
+                                new FloatMenuOption(removeString, delegate ()
                                 {
                                     filterFloatMenu.Close();
                                     Find.WindowStack.Add(new Dialog_Confirmation(storageTab, storeSettingsParent, "ASF_ConfirmDeleteSavedFilter".Translate(entry.Key), delegate ()
