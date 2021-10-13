@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<LanguageData>
-	<ASF_RenamedSavedFilter>Renamed saved filter "{0}" to "{1}"</ASF_RenamedSavedFilter>
-	<ASF_SavedFilterExists>A saved filter named "{0}" already exists</ASF_SavedFilterExists>
-	<ASF_RenamingSavedFilter>Renaming saved filter: "{0}"</ASF_RenamingSavedFilter>
-</LanguageData>
