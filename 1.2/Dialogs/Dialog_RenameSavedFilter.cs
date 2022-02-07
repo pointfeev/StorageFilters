@@ -1,5 +1,7 @@
 ﻿using RimWorld;
+
 using UnityEngine;
+
 using Verse;
 
 namespace StorageFilters
@@ -10,10 +12,7 @@ namespace StorageFilters
 
         private readonly Dialog_EditFilter editFilterDialog;
 
-        protected override void SetInitialSizeAndPosition()
-        {
-            windowRect = GenUtils.GetDialogSizeAndPosition(this, editFilterDialog);
-        }
+        protected override void SetInitialSizeAndPosition() => windowRect = GenUtils.GetDialogSizeAndPosition(this, editFilterDialog);
 
         private readonly ITab_Storage storageTab;
 

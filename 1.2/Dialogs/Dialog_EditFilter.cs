@@ -1,6 +1,9 @@
-﻿using RimWorld;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+
+using RimWorld;
+
 using UnityEngine;
+
 using Verse;
 
 namespace StorageFilters
@@ -9,10 +12,7 @@ namespace StorageFilters
     {
         public override Vector2 InitialSize => new Vector2(320f, 187f);
 
-        protected override void SetInitialSizeAndPosition()
-        {
-            windowRect = GenUtils.GetDialogSizeAndPosition(this);
-        }
+        protected override void SetInitialSizeAndPosition() => windowRect = GenUtils.GetDialogSizeAndPosition(this);
 
         private readonly ITab_Storage storageTab;
 
