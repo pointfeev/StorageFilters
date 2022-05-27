@@ -246,25 +246,31 @@ namespace StorageFilters
 
                 void EditNIPF()
                 {
-                    string nipKey = Filter.NextInPriorityFilterParent is null ? "ASF_HierarchyNIPF".Translate(key, Filter.NextInPriorityFilter.FilterDepth).ToStringSafe()
+                    string nipKey = Filter.NextInPriorityFilterParent is null ? "ASF_HierarchyNIPF".Translate(key, Filter.NextInPriorityFilter.FilterDepth).ToString()
                         : key.Substring(0, key.Length - (Filter.NextInPriorityFilter.FilterDepth - 1).ToString().Length) + Filter.NextInPriorityFilter.FilterDepth;
                     StorageFiltersData.CurrentFilterDepth.SetOrAdd(storeSettingsParent, Filter.NextInPriorityFilter.FilterDepth);
                     Find.WindowStack.Add(new Dialog_EditFilter(storageTab, storeSettingsParent, nipKey, Filter.NextInPriorityFilter, previousEditFilterDialog: this));
                 }
-                if (Filter.NextInPriorityFilter is null && Widgets.ButtonText(new Rect(X, priorityY, width, 35f), "ASF_AddNIPF".Translate()))
+                if (Filter.NextInPriorityFilter is null)
                 {
-                    Filter.NextInPriorityFilter = new ExtraThingFilter
+                    if (Widgets.ButtonText(new Rect(X, priorityY, width, 35f), "ASF_AddNIPF".Translate()))
                     {
-                        NextInPriorityFilter = null,
-                        FilterDepth = Filter.FilterDepth + 1
-                    };
-                    EditNIPF();
-                    Event.current.Use();
+                        Filter.NextInPriorityFilter = new ExtraThingFilter
+                        {
+                            NextInPriorityFilter = null,
+                            FilterDepth = Filter.FilterDepth + 1
+                        };
+                        EditNIPF();
+                        Event.current.Use();
+                    }
                 }
-                else if (Widgets.ButtonText(new Rect(X, priorityY, width, 35f), "ASF_EditNIPF".Translate()))
+                else
                 {
-                    EditNIPF();
-                    Event.current.Use();
+                    if (Widgets.ButtonText(new Rect(X, priorityY, width, 35f), "ASF_EditNIPF".Translate()))
+                    {
+                        EditNIPF();
+                        Event.current.Use();
+                    }
                 }
             }
         }
