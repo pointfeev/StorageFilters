@@ -56,10 +56,7 @@ namespace StorageFilters
             Vector2 size1 = Text.CalcSize(confirmQuestion);
             Vector2 size2 = Text.CalcSize(confirmQuestionExtra);
             if (confirmQuestionExtra is null || confirmQuestionExtra.Length == 0)
-            {
                 size2 = Vector2.zero;
-            }
-
             initialSize = new Vector2(Math.Max(size1.x, size2.x) + 36f, initialSize.y + size2.y + 2f);
             SetInitialSizeAndPosition();
         }
@@ -96,9 +93,7 @@ namespace StorageFilters
                 float confirmExtraStringY = confirmExtraStringSize.y;
                 float X = 0f;
                 if (confirmExtraStringSize.x < confirmStringSize.x)
-                {
-                    X = (winRect.width / 2) - (confirmExtraStringSize.x / 2);
-                }
+                    X = winRect.width / 2 - confirmExtraStringSize.x / 2;
                 Widgets.Label(new Rect(X, yesNoY - 6f, confirmExtraStringSize.x, confirmExtraStringY), confirmExtraString);
                 yesNoY += confirmExtraStringY + 6f;
             }

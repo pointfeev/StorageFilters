@@ -16,14 +16,11 @@ namespace StorageFilters
         {
             get
             {
-                if (nextInPriorityFilterParent != null)
-                {
+                if (!(nextInPriorityFilterParent is null))
                     return nextInPriorityFilterParent;
-                }
                 else
                 {
                     foreach (KeyValuePair<IStoreSettingsParent, ExtraThingFilters> filters in StorageFiltersData.Filters)
-                    {
                         foreach (KeyValuePair<string, ExtraThingFilter> filter in filters.Value)
                         {
                             ExtraThingFilter currentFilter = filter.Value;
@@ -35,27 +32,20 @@ namespace StorageFilters
                                     return currentFilter;
                                 }
                                 else if (currentFilter.NextInPriorityFilter != null)
-                                {
                                     currentFilter = currentFilter.NextInPriorityFilter;
-                                }
                                 else
-                                {
                                     break;
-                                }
                             }
                         }
-                    }
-                    return null;
                 }
+                return null;
             }
         }
 
         public ExtraThingFilter NextInPriorityFilter = null;
         public int FilterDepth = 0;
 
-        public ExtraThingFilter() : base()
-        {
-        }
+        public ExtraThingFilter() : base() { }
 
         public ThingFilter OriginalFilter = null;
 
@@ -69,15 +59,11 @@ namespace StorageFilters
         {
             Enabled = otherFilter.Enabled;
             FilterDepth = otherFilter.FilterDepth;
-            if (otherFilter.NextInPriorityFilter != null)
-            {
+            if (!(otherFilter.NextInPriorityFilter is null))
                 NextInPriorityFilter = otherFilter.NextInPriorityFilter.Copy();
-            }
             CopyAllowancesFrom(otherFilter);
             if (!(OriginalFilter is null))
-            {
                 OriginalFilter.CopyAllowancesFrom(this);
-            }
         }
 
         public ExtraThingFilter Copy()
@@ -90,9 +76,7 @@ namespace StorageFilters
         private void SyncWithMainFilter()
         {
             if (!(OriginalFilter is null))
-            {
                 OriginalFilter.CopyAllowancesFrom(this);
-            }
         }
 
         public new void SetAllow(ThingDef thingDef, bool allow)
@@ -146,7 +130,6 @@ namespace StorageFilters
         public override void ExposeData()
         {
             base.ExposeData();
-
             if (OriginalFilter is null)
             {
                 Scribe_Values.Look(ref Enabled, "Enabled", true);

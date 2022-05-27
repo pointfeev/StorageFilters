@@ -55,37 +55,29 @@ namespace StorageFilters
         {
             if (NamePlayerFactionDialogUtility.IsValidName(curName) && Text.CalcSize(curName).x <= StorageFiltersData.MaxFilterStringWidth)
             {
-                if (key == curName || (StorageFiltersData.MainFilterString.TryGetValue(storeSettingsParent) != curName && !tabFilters.ContainsKey(curName)))
+                if (key == curName || StorageFiltersData.MainFilterString.TryGetValue(storeSettingsParent) != curName && !tabFilters.ContainsKey(curName))
                 {
                     if (key != curName)
                     {
                         if (keyIsMainFilterString)
-                        {
                             StorageFiltersData.MainFilterString.SetOrAdd(storeSettingsParent, curName);
-                        }
                         else
                         {
                             tabFilters.Remove(key);
                             tabFilters.Add(curName, Filter);
                         }
                         if (StorageFiltersData.CurrentFilterKey.TryGetValue(storeSettingsParent) == key)
-                        {
                             StorageFiltersData.CurrentFilterKey.SetOrAdd(storeSettingsParent, curName);
-                        }
                         key = curName;
                         GenUtils.PlayClick();
                         return true;
                     }
                 }
                 else
-                {
                     Messages.Message("ASF_StorageAreaAlreadyHasFilterNamed".Translate(curName), MessageTypeDefOf.RejectInput, false);
-                }
             }
             else
-            {
                 Messages.Message("ASF_InvalidString".Translate(), MessageTypeDefOf.RejectInput, false);
-            }
             return false;
         }
 
@@ -102,8 +94,7 @@ namespace StorageFilters
                 Event.current.Use();
                 return;
             }
-            if (Filter is null || (Event.current.type == EventType.KeyDown &&
-                (Event.current.keyCode == KeyCode.Escape || Event.current.keyCode == KeyCode.Return)))
+            if (Filter is null || Event.current.type == EventType.KeyDown && (Event.current.keyCode == KeyCode.Escape || Event.current.keyCode == KeyCode.Return))
             {
                 Find.WindowStack.TryRemove(this, true);
                 Event.current.Use();
@@ -112,15 +103,10 @@ namespace StorageFilters
             if (tabFilters != null)
             {
                 string mainFilterString = StorageFiltersData.MainFilterString.TryGetValue(storeSettingsParent);
-                if (keyIsMainFilterString && mainFilterString != null)
-                {
+                if (keyIsMainFilterString && !(mainFilterString is null))
                     StorageFiltersData.CurrentFilterKey.SetOrAdd(storeSettingsParent, mainFilterString);
-                }
-                else if (key != null)
-                {
+                else if (!(key is null))
                     StorageFiltersData.CurrentFilterKey.SetOrAdd(storeSettingsParent, key);
-                }
-
                 StorageFiltersData.CurrentFilterDepth.SetOrAdd(storeSettingsParent, Filter.FilterDepth);
             }
             Text.Font = GameFont.Small;
@@ -192,7 +178,7 @@ namespace StorageFilters
                                 new FloatMenuOption(renameString, delegate ()
                                 {
                                     filterFloatMenu.Close();
-                                    Find.WindowStack.Add(new Dialog_RenameSavedFilter(storageTab, this, entry.Key, entry.Value));
+                                    Find.WindowStack.Add(new Dialog_RenameSavedFilter(this, entry.Key, entry.Value));
                                 }).DoGUI(renameRect, false, null);
                                 Rect removeRect = extraRect;
                                 removeRect.width = removeX;
@@ -260,38 +246,25 @@ namespace StorageFilters
 
                 void EditNIPF()
                 {
-                    string key_NIP;
-                    if (Filter.NextInPriorityFilterParent != null)
-                    {
-                        key_NIP = key.Substring(0, key.Length - (Filter.NextInPriorityFilter.FilterDepth - 1).ToString().Length) + Filter.NextInPriorityFilter.FilterDepth;
-                    }
-                    else
-                    {
-                        key_NIP = "ASF_HierarchyNIPF".Translate(key, Filter.NextInPriorityFilter.FilterDepth);
-                    }
+                    string nipKey = Filter.NextInPriorityFilterParent is null ? "ASF_HierarchyNIPF".Translate(key, Filter.NextInPriorityFilter.FilterDepth).ToStringSafe()
+                        : key.Substring(0, key.Length - (Filter.NextInPriorityFilter.FilterDepth - 1).ToString().Length) + Filter.NextInPriorityFilter.FilterDepth;
                     StorageFiltersData.CurrentFilterDepth.SetOrAdd(storeSettingsParent, Filter.NextInPriorityFilter.FilterDepth);
-                    Find.WindowStack.Add(new Dialog_EditFilter(storageTab, storeSettingsParent, key_NIP, Filter.NextInPriorityFilter, previousEditFilterDialog: this));
+                    Find.WindowStack.Add(new Dialog_EditFilter(storageTab, storeSettingsParent, nipKey, Filter.NextInPriorityFilter, previousEditFilterDialog: this));
                 }
-                if (Filter.NextInPriorityFilter is null)
+                if (Filter.NextInPriorityFilter is null && Widgets.ButtonText(new Rect(X, priorityY, width, 35f), "ASF_AddNIPF".Translate()))
                 {
-                    if (Widgets.ButtonText(new Rect(X, priorityY, width, 35f), "ASF_AddNIPF".Translate()))
+                    Filter.NextInPriorityFilter = new ExtraThingFilter
                     {
-                        Filter.NextInPriorityFilter = new ExtraThingFilter
-                        {
-                            NextInPriorityFilter = null,
-                            FilterDepth = Filter.FilterDepth + 1
-                        };
-                        EditNIPF();
-                        Event.current.Use();
-                    }
+                        NextInPriorityFilter = null,
+                        FilterDepth = Filter.FilterDepth + 1
+                    };
+                    EditNIPF();
+                    Event.current.Use();
                 }
-                else
+                else if (Widgets.ButtonText(new Rect(X, priorityY, width, 35f), "ASF_EditNIPF".Translate()))
                 {
-                    if (Widgets.ButtonText(new Rect(X, priorityY, width, 35f), "ASF_EditNIPF".Translate()))
-                    {
-                        EditNIPF();
-                        Event.current.Use();
-                    }
+                    EditNIPF();
+                    Event.current.Use();
                 }
             }
         }

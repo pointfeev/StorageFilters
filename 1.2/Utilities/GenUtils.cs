@@ -16,16 +16,11 @@ namespace StorageFilters
     {
         public static bool IsStorageTabOpen(ITab_Storage storageTab, IStoreSettingsParent storeSettingsParent)
         {
-            if (storageTab is null || !storageTab.IsVisible)
+            if (storageTab is null || !storageTab.IsVisible || GetSelectedStoreSettingsParent() != storeSettingsParent)
                 return false;
-
-            if (GetSelectedStoreSettingsParent() != storeSettingsParent)
-                return false;
-
             foreach (Window window in Find.WindowStack.Windows)
                 if (window.ID == -235086)
                     return window.IsOpen;
-
             return false;
         }
 
@@ -36,48 +31,28 @@ namespace StorageFilters
             Vector2 initialSize = dialog.InitialSize;
             float X = (UI.screenWidth - initialSize.x) / 2f;
             float Y = (UI.screenHeight - initialSize.y) / 2f;
-            MainTabWindow_Inspect inspectPane = MainButtonDefOf.Inspect.TabWindow as MainTabWindow_Inspect;
-            if (!(inspectPane is null) && StorageFilters.StorageTabRect.HasValue)
+            if (MainButtonDefOf.Inspect.TabWindow is MainTabWindow_Inspect inspectPane && StorageFilters.StorageTabRect.HasValue)
             {
                 X = StorageFilters.StorageTabRect.Value.xMax - 1f;
                 Y = inspectPane.PaneTopY - 30f - StorageFilters.StorageTabRect.Value.height;
                 if (!(editDialog is null))
-                {
                     X += editDialog.InitialSize.x - 1f;
-                }
             }
             return new Rect(X, Y, initialSize.x, initialSize.y).Rounded();
         }
 
         public static IStoreSettingsParent GetStoreSettingsParent(object obj)
         {
-            if (!(obj is null))
-            {
-                IStoreSettingsParent storeSettingsParent = obj as IStoreSettingsParent;
-                if (storeSettingsParent != null)
-                {
-                    return storeSettingsParent;
-                }
-
-                ThingWithComps thingWithComps = obj as ThingWithComps;
-                if (thingWithComps != null)
-                {
-                    List<ThingComp> allComps = thingWithComps.AllComps;
-                    for (int i = 0; i < allComps.Count; i++)
-                    {
-                        storeSettingsParent = allComps[i] as IStoreSettingsParent;
-                        if (storeSettingsParent != null)
-                        {
-                            return storeSettingsParent;
-                        }
-                    }
-                }
-            }
+            if (obj is IStoreSettingsParent storeSettingsParent)
+                return storeSettingsParent;
+            else if (obj is ThingWithComps thingWithComps)
+                foreach (ThingComp thingComp in thingWithComps.AllComps)
+                    if (thingComp is IStoreSettingsParent)
+                        return thingComp as IStoreSettingsParent;
             return null;
         }
 
-        public static IStoreSettingsParent GetSelectedStoreSettingsParent() => Find.UIRoot is null || !(Find.UIRoot is UIRoot_Play) || Find.MapUI is null ? null
-                : GetStoreSettingsParent(Find.Selector.SingleSelectedObject);
+        public static IStoreSettingsParent GetSelectedStoreSettingsParent() => !(Find.UIRoot is UIRoot_Play) || !(Find.MapUI is MapInterface) ? null : GetStoreSettingsParent(Find.Selector.SingleSelectedObject);
 
         public static void FilterSelectionButton(ITab_Storage instance, IStoreSettingsParent storeSettingsParent, ExtraThingFilters tabFilters, string mainFilterString, string tabFilter, Rect position)
         {
@@ -85,11 +60,11 @@ namespace StorageFilters
             if (Widgets.ButtonText(position, tabFilter, true, true, true))
             {
                 Dictionary<FloatMenuOption, int> floatMenuOptionOrder = new Dictionary<FloatMenuOption, int>();
-                Func<FloatMenuOption, FloatMenuOption> newFilterOption = delegate (FloatMenuOption floatMenuOption)
+                FloatMenuOption newFilterOption(FloatMenuOption floatMenuOption)
                 {
                     floatMenuOptionOrder.SetOrAdd(floatMenuOption, floatMenuOptionOrder.Count);
                     return floatMenuOption;
-                };
+                }
                 List<FloatMenuOption> filterFloatMenuOptions = new List<FloatMenuOption>();
                 FloatMenu filterFloatMenu = null;
                 string editString = "ASF_EditFilter".Translate();
@@ -97,9 +72,7 @@ namespace StorageFilters
                 filterFloatMenuOptions.Add(newFilterOption(new FloatMenuOption(mainFilterString, delegate ()
                 {
                     if (!(Find.WindowStack.WindowOfType<Dialog_EditFilter>() is null))
-                    {
                         Find.WindowStack.Add(new Dialog_EditFilter(instance, storeSettingsParent, mainFilterString, true, tabFilters));
-                    }
                     StorageFiltersData.CurrentFilterKey.SetOrAdd(storeSettingsParent, mainFilterString);
                     StorageFiltersData.CurrentFilterDepth.SetOrAdd(storeSettingsParent, 0);
                 }, extraPartWidth: editX, extraPartOnGUI: delegate (Rect extraRect)
@@ -117,15 +90,13 @@ namespace StorageFilters
                 {
                     foreach (KeyValuePair<string, ExtraThingFilter> entry in tabFilters)
                     {
-                        Action action = delegate ()
+                        void action()
                         {
                             if (!(Find.WindowStack.WindowOfType<Dialog_EditFilter>() is null))
-                            {
                                 Find.WindowStack.Add(new Dialog_EditFilter(instance, storeSettingsParent, entry.Key, entry.Value, tabFilters));
-                            }
                             StorageFiltersData.CurrentFilterKey.SetOrAdd(storeSettingsParent, entry.Key);
                             StorageFiltersData.CurrentFilterDepth.SetOrAdd(storeSettingsParent, 0);
-                        };
+                        }
                         FloatMenuOption floatMenuOption = null;
                         string enableString = "ASF_EnableFilter".Translate();
                         string disableString = "ASF_DisableFilter".Translate();
@@ -146,17 +117,13 @@ namespace StorageFilters
                             Rect toggleRect = extraRect;
                             toggleRect.width = toggleX;
                             toggleRect.x += renameRect.width;
-                            new FloatMenuOption(entry.Value.Enabled ? enableString : disableString, delegate ()
+                            new FloatMenuOption(entry.Value.Enabled ? disableString : enableString, delegate ()
                             {
                                 entry.Value.Enabled = !entry.Value.Enabled;
                                 if (entry.Value.Enabled)
-                                {
                                     floatMenuOption.action = action;
-                                }
                                 else
-                                {
                                     floatMenuOption.Disabled = true;
-                                }
                                 PlayClick();
                             }).DoGUI(toggleRect, false, null);
                             Rect removeRect = extraRect;

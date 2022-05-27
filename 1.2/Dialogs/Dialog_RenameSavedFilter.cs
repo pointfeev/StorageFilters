@@ -14,9 +14,7 @@ namespace StorageFilters
 
         protected override void SetInitialSizeAndPosition() => windowRect = GenUtils.GetDialogSizeAndPosition(this, editFilterDialog);
 
-        private readonly ITab_Storage storageTab;
-
-        public Dialog_RenameSavedFilter(ITab_Storage instance, Dialog_EditFilter editDialog)
+        public Dialog_RenameSavedFilter(Dialog_EditFilter editDialog)
         {
             forcePause = true;
             closeOnAccept = false;
@@ -24,7 +22,6 @@ namespace StorageFilters
             absorbInputAroundWindow = true;
             focusWhenOpened = true;
             forceCatchAcceptAndCancelEventEvenIfUnfocused = true;
-            storageTab = instance;
             editFilterDialog = editDialog;
         }
 
@@ -32,7 +29,7 @@ namespace StorageFilters
         private readonly ExtraThingFilter value;
         private string curName;
 
-        public Dialog_RenameSavedFilter(ITab_Storage instance, Dialog_EditFilter editDialog, string key, ExtraThingFilter value) : this(instance, editDialog)
+        public Dialog_RenameSavedFilter(Dialog_EditFilter editDialog, string key, ExtraThingFilter value) : this(editDialog)
         {
             this.key = key;
             this.value = value;

@@ -41,13 +41,9 @@ namespace StorageFilters
                 if (File.Exists(oldFilePath))
                 {
                     if (File.Exists(filePath))
-                    {
                         File.Delete(oldFilePath);
-                    }
                     else
-                    {
                         File.Move(oldFilePath, filePath);
-                    }
                 }
                 return filePath;
             }
@@ -75,7 +71,6 @@ namespace StorageFilters
         public static void Load()
         {
             if (File.Exists(FilePath))
-            {
                 try
                 {
                     Scribe.loader.InitLoading(FilePath);
@@ -91,7 +86,6 @@ namespace StorageFilters
                     Scribe.loader.FinalizeLoading();
                     Scribe.mode = LoadSaveMode.Inactive;
                 }
-            }
         }
     }
 }

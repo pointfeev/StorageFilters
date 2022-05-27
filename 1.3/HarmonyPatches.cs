@@ -16,37 +16,30 @@ namespace StorageFilters
         static HarmonyPatches()
         {
             Harmony harmony = new Harmony("pointfeev.storagefilters");
-
             harmony.Patch(
                 original: AccessTools.Method(typeof(ITab_Storage), "FillTab"),
                 postfix: new HarmonyMethod(typeof(HarmonyPatches), "FillTab")
             );
-
             harmony.Patch(
                 original: AccessTools.Method(typeof(ITab_Storage), "get_TopAreaHeight"),
                 postfix: new HarmonyMethod(typeof(HarmonyPatches), "TopAreaHeight")
             );
-
             harmony.Patch(
                 original: AccessTools.Method(typeof(ThingFilterUI), "DoThingFilterConfigWindow"),
                 prefix: new HarmonyMethod(typeof(HarmonyPatches), "DoThingFilterConfigWindow")
             );
-
             harmony.Patch(
                 original: AccessTools.Method(typeof(StorageSettings), "AllowedToAccept", new Type[] { typeof(Thing) }),
                 prefix: new HarmonyMethod(typeof(HarmonyPatches), "AllowedToAcceptThing")
             );
-
             harmony.Patch(
                 original: AccessTools.Method(typeof(StorageSettings), "AllowedToAccept", new Type[] { typeof(ThingDef) }),
                 prefix: new HarmonyMethod(typeof(HarmonyPatches), "AllowedToAcceptThingDef")
             );
-
             harmony.Patch(
                 original: AccessTools.Method(typeof(StorageSettingsClipboard), "Copy"),
                 postfix: new HarmonyMethod(typeof(HarmonyPatches), "Copy")
             );
-
             harmony.Patch(
                 original: AccessTools.Method(typeof(StorageSettingsClipboard), "PasteInto"),
                 postfix: new HarmonyMethod(typeof(HarmonyPatches), "PasteInto")

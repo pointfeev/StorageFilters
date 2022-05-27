@@ -23,7 +23,6 @@ namespace StorageFilters
             {
                 return; // if it can't get the TopAreaHeight, it means it's a container without priority and thus not actually storage
             }
-
             IStoreSettingsParent storeSettingsParent = GenUtils.GetSelectedStoreSettingsParent();
             if (storeSettingsParent is null)
             {
@@ -49,7 +48,6 @@ namespace StorageFilters
                 StorageFiltersData.CurrentFilterDepth.SetOrAdd(storeSettingsParent, 0);
                 tabFilter = StorageFiltersData.CurrentFilterKey.TryGetValue(storeSettingsParent);
             }
-
             Rect window = new Rect(0, 0, size.x, size.y);
             StorageTabRect = window;
             GUI.BeginGroup(window.ContractedBy(10f));
@@ -73,13 +71,9 @@ namespace StorageFilters
                     {
                         ExtraThingFilter _filter = tabFilters.Get(tabFilter);
                         while (!(_filter is null) && _filter.FilterDepth < tabFilterDepth)
-                        {
                             _filter = _filter.NextInPriorityFilter;
-                        }
                         if (!(_filter is null))
-                        {
                             filter = _filter;
-                        }
                     }
                 }
             }
@@ -88,58 +82,38 @@ namespace StorageFilters
         public static bool AllowsThingOrThingDef(this ThingFilter thingFilter, object thingOrThingDef)
         {
             if (thingOrThingDef is Thing)
-            {
                 return thingFilter.Allows(thingOrThingDef as Thing);
-            }
             else if (thingOrThingDef is ThingDef)
-            {
                 return thingFilter.Allows(thingOrThingDef as ThingDef);
-            }
             return false;
         }
 
         public static bool AllowedToAcceptThingOrThingDef(this StorageSettings storageSettings, object thingOrThingDef)
         {
             if (thingOrThingDef is Thing)
-            {
                 return storageSettings.AllowedToAccept(thingOrThingDef as Thing);
-            }
             else if (thingOrThingDef is ThingDef)
-            {
                 return storageSettings.AllowedToAccept(thingOrThingDef as ThingDef);
-            }
             return false;
         }
 
-        public static bool IsInBetterStorageThan(this Thing thing, IStoreSettingsParent owner)
-        {
-            IHaulDestination haulDestination = StoreUtility.CurrentHaulDestinationOf(thing);
-            return haulDestination != null && haulDestination.GetStoreSettings().Priority > owner.GetStoreSettings().Priority;
-        }
+        public static bool IsInBetterStorageThan(this Thing thing, IStoreSettingsParent owner) => StoreUtility.CurrentHaulDestinationOf(thing) is IHaulDestination haulDestination
+            && haulDestination.GetStoreSettings().Priority > owner.GetStoreSettings().Priority;
 
         public static void AllowedToAccept(IStoreSettingsParent owner, ThingFilter filter, object thingOrThingDef, ref bool result)
         {
             ExtraThingFilters tabFilters = null;
             if (owner != null)
-            {
                 tabFilters = StorageFiltersData.Filters.TryGetValue(owner);
-            }
             if (tabFilters != null && tabFilters.Count > 0)
             {
-                bool accepted = false;
-                if (filter.AllowsThingOrThingDef(thingOrThingDef))
-                {
-                    accepted = true;
-                }
+                bool accepted = filter.AllowsThingOrThingDef(thingOrThingDef);
                 if (!accepted)
-                {
                     foreach (KeyValuePair<string, ExtraThingFilter> entry in tabFilters)
                     {
                         if (accepted)
-                        {
                             break;
-                        }
-                        if (entry.Value.Enabled)
+                        else if (entry.Value.Enabled)
                         {
                             ExtraThingFilter currentFilter = entry.Value;
                             while (currentFilter != null)
@@ -175,18 +149,13 @@ namespace StorageFilters
                                         break;
                                     }
                                     else
-                                    {
                                         currentFilter = currentFilter.NextInPriorityFilter;
-                                    }
                                 }
                                 else
-                                {
                                     break;
-                                }
                             }
                         }
                     }
-                }
                 if (!accepted)
                 {
                     result = false;
@@ -223,36 +192,29 @@ namespace StorageFilters
 
         public static void Copy(StorageSettings storageSettings)
         {
-            IStoreSettingsParent storeSettingsParent = storageSettings.owner;
-            if (storeSettingsParent == null) { return; }
-            ExtraThingFilters filters = StorageFiltersData.Filters.TryGetValue(storeSettingsParent);
-            if (filters != null)
+            if (storageSettings.owner is IStoreSettingsParent storeSettingsParent)
             {
-                copiedFilters = new ExtraThingFilters();
-                foreach (KeyValuePair<string, ExtraThingFilter> entry in filters)
+                if (StorageFiltersData.Filters.TryGetValue(storeSettingsParent) is ExtraThingFilters filters)
                 {
-                    copiedFilters.Set(entry.Key, entry.Value.Copy());
+                    copiedFilters = new ExtraThingFilters();
+                    foreach (KeyValuePair<string, ExtraThingFilter> entry in filters)
+                        copiedFilters.Set(entry.Key, entry.Value.Copy());
                 }
+                copiedMainFilterString = StorageFiltersData.MainFilterString.TryGetValue(storeSettingsParent);
+                copiedCurrentFilterKey = StorageFiltersData.CurrentFilterKey.TryGetValue(storeSettingsParent);
             }
-            copiedMainFilterString = StorageFiltersData.MainFilterString.TryGetValue(storeSettingsParent);
-            copiedCurrentFilterKey = StorageFiltersData.CurrentFilterKey.TryGetValue(storeSettingsParent);
         }
 
         public static void Paste(StorageSettings storageSettings)
         {
-            IStoreSettingsParent storeSettingsParent = storageSettings.owner;
-            if (storeSettingsParent == null) { return; }
-            if (copiedFilters != null)
+            if (storageSettings.owner is IStoreSettingsParent storeSettingsParent)
             {
-                StorageFiltersData.Filters.SetOrAdd(storeSettingsParent, copiedFilters);
-            }
-            if (copiedMainFilterString != null)
-            {
-                StorageFiltersData.MainFilterString.SetOrAdd(storeSettingsParent, copiedMainFilterString);
-            }
-            if (copiedCurrentFilterKey != null)
-            {
-                StorageFiltersData.CurrentFilterKey.SetOrAdd(storeSettingsParent, copiedCurrentFilterKey);
+                if (!(copiedFilters is null))
+                    StorageFiltersData.Filters.SetOrAdd(storeSettingsParent, copiedFilters);
+                if (!(copiedMainFilterString is null))
+                    StorageFiltersData.MainFilterString.SetOrAdd(storeSettingsParent, copiedMainFilterString);
+                if (!(copiedCurrentFilterKey is null))
+                    StorageFiltersData.CurrentFilterKey.SetOrAdd(storeSettingsParent, copiedCurrentFilterKey);
             }
         }
     }
