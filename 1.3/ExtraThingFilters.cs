@@ -14,6 +14,8 @@ namespace StorageFilters
 
         public Dictionary<string, ExtraThingFilter>.KeyCollection Keys => filters.Keys;
 
+        public Dictionary<string, ExtraThingFilter>.ValueCollection Values => filters.Values;
+
         public int Count => filters.Count;
 
         public Dictionary<string, ExtraThingFilter>.Enumerator GetEnumerator() => filters.GetEnumerator();

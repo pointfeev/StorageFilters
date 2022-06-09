@@ -19,7 +19,7 @@ namespace StorageFilters
         public Dialog_EditFilter(ITab_Storage instance, IStoreSettingsParent storeSettingsParent)
         {
             doCloseX = true;
-            forcePause = true;
+            forcePause = false;
             closeOnAccept = false;
             closeOnCancel = false;
             absorbInputAroundWindow = false;
@@ -90,6 +90,7 @@ namespace StorageFilters
             }
             if (Widgets.CloseButtonFor(windowRect.AtZero()))
             {
+                StorageFiltersData.CurrentFilterDepth.SetOrAdd(storeSettingsParent, 0);
                 Find.WindowStack.TryRemove(this, true);
                 Event.current.Use();
                 return;

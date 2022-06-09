@@ -16,7 +16,7 @@ namespace StorageFilters
 
         public Dialog_RenameSavedFilter(Dialog_EditFilter editDialog)
         {
-            forcePause = true;
+            forcePause = false;
             closeOnAccept = false;
             closeOnCancel = false;
             absorbInputAroundWindow = true;

@@ -22,7 +22,7 @@ namespace StorageFilters
 
         public Dialog_Confirmation(ITab_Storage instance, IStoreSettingsParent storeSettingsParent, Dialog_EditFilter editDialog = null)
         {
-            forcePause = true;
+            forcePause = false;
             closeOnAccept = false;
             closeOnCancel = false;
             absorbInputAroundWindow = true;

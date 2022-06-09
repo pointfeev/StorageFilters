@@ -97,89 +97,44 @@ namespace StorageFilters
             return false;
         }
 
-        public static bool IsInBetterStorageThan(this Thing thing, IStoreSettingsParent owner) => StoreUtility.CurrentHaulDestinationOf(thing) is IHaulDestination haulDestination
-            && haulDestination.GetStoreSettings().Priority > owner.GetStoreSettings().Priority;
+        public static bool IsCurrentDestinationWorseThan(this Thing thing, IStoreSettingsParent owner) => !(StoreUtility.CurrentHaulDestinationOf(thing)
+            is IHaulDestination haulDestination) || haulDestination.GetStoreSettings().Priority < owner.GetStoreSettings().Priority;
 
         public static void AllowedToAccept(IStoreSettingsParent owner, ThingFilter filter, object thingOrThingDef, ref bool result)
         {
-            ExtraThingFilters tabFilters = null;
-            if (owner != null)
-                tabFilters = StorageFiltersData.Filters.TryGetValue(owner);
-            if (tabFilters != null && tabFilters.Count > 0)
-            {
-                bool accepted = filter.AllowsThingOrThingDef(thingOrThingDef);
-                if (!accepted)
-                    foreach (KeyValuePair<string, ExtraThingFilter> entry in tabFilters)
-                    {
-                        if (accepted)
-                            break;
-                        else if (entry.Value.Enabled)
+            result = filter.AllowsThingOrThingDef(thingOrThingDef);
+            if (!(owner is null))
+                if (result && owner.GetParentStoreSettings() is StorageSettings parentStoreSettings && !parentStoreSettings.AllowedToAcceptThingOrThingDef(thingOrThingDef))
+                    result = false;
+                else if (!result && StorageFiltersData.Filters.TryGetValue(owner) is ExtraThingFilters extraFilters && extraFilters.Count > 0)
+                    foreach (ExtraThingFilter extraFilter in extraFilters.Values)
+                        if (extraFilter.Enabled)
                         {
-                            ExtraThingFilter currentFilter = entry.Value;
+                            ExtraThingFilter currentFilter = extraFilter;
                             while (currentFilter != null)
-                            {
-                                if (currentFilter.AllowsThingOrThingDef(thingOrThingDef))
-                                {
-                                    accepted = true;
+                                if (result = currentFilter.AllowsThingOrThingDef(thingOrThingDef))
                                     break;
-                                }
                                 else if (currentFilter.NextInPriorityFilter != null)
                                 {
                                     bool allowedItemExistsAndCanBeUsed = false;
                                     foreach (ThingDef _thingDef in currentFilter.AllowedThingDefs)
                                     {
-                                        bool allowedItemCanBeUsed = false;
                                         foreach (Thing thingOfDef in Find.CurrentMap.listerThings.ThingsOfDef(_thingDef))
-                                        {
-                                            if (currentFilter.Allows(thingOfDef) && !thingOfDef.IsInBetterStorageThan(owner))
-                                            {
-                                                allowedItemCanBeUsed = true;
+                                            if (allowedItemExistsAndCanBeUsed = currentFilter.Allows(thingOfDef) && thingOfDef.IsCurrentDestinationWorseThan(owner))
                                                 break;
-                                            }
-                                        }
-                                        if (allowedItemCanBeUsed)
-                                        {
-                                            allowedItemExistsAndCanBeUsed = true;
+                                        if (allowedItemExistsAndCanBeUsed)
                                             break;
-                                        }
                                     }
                                     if (allowedItemExistsAndCanBeUsed)
-                                    {
-                                        accepted = false;
                                         break;
-                                    }
                                     else
                                         currentFilter = currentFilter.NextInPriorityFilter;
                                 }
                                 else
                                     break;
-                            }
+                            if (result)
+                                break;
                         }
-                    }
-                if (!accepted)
-                {
-                    result = false;
-                    return;
-                }
-            }
-            else
-            {
-                if (!filter.AllowsThingOrThingDef(thingOrThingDef))
-                {
-                    result = false;
-                    return;
-                }
-            }
-            if (owner != null)
-            {
-                StorageSettings parentStoreSettings = owner.GetParentStoreSettings();
-                if (parentStoreSettings != null && !parentStoreSettings.AllowedToAcceptThingOrThingDef(thingOrThingDef))
-                {
-                    result = false;
-                    return;
-                }
-            }
-            result = true;
         }
 
         public static void AllowedToAccept(IStoreSettingsParent owner, ThingFilter filter, ThingDef thingDef, ref bool result) => AllowedToAccept(owner, filter, thingDef as object, ref result);
