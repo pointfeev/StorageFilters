@@ -111,7 +111,7 @@ namespace StorageFilters
                     foreach (ExtraThingFilter extraFilter in extraFilters.Values)
                         if (extraFilter.Enabled && extraFilter is ExtraThingFilter currentFilter)
                             while (!(currentFilter is null))
-                                if ((result = currentFilter.AllowsThingOrThingDef(thingOrThingDef)) is true)
+                                if (result = currentFilter.AllowsThingOrThingDef(thingOrThingDef))
                                     return;
                                 else if (currentFilter.NextInPriorityFilter is ExtraThingFilter nextFilter)
                                 {
