@@ -66,7 +66,8 @@ namespace StorageFilters
                 {
                     ExtraThingFilters tabFilters = StorageFiltersData.Filters.TryGetValue(storeSettingsParent);
                     string tabFilter = StorageFiltersData.CurrentFilterKey.TryGetValue(storeSettingsParent);
-                    int tabFilterDepth = StorageFiltersData.CurrentFilterDepth.TryGetValue(storeSettingsParent);
+                    int tabFilterDepth = !(Find.WindowStack.WindowOfType<Dialog_EditFilter>() is null)
+                        ? StorageFiltersData.CurrentFilterDepth.TryGetValue(storeSettingsParent) : 0;
                     if (!(tabFilters is null) && !(tabFilter is null))
                     {
                         ExtraThingFilter _filter = tabFilters.Get(tabFilter);
@@ -98,7 +99,7 @@ namespace StorageFilters
         }
 
         public static bool IsCurrentDestinationWorseThan(this Thing thing, IStoreSettingsParent owner) => !(StoreUtility.CurrentHaulDestinationOf(thing)
-            is IHaulDestination haulDestination) || haulDestination.GetStoreSettings().Priority < owner.GetStoreSettings().Priority;
+            is IHaulDestination haulDestination) || haulDestination != owner || haulDestination.GetStoreSettings().Priority < owner.GetStoreSettings().Priority;
 
         public static void AllowedToAccept(IStoreSettingsParent owner, ThingFilter filter, object thingOrThingDef, ref bool result)
         {
@@ -108,33 +109,23 @@ namespace StorageFilters
                     result = false;
                 else if (!result && StorageFiltersData.Filters.TryGetValue(owner) is ExtraThingFilters extraFilters && extraFilters.Count > 0)
                     foreach (ExtraThingFilter extraFilter in extraFilters.Values)
-                        if (extraFilter.Enabled)
-                        {
-                            ExtraThingFilter currentFilter = extraFilter;
-                            while (currentFilter != null)
-                                if (result = currentFilter.AllowsThingOrThingDef(thingOrThingDef))
-                                    break;
-                                else if (currentFilter.NextInPriorityFilter != null)
+                        if (extraFilter.Enabled && extraFilter is ExtraThingFilter currentFilter)
+                            while (!(currentFilter is null))
+                                if ((result = currentFilter.AllowsThingOrThingDef(thingOrThingDef)) is true)
+                                    return;
+                                else if (currentFilter.NextInPriorityFilter is ExtraThingFilter nextFilter)
                                 {
-                                    bool allowedItemExistsAndCanBeUsed = false;
-                                    foreach (ThingDef _thingDef in currentFilter.AllowedThingDefs)
-                                    {
-                                        foreach (Thing thingOfDef in Find.CurrentMap.listerThings.ThingsOfDef(_thingDef))
-                                            if (allowedItemExistsAndCanBeUsed = currentFilter.Allows(thingOfDef) && thingOfDef.IsCurrentDestinationWorseThan(owner))
-                                                break;
-                                        if (allowedItemExistsAndCanBeUsed)
+                                    bool currentFilterNeedsToStoreAnyThingOnMap = false;
+                                    foreach (ThingDef allowedThingDef in currentFilter.AllowedThingDefs)
+                                        if (currentFilterNeedsToStoreAnyThingOnMap = Find.CurrentMap.listerThings.ThingsOfDef(allowedThingDef).Any(thing => currentFilter.Allows(thing) && thing.IsCurrentDestinationWorseThan(owner)))
                                             break;
-                                    }
-                                    if (allowedItemExistsAndCanBeUsed)
+                                    if (currentFilterNeedsToStoreAnyThingOnMap)
                                         break;
                                     else
-                                        currentFilter = currentFilter.NextInPriorityFilter;
+                                        currentFilter = nextFilter;
                                 }
                                 else
                                     break;
-                            if (result)
-                                break;
-                        }
         }
 
         public static void AllowedToAccept(IStoreSettingsParent owner, ThingFilter filter, ThingDef thingDef, ref bool result) => AllowedToAccept(owner, filter, thingDef as object, ref result);

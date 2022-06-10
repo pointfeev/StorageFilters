@@ -90,7 +90,6 @@ namespace StorageFilters
             }
             if (Widgets.CloseButtonFor(windowRect.AtZero()))
             {
-                StorageFiltersData.CurrentFilterDepth.SetOrAdd(storeSettingsParent, 0);
                 Find.WindowStack.TryRemove(this, true);
                 Event.current.Use();
                 return;
