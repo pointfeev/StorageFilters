@@ -17,7 +17,7 @@ namespace StorageFilters
 
         public Dialog_NewFilter(ITab_Storage instance, IStoreSettingsParent storeSettingsParent)
         {
-            forcePause = true;
+            forcePause = false;
             closeOnAccept = false;
             closeOnCancel = false;
             absorbInputAroundWindow = false;

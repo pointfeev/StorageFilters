@@ -19,7 +19,7 @@ namespace StorageFilters
         public Dialog_EditFilter(ITab_Storage instance, IStoreSettingsParent storeSettingsParent)
         {
             doCloseX = true;
-            forcePause = true;
+            forcePause = false;
             closeOnAccept = false;
             closeOnCancel = false;
             absorbInputAroundWindow = false;
