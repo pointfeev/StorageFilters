@@ -1,9 +1,9 @@
-﻿using System;
+﻿using RimWorld;
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-
-using RimWorld;
 
 using UnityEngine;
 
@@ -77,7 +77,7 @@ namespace StorageFilters
                     StorageFiltersData.CurrentFilterDepth.SetOrAdd(storeSettingsParent, 0);
                 }, extraPartWidth: editX, extraPartOnGUI: delegate (Rect extraRect)
                 {
-                    new FloatMenuOption(editString, delegate ()
+                    _ = new FloatMenuOption(editString, delegate ()
                     {
                         filterFloatMenu.Close();
                         Find.WindowStack.Add(new Dialog_EditFilter(instance, storeSettingsParent, mainFilterString, true, tabFilters));
@@ -107,7 +107,7 @@ namespace StorageFilters
                         {
                             Rect renameRect = extraRect;
                             renameRect.width = editX;
-                            new FloatMenuOption(editString, delegate ()
+                            _ = new FloatMenuOption(editString, delegate ()
                             {
                                 filterFloatMenu.Close();
                                 Find.WindowStack.Add(new Dialog_EditFilter(instance, storeSettingsParent, entry.Key, entry.Value, tabFilters));
@@ -117,7 +117,7 @@ namespace StorageFilters
                             Rect toggleRect = extraRect;
                             toggleRect.width = toggleX;
                             toggleRect.x += renameRect.width;
-                            new FloatMenuOption(entry.Value.Enabled ? disableString : enableString, delegate ()
+                            _ = new FloatMenuOption(entry.Value.Enabled ? disableString : enableString, delegate ()
                             {
                                 entry.Value.Enabled = !entry.Value.Enabled;
                                 if (entry.Value.Enabled)
@@ -129,7 +129,7 @@ namespace StorageFilters
                             Rect removeRect = extraRect;
                             removeRect.width = removeX;
                             removeRect.x += renameRect.width + toggleRect.width;
-                            new FloatMenuOption(removeString, delegate ()
+                            _ = new FloatMenuOption(removeString, delegate ()
                             {
                                 filterFloatMenu.Close();
                                 Find.WindowStack.Add(new Dialog_Confirmation(instance, storeSettingsParent, "ASF_ConfirmRemoveFilter".Translate(entry.Key), delegate ()
@@ -137,7 +137,7 @@ namespace StorageFilters
                                     tabFilters.Remove(entry.Key);
                                     if (StorageFiltersData.CurrentFilterKey.TryGetValue(storeSettingsParent) == entry.Key)
                                     {
-                                        Find.WindowStack.TryRemove(typeof(Dialog_EditFilter), true);
+                                        _ = Find.WindowStack.TryRemove(typeof(Dialog_EditFilter), true);
                                         StorageFiltersData.CurrentFilterKey.SetOrAdd(storeSettingsParent, mainFilterString);
                                         StorageFiltersData.CurrentFilterDepth.SetOrAdd(storeSettingsParent, 0);
                                     }
@@ -151,7 +151,7 @@ namespace StorageFilters
                 }
                 filterFloatMenuOptions.Add(newFilterOption(new FloatMenuOption("ASF_NewFilter".Translate(), delegate ()
                 {
-                    Find.WindowStack.TryRemove(typeof(Dialog_EditFilter), false);
+                    _ = Find.WindowStack.TryRemove(typeof(Dialog_EditFilter), false);
                     Find.WindowStack.Add(new Dialog_NewFilter(instance, storeSettingsParent, tabFilters));
                 })));
                 filterFloatMenu = new FloatMenu(filterFloatMenuOptions);

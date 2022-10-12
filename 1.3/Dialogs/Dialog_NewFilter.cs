@@ -43,7 +43,7 @@ namespace StorageFilters
                     tabFilters.Add(curName, new ExtraThingFilter());
                     StorageFiltersData.CurrentFilterKey.SetOrAdd(storeSettingsParent, curName);
                     //Messages.Message("Added new filter named '" + curName + "' to the specified storage area", MessageTypeDefOf.TaskCompletion, false);
-                    Find.WindowStack.TryRemove(this, true);
+                    _ = Find.WindowStack.TryRemove(this, true);
                 }
                 else
                 {
@@ -60,7 +60,7 @@ namespace StorageFilters
         {
             if (!GenUtils.IsStorageTabOpen(storageTab, storeSettingsParent))
             {
-                Find.WindowStack.TryRemove(this, false);
+                _ = Find.WindowStack.TryRemove(this, false);
                 return;
             }
             bool esc = false;
@@ -88,7 +88,7 @@ namespace StorageFilters
             float cancelOkY = nameY + 35f + 12f;
             if (Widgets.ButtonText(new Rect(0f, cancelOkY, winRect.width / 2f - 4f, 35f), "ASF_Cancel".Translate()) || esc)
             {
-                Find.WindowStack.TryRemove(this, true);
+                _ = Find.WindowStack.TryRemove(this, true);
                 Event.current.Use();
             }
             if (Widgets.ButtonText(new Rect(winRect.width / 2f + 4f, cancelOkY, winRect.width / 2f - 4f, 35f), "ASF_Accept".Translate()) || enter)

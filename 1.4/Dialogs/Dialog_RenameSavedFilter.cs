@@ -44,12 +44,12 @@ namespace StorageFilters
                 {
                     if (key != curName)
                     {
-                        StorageFiltersData.SavedFilterNoLoad.Remove(key);
+                        _ = StorageFiltersData.SavedFilterNoLoad.Remove(key);
                         StorageFiltersData.SavedFilterNoLoad.Add(curName, value);
                         SaveUtils.Save();
                     }
                     Messages.Message("ASF_RenamedSavedFilter".Translate(key, curName), MessageTypeDefOf.TaskCompletion, false);
-                    Find.WindowStack.TryRemove(this, true);
+                    _ = Find.WindowStack.TryRemove(this, true);
                 }
                 else
                 {
@@ -66,7 +66,7 @@ namespace StorageFilters
         {
             if (editFilterDialog is null || !editFilterDialog.IsOpen)
             {
-                Find.WindowStack.TryRemove(this, false);
+                _ = Find.WindowStack.TryRemove(this, false);
                 return;
             }
             bool esc = false;
@@ -94,7 +94,7 @@ namespace StorageFilters
             float cancelRenameY = nameY + 35f + 12f;
             if (Widgets.ButtonText(new Rect(0f, cancelRenameY, winRect.width / 2f - 4f, 35f), "ASF_Cancel".Translate()) || esc)
             {
-                Find.WindowStack.TryRemove(this, true);
+                _ = Find.WindowStack.TryRemove(this, true);
                 Event.current.Use();
             }
             if (Widgets.ButtonText(new Rect(winRect.width / 2f + 4f, cancelRenameY, winRect.width / 2f - 4f, 35f), "ASF_RenameFilter".Translate()) || enter)

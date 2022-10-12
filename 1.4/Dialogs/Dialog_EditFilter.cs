@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using RimWorld;
 
-using RimWorld;
+using System.Collections.Generic;
 
 using UnityEngine;
 
@@ -85,18 +85,18 @@ namespace StorageFilters
         {
             if (!GenUtils.IsStorageTabOpen(storageTab, storeSettingsParent))
             {
-                Find.WindowStack.TryRemove(this, false);
+                _ = Find.WindowStack.TryRemove(this, false);
                 return;
             }
             if (Widgets.CloseButtonFor(windowRect.AtZero()))
             {
-                Find.WindowStack.TryRemove(this, true);
+                _ = Find.WindowStack.TryRemove(this, true);
                 Event.current.Use();
                 return;
             }
             if (Filter is null || Event.current.type == EventType.KeyDown && (Event.current.keyCode == KeyCode.Escape || Event.current.keyCode == KeyCode.Return))
             {
-                Find.WindowStack.TryRemove(this, true);
+                _ = Find.WindowStack.TryRemove(this, true);
                 Event.current.Use();
                 return;
             }
@@ -126,7 +126,7 @@ namespace StorageFilters
                 }
                 if (Widgets.ButtonText(new Rect(winRect.width - renameStringX, renameY, renameStringX, 35f), renameString))
                 {
-                    CheckCurName();
+                    _ = CheckCurName();
                     Event.current.Use();
                 }
                 if (Widgets.ButtonText(new Rect(0f, saveLoadY, winRect.width / 2f - 4f, 35f), "ASF_SaveFilter".Translate()))
@@ -175,7 +175,7 @@ namespace StorageFilters
                             {
                                 Rect renameRect = extraRect;
                                 renameRect.width = renameX;
-                                new FloatMenuOption(renameString, delegate ()
+                                _ = new FloatMenuOption(renameString, delegate ()
                                 {
                                     filterFloatMenu.Close();
                                     Find.WindowStack.Add(new Dialog_RenameSavedFilter(this, entry.Key, entry.Value));
@@ -183,12 +183,12 @@ namespace StorageFilters
                                 Rect removeRect = extraRect;
                                 removeRect.width = removeX;
                                 removeRect.x += renameRect.width;
-                                new FloatMenuOption(removeString, delegate ()
+                                _ = new FloatMenuOption(removeString, delegate ()
                                 {
                                     filterFloatMenu.Close();
                                     Find.WindowStack.Add(new Dialog_Confirmation(storageTab, storeSettingsParent, "ASF_ConfirmDeleteSavedFilter".Translate(entry.Key), delegate ()
                                     {
-                                        StorageFiltersData.SavedFilter.Remove(entry.Key);
+                                        _ = StorageFiltersData.SavedFilter.Remove(entry.Key);
                                         SaveUtils.Save();
                                         Messages.Message("ASF_DeletedSavedFilter".Translate(entry.Key), MessageTypeDefOf.TaskCompletion, false);
                                     }, this));

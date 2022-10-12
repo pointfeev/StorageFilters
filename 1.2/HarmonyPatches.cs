@@ -1,8 +1,8 @@
-﻿using System;
-
-using HarmonyLib;
+﻿using HarmonyLib;
 
 using RimWorld;
+
+using System;
 
 using UnityEngine;
 
@@ -16,31 +16,31 @@ namespace StorageFilters
         static HarmonyPatches()
         {
             Harmony harmony = new Harmony("pointfeev.storagefilters");
-            harmony.Patch(
+            _ = harmony.Patch(
                 original: AccessTools.Method(typeof(ITab_Storage), "FillTab"),
                 postfix: new HarmonyMethod(typeof(HarmonyPatches), "FillTab")
             );
-            harmony.Patch(
+            _ = harmony.Patch(
                 original: AccessTools.Method(typeof(ITab_Storage), "get_TopAreaHeight"),
                 postfix: new HarmonyMethod(typeof(HarmonyPatches), "TopAreaHeight")
             );
-            harmony.Patch(
+            _ = harmony.Patch(
                 original: AccessTools.Method(typeof(ThingFilterUI), "DoThingFilterConfigWindow"),
                 prefix: new HarmonyMethod(typeof(HarmonyPatches), "DoThingFilterConfigWindow")
             );
-            harmony.Patch(
+            _ = harmony.Patch(
                 original: AccessTools.Method(typeof(StorageSettings), "AllowedToAccept", new Type[] { typeof(Thing) }),
                 prefix: new HarmonyMethod(typeof(HarmonyPatches), "AllowedToAcceptThing")
             );
-            harmony.Patch(
+            _ = harmony.Patch(
                 original: AccessTools.Method(typeof(StorageSettings), "AllowedToAccept", new Type[] { typeof(ThingDef) }),
                 prefix: new HarmonyMethod(typeof(HarmonyPatches), "AllowedToAcceptThingDef")
             );
-            harmony.Patch(
+            _ = harmony.Patch(
                 original: AccessTools.Method(typeof(StorageSettingsClipboard), "Copy"),
                 postfix: new HarmonyMethod(typeof(HarmonyPatches), "Copy")
             );
-            harmony.Patch(
+            _ = harmony.Patch(
                 original: AccessTools.Method(typeof(StorageSettingsClipboard), "PasteInto"),
                 postfix: new HarmonyMethod(typeof(HarmonyPatches), "PasteInto")
             );
@@ -48,7 +48,7 @@ namespace StorageFilters
 
         public static void FillTab(ITab_Storage __instance, Vector2 ___size) => StorageFilters.FillTab(__instance, ___size);
 
-        public static void TopAreaHeight(float __result) => __result = Math.Max(__result, 35f);
+        public static void TopAreaHeight(float __result) => _ = Math.Max(__result, 35f);
 
         public static bool DoThingFilterConfigWindow(ref ThingFilter filter)
         {

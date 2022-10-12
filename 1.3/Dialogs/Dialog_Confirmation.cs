@@ -1,6 +1,6 @@
-﻿using System;
+﻿using RimWorld;
 
-using RimWorld;
+using System;
 
 using UnityEngine;
 
@@ -65,7 +65,7 @@ namespace StorageFilters
         {
             if (!GenUtils.IsStorageTabOpen(storageTab, storeSettingsParent))
             {
-                Find.WindowStack.TryRemove(this, false);
+                _ = Find.WindowStack.TryRemove(this, false);
                 return;
             }
             bool esc = false;
@@ -104,12 +104,12 @@ namespace StorageFilters
             if (Widgets.ButtonText(new Rect(winRect.width / 2f - yesStringX - 28f, yesNoY, yesStringX + 24f, 35f), yesString) || enter)
             {
                 action();
-                Find.WindowStack.TryRemove(this, true);
+                _ = Find.WindowStack.TryRemove(this, true);
                 Event.current.Use();
             }
             if (Widgets.ButtonText(new Rect(winRect.width / 2f + 4f, yesNoY, noStringX + 24f, 35f), noString) || esc)
             {
-                Find.WindowStack.TryRemove(this, true);
+                _ = Find.WindowStack.TryRemove(this, true);
                 Event.current.Use();
             }
         }
