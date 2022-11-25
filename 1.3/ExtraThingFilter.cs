@@ -62,8 +62,7 @@ namespace StorageFilters
             if (!(otherFilter.NextInPriorityFilter is null))
                 NextInPriorityFilter = otherFilter.NextInPriorityFilter.Copy();
             CopyAllowancesFrom(otherFilter);
-            if (!(OriginalFilter is null))
-                OriginalFilter.CopyAllowancesFrom(this);
+            OriginalFilter?.CopyAllowancesFrom(this);
         }
 
         public ExtraThingFilter Copy()
@@ -73,11 +72,7 @@ namespace StorageFilters
             return copy;
         }
 
-        private void SyncWithMainFilter()
-        {
-            if (!(OriginalFilter is null))
-                OriginalFilter.CopyAllowancesFrom(this);
-        }
+        private void SyncWithMainFilter() => OriginalFilter?.CopyAllowancesFrom(this);
 
         public new void SetAllow(ThingDef thingDef, bool allow)
         {

@@ -53,7 +53,7 @@ namespace StorageFilters
 
         private bool CheckCurName()
         {
-            if (NamePlayerFactionDialogUtility.IsValidName(curName) && Text.CalcSize(curName).x <= StorageFiltersData.MaxFilterStringWidth)
+            if (NamePlayerFactionDialogUtility.IsValidName(curName))
             {
                 if (key == curName || StorageFiltersData.MainFilterString.TryGetValue(storeSettingsParent) != curName && !tabFilters.ContainsKey(curName))
                 {
@@ -120,10 +120,6 @@ namespace StorageFilters
             {
                 float renameStringX = Text.CalcSize(renameString).x + 30f;
                 curName = Widgets.TextField(new Rect(0f, renameY, winRect.width - 8f - renameStringX, 35f), curName);
-                if (Text.CalcSize(curName).x > StorageFiltersData.MaxFilterStringWidth)
-                {
-                    curName = curName.Substring(0, curName.Length - 1);
-                }
                 if (Widgets.ButtonText(new Rect(winRect.width - renameStringX, renameY, renameStringX, 35f), renameString))
                 {
                     _ = CheckCurName();

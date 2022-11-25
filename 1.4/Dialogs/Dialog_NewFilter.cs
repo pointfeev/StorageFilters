@@ -36,7 +36,7 @@ namespace StorageFilters
 
         private void CheckCurName()
         {
-            if (NamePlayerFactionDialogUtility.IsValidName(curName) && Text.CalcSize(curName).x <= StorageFiltersData.MaxFilterStringWidth)
+            if (NamePlayerFactionDialogUtility.IsValidName(curName))
             {
                 if (StorageFiltersData.MainFilterString.TryGetValue(storeSettingsParent) != curName && !tabFilters.ContainsKey(curName))
                 {
@@ -81,10 +81,6 @@ namespace StorageFilters
             Widgets.Label(new Rect(0f, 0f, winRect.width, newStringY), newString);
             float nameY = newStringY + 8f;
             curName = Widgets.TextField(new Rect(0f, nameY, winRect.width, 35f), curName);
-            if (Text.CalcSize(curName).x > StorageFiltersData.MaxFilterStringWidth)
-            {
-                curName = curName.Substring(0, curName.Length - 1);
-            }
             float cancelOkY = nameY + 35f + 12f;
             if (Widgets.ButtonText(new Rect(0f, cancelOkY, winRect.width / 2f - 4f, 35f), "ASF_Cancel".Translate()) || esc)
             {

@@ -1,5 +1,6 @@
 ﻿using RimWorld;
 
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 
@@ -13,7 +14,7 @@ namespace StorageFilters
     {
         public static Rect? StorageTabRect = null;
 
-        public static void FillTab(ITab_Storage instance, Vector2 size)
+        public static Rect? FillTab(ITab_Storage instance, Vector2 size)
         {
             try
             {
@@ -21,13 +22,13 @@ namespace StorageFilters
             }
             catch
             {
-                return; // if it can't get the TopAreaHeight, it means it's a container without priority and thus not actually storage
+                return null; // if it can't get the TopAreaHeight, it means it's a container without priority and thus not actually storage
             }
             IStoreSettingsParent storeSettingsParent = GenUtils.GetSelectedStoreSettingsParent();
             if (storeSettingsParent is null)
             {
                 Log.Warning("ASF_ModPrefix".Translate() + "ASF_StoreSettingsParentError".Translate());
-                return;
+                return null;
             }
             ExtraThingFilters tabFilters = StorageFiltersData.Filters.TryGetValue(storeSettingsParent);
             if (tabFilters is null)
@@ -51,9 +52,10 @@ namespace StorageFilters
             Rect window = new Rect(0, 0, size.x, size.y);
             StorageTabRect = window;
             GUI.BeginGroup(window.ContractedBy(10f));
-            Rect position = new Rect(166f, 0, Text.CalcSize(tabFilter).x + 16f, 29f);
+            Rect position = new Rect(166f, 0, Math.Min(Text.CalcSize(tabFilter).x + 16f, StorageFiltersData.MaxFilterStringWidth), 29f);
             GenUtils.FilterSelectionButton(instance, storeSettingsParent, tabFilters, mainFilterString, tabFilter, position);
             GUI.EndGroup();
+            return position;
         }
 
         public static void DoThingFilterConfigWindow(ref ThingFilter filter)

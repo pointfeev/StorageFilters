@@ -11,7 +11,7 @@ namespace StorageFilters
         public StorageFiltersData(Game _) { }
 
         public static readonly string DefaultMainFilterString = "ASF_MainFilter".Translate();
-        public static readonly float MaxFilterStringWidth = 84f;
+        public static float MaxFilterStringWidth = 94f;
 
         private static List<string> savedFilterKeys;
         private static List<ExtraThingFilter> savedFilterValues;
