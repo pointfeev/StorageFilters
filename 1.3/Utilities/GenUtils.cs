@@ -59,6 +59,7 @@ namespace StorageFilters
             Text.Font = GameFont.Small;
             if (Widgets.ButtonText(position, tabFilter, true, true, true))
             {
+                HarmonyPatches.SetMaterialFilterWindowActive(toggle: false, active: false);
                 Dictionary<FloatMenuOption, int> floatMenuOptionOrder = new Dictionary<FloatMenuOption, int>();
                 FloatMenuOption newFilterOption(FloatMenuOption floatMenuOption)
                 {
@@ -160,7 +161,6 @@ namespace StorageFilters
                 optionsFieldInfo.SetValue(filterFloatMenu, (from option in options orderby floatMenuOptionOrder.TryGetValue(option) ascending select option).ToList());
                 Find.WindowStack.Add(filterFloatMenu);
             }
-
             UIHighlighter.HighlightOpportunity(position, "StorageFilters");
         }
     }

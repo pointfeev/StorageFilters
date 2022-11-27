@@ -9,46 +9,42 @@ namespace StorageFilters
     public class ExtraThingFilter : ThingFilter
     {
         public bool Enabled = true;
-
-        private ExtraThingFilter nextInPriorityFilterParent;
-
+        //public int StackCountLimit = 0;
+        public int StackSizeLimit = 0;
+        public int FilterDepth = 0;
+        private ExtraThingFilter nextInPriorityFilterParent = null;
         public ExtraThingFilter NextInPriorityFilterParent
         {
             get
             {
-                if (!(nextInPriorityFilterParent is null))
-                    return nextInPriorityFilterParent;
-                else
-                {
+                if (nextInPriorityFilterParent is null)
                     foreach (KeyValuePair<IStoreSettingsParent, ExtraThingFilters> filters in StorageFiltersData.Filters)
                         foreach (KeyValuePair<string, ExtraThingFilter> filter in filters.Value)
                         {
                             ExtraThingFilter currentFilter = filter.Value;
-                            while (true)
-                            {
+                            while (nextInPriorityFilterParent is null && !(currentFilter.NextInPriorityFilter is null))
                                 if (currentFilter.NextInPriorityFilter == this)
                                 {
                                     nextInPriorityFilterParent = currentFilter;
                                     return currentFilter;
                                 }
-                                else if (currentFilter.NextInPriorityFilter != null)
-                                    currentFilter = currentFilter.NextInPriorityFilter;
-                                else
-                                    break;
-                            }
+                                else currentFilter = currentFilter.NextInPriorityFilter;
                         }
-                }
-                return null;
+                return nextInPriorityFilterParent;
             }
+            set => nextInPriorityFilterParent = value;
         }
-
         public ExtraThingFilter NextInPriorityFilter = null;
-        public int FilterDepth = 0;
 
         public ExtraThingFilter() : base() { }
 
-        public ThingFilter OriginalFilter = null;
+        public ExtraThingFilter(ExtraThingFilter parent = null, int filterDepth = 0) : this()
+        {
+            nextInPriorityFilterParent = parent;
+            FilterDepth = filterDepth;
+        }
 
+        public ThingFilter OriginalFilter = null;
         public ExtraThingFilter(ThingFilter originalFilter) : this()
         {
             CopyAllowancesFrom(originalFilter);
@@ -58,9 +54,14 @@ namespace StorageFilters
         public void CopyFrom(ExtraThingFilter otherFilter)
         {
             Enabled = otherFilter.Enabled;
+            //StackCountLimit = otherFilter.StackCountLimit;
+            StackSizeLimit = otherFilter.StackSizeLimit;
             FilterDepth = otherFilter.FilterDepth;
             if (!(otherFilter.NextInPriorityFilter is null))
+            {
                 NextInPriorityFilter = otherFilter.NextInPriorityFilter.Copy();
+                NextInPriorityFilter.NextInPriorityFilterParent = this;
+            }
             CopyAllowancesFrom(otherFilter);
             OriginalFilter?.CopyAllowancesFrom(this);
         }
@@ -86,27 +87,9 @@ namespace StorageFilters
             SyncWithMainFilter();
         }
 
-        public new void SetAllow(ThingCategoryDef categoryDef, bool allow, IEnumerable<ThingDef> exceptedDefs = null, IEnumerable<SpecialThingFilterDef> exceptedFilters = null)
+        public new void SetAllowAll(ThingFilter parentFilter, bool includeNonStorable = false)
         {
-            base.SetAllow(categoryDef, allow, exceptedDefs, exceptedFilters);
-            SyncWithMainFilter();
-        }
-
-        public new void SetAllow(StuffCategoryDef cat, bool allow)
-        {
-            base.SetAllow(cat, allow);
-            SyncWithMainFilter();
-        }
-
-        public new void SetAllowAllWhoCanMake(ThingDef thing)
-        {
-            base.SetAllowAllWhoCanMake(thing);
-            SyncWithMainFilter();
-        }
-
-        public new void SetFromPreset(StorageSettingsPreset preset)
-        {
-            base.SetFromPreset(preset);
+            base.SetAllowAll(parentFilter, includeNonStorable);
             SyncWithMainFilter();
         }
 
@@ -116,18 +99,14 @@ namespace StorageFilters
             SyncWithMainFilter();
         }
 
-        public new void SetAllowAll(ThingFilter parentFilter, bool includeNonStorable = false)
-        {
-            base.SetAllowAll(parentFilter, includeNonStorable);
-            SyncWithMainFilter();
-        }
-
         public override void ExposeData()
         {
             base.ExposeData();
             if (OriginalFilter is null)
             {
                 Scribe_Values.Look(ref Enabled, "Enabled", true);
+                //Scribe_Values.Look(ref StackCountLimit, "StackCountLimit", 0);
+                Scribe_Values.Look(ref StackSizeLimit, "StackSizeLimit", 0);
                 Scribe_Deep.Look(ref NextInPriorityFilter, false, "NextInPriorityFilter");
                 Scribe_Values.Look(ref FilterDepth, "NextInPriorityFilterDepth", 0);
             }
