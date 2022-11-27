@@ -131,18 +131,21 @@ namespace StorageFilters
                     _ = CheckCurName();
                     Event.current.Use();
                 }
-                /*string stackCountString = "ASF_StackCountLimit".Translate();
-                Vector2 stackCountStringSize = Text.CalcSize(stackCountString);
-                Widgets.Label(new Rect(0f, stackCountY + 35f / 2 - stackCountStringSize.y / 2, stackCountStringSize.x, 35f), stackCountString);
-                string stackCountLimitString = Widgets.TextField(new Rect(stackCountStringSize.x + 8f, stackCountY, winRect.width - stackCountStringSize.x - 8f, 35f), Filter.StackCountLimit.ToString());
-                if (int.TryParse(stackCountLimitString, out int stackCountLimit))
-                    Filter.StackCountLimit = stackCountLimit;*/
-                string stackSizeString = "ASF_StackSizeLimit".Translate();
-                Vector2 stackSizeStringSize = Text.CalcSize(stackSizeString);
-                Widgets.Label(new Rect(0f, stackLimitY + 35f / 2 - stackSizeStringSize.y / 2, stackSizeStringSize.x, 35f), stackSizeString);
-                string stackSizeLimitString = Widgets.TextField(new Rect(stackSizeStringSize.x + 8f, stackLimitY, winRect.width - stackSizeStringSize.x - 8f, 35f), Filter.StackSizeLimit.ToString());
-                if (int.TryParse(stackSizeLimitString, out int stackSizeLimit))
-                    Filter.StackSizeLimit = stackSizeLimit;
+                if (!keyIsMainFilterString)
+                {
+                    /*string stackCountString = "ASF_StackCountLimit".Translate();
+                    Vector2 stackCountStringSize = Text.CalcSize(stackCountString);
+                    Widgets.Label(new Rect(0f, stackCountY + 35f / 2 - stackCountStringSize.y / 2, stackCountStringSize.x, 35f), stackCountString);
+                    string stackCountLimitString = Widgets.TextField(new Rect(stackCountStringSize.x + 8f, stackCountY, winRect.width - stackCountStringSize.x - 8f, 35f), Filter.StackCountLimit.ToString());
+                    if (int.TryParse(stackCountLimitString, out int stackCountLimit))
+                        Filter.StackCountLimit = stackCountLimit;*/
+                    string stackSizeString = "ASF_StackSizeLimit".Translate();
+                    Vector2 stackSizeStringSize = Text.CalcSize(stackSizeString);
+                    Widgets.Label(new Rect(0f, stackLimitY + 35f / 2 - stackSizeStringSize.y / 2, stackSizeStringSize.x, 35f), stackSizeString);
+                    string stackSizeLimitString = Widgets.TextField(new Rect(stackSizeStringSize.x + 8f, stackLimitY, winRect.width - stackSizeStringSize.x - 8f, 35f), Filter.StackSizeLimit.ToString());
+                    if (int.TryParse(stackSizeLimitString, out int stackSizeLimit))
+                        Filter.StackSizeLimit = stackSizeLimit;
+                }
                 if (Widgets.ButtonText(new Rect(0f, saveLoadY, winRect.width / 2f - 4f, 35f), "ASF_SaveFilter".Translate()))
                 {
                     if (StorageFiltersData.SavedFilter.TryGetValue(key) != null)
