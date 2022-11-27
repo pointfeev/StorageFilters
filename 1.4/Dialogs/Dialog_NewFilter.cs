@@ -17,6 +17,10 @@ namespace StorageFilters
 
         public Dialog_NewFilter(ITab_Storage instance, IStoreSettingsParent storeSettingsParent)
         {
+            layer = WindowLayer.GameUI;
+            preventCameraMotion = false;
+            soundAppear = SoundDefOf.TabOpen;
+            soundClose = SoundDefOf.TabClose;
             forcePause = false;
             closeOnAccept = false;
             closeOnCancel = false;

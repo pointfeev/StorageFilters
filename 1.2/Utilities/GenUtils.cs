@@ -26,11 +26,8 @@ namespace StorageFilters
 
         public static void PlayClick() => SoundDefOf.Click.PlayOneShotOnCamera(null);
 
-        public static Rect GetDialogSizeAndPosition(Window dialog, Window editDialog = null)
+        public static Vector2 GetDialogPosition(float X = 0, float Y = 0, Window editDialog = null)
         {
-            Vector2 initialSize = dialog.InitialSize;
-            float X = (UI.screenWidth - initialSize.x) / 2f;
-            float Y = (UI.screenHeight - initialSize.y) / 2f;
             if (MainButtonDefOf.Inspect.TabWindow is MainTabWindow_Inspect inspectPane && StorageFilters.StorageTabRect.HasValue)
             {
                 X = StorageFilters.StorageTabRect.Value.xMax - 1f;
@@ -38,7 +35,14 @@ namespace StorageFilters
                 if (!(editDialog is null))
                     X += editDialog.InitialSize.x - 1f;
             }
-            return new Rect(X, Y, initialSize.x, initialSize.y).Rounded();
+            return new Vector2(X, Y).Rounded();
+        }
+
+        public static Rect GetDialogSizeAndPosition(Window dialog, Window editDialog = null)
+        {
+            Vector2 initialSize = dialog.InitialSize;
+            Vector2 position = GetDialogPosition((UI.screenWidth - initialSize.x) / 2f, (UI.screenHeight - initialSize.y) / 2f, editDialog);
+            return new Rect(position, new Vector2(initialSize.x, initialSize.y)).Rounded();
         }
 
         public static IStoreSettingsParent GetStoreSettingsParent(object obj)

@@ -16,6 +16,10 @@ namespace StorageFilters
 
         public Dialog_RenameSavedFilter(Dialog_EditFilter editDialog)
         {
+            layer = WindowLayer.GameUI;
+            preventCameraMotion = false;
+            soundAppear = SoundDefOf.TabOpen;
+            soundClose = SoundDefOf.TabClose;
             forcePause = false;
             closeOnAccept = false;
             closeOnCancel = false;

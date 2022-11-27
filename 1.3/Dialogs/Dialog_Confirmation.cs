@@ -22,6 +22,10 @@ namespace StorageFilters
 
         public Dialog_Confirmation(ITab_Storage instance, IStoreSettingsParent storeSettingsParent, Dialog_EditFilter editDialog = null)
         {
+            layer = WindowLayer.GameUI;
+            preventCameraMotion = false;
+            soundAppear = SoundDefOf.TabOpen;
+            soundClose = SoundDefOf.TabClose;
             forcePause = false;
             closeOnAccept = false;
             closeOnCancel = false;

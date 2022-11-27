@@ -123,12 +123,10 @@ namespace StorageFilters
         }
 
         private static float oldMaxFilterStringWidth = 0;
-        private static ITab_Storage lastInstance;
-        private static Vector2? lastSize;
         private static Rect? lastButton;
 
         private static MethodInfo windowOfType;
-        public static void SetMaterialFilterWindowActive(ThingFilter filter = null, float y = 0, bool toggle = true, bool active = false)
+        public static void SetMaterialFilterWindowActive(ThingFilter filter = null, Vector2 position = default, bool toggle = true, bool active = false)
         {
             if (!MaterialFilterActive)
                 return;
@@ -141,21 +139,21 @@ namespace StorageFilters
                 window.Close();
             else if (toggle)
                 shouldShow = true;
-            if (shouldShow && !(lastSize is null))
+            if (shouldShow)
             {
                 _ = Find.WindowStack.TryRemove(typeof(Dialog_Confirmation), true);
                 _ = Find.WindowStack.TryRemove(typeof(Dialog_EditFilter), true);
                 _ = Find.WindowStack.TryRemove(typeof(Dialog_NewFilter), true);
                 _ = Find.WindowStack.TryRemove(typeof(Dialog_RenameSavedFilter), true);
                 Find.WindowStack.Add(materialFilterWindowCtor.Invoke(new object[] {
-                    filter, y, lastSize.Value.x, WindowLayer.GameUI
+                    filter, position.y, position.x, WindowLayer.GameUI
                 }) as Window);
             }
         }
 
         public static bool DrawFilterButton()
         {
-            if (!StorageFilters.StorageTabRect.HasValue || lastInstance is null || lastSize is null || lastButton is null)
+            if (!StorageFilters.StorageTabRect.HasValue || lastButton is null)
                 return true;
             IStoreSettingsParent storeSettingsParent = GenUtils.GetSelectedStoreSettingsParent();
             if (storeSettingsParent is null)
@@ -174,7 +172,7 @@ namespace StorageFilters
             }
             Rect position = new Rect(lastButton.Value.x + oldMaxFilterStringWidth - width, 0, width, 29f);
             if (Widgets.ButtonText(position, text))
-                SetMaterialFilterWindowActive(filter, TabRect.y);
+                SetMaterialFilterWindowActive(filter, GenUtils.GetDialogPosition());
             GUI.EndGroup();
             return false;
         }
@@ -193,11 +191,7 @@ namespace StorageFilters
         public static void FillTab(ITab_Storage __instance, Vector2 ___size)
         {
             if (MaterialFilterActive)
-            {
-                lastInstance = __instance;
-                lastSize = ___size;
                 lastButton = StorageFilters.FillTab(__instance, ___size);
-            }
             else _ = StorageFilters.FillTab(__instance, ___size);
         }
 
