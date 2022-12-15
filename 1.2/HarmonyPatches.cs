@@ -1,16 +1,11 @@
-﻿using CompatUtils;
-
-using HarmonyLib;
-
-using RimWorld;
-
-using StorageFilters.Utilities;
-
-using System;
+﻿using System;
 using System.Reflection;
-
+using CompatUtils;
+using HarmonyLib;
+using RimWorld;
+using StorageFilters.Dialogs;
+using StorageFilters.Utilities;
 using UnityEngine;
-
 using Verse;
 using Verse.AI;
 
@@ -19,11 +14,14 @@ namespace StorageFilters
     [StaticConstructorOnStartup]
     public static class HarmonyPatches
     {
-        internal static readonly bool MaterialFilterActive;
-        private static readonly Type materialFilterWindowType;
-        private static readonly ConstructorInfo materialFilterWindowCtor;
+        private static readonly bool MaterialFilterActive;
+        private static readonly Type MaterialFilterWindowType;
+        private static readonly ConstructorInfo MaterialFilterWindowCtor;
 
-        internal static readonly bool PickUpAndHaulActive;
+        private static float oldMaxFilterStringWidth;
+        private static Rect? lastButton;
+
+        private static MethodInfo windowOfType;
 
         static HarmonyPatches()
         {
@@ -31,107 +29,90 @@ namespace StorageFilters
             MaterialFilterActive = Compatibility.IsModActive("kamikatze.materialfilter");
             if (MaterialFilterActive)
             {
-                MethodInfo drawFilterButton = Compatibility.GetConsistentMethod("kamikatze.materialfilter", "MaterialFilter.ITab_Storage_FillTab_Patch", "drawFilterButton", new Type[] {
-                    typeof(ITab_Storage), typeof(Vector2)
-                }, logError: true);
+                MethodInfo drawFilterButton = Compatibility.GetConsistentMethod("kamikatze.materialfilter",
+                    "MaterialFilter.ITab_Storage_FillTab_Patch",
+                    "drawFilterButton",
+                    new[] { typeof(ITab_Storage), typeof(Vector2) }, true);
                 if (!(drawFilterButton is null)
-                    && AccessTools.TypeByName("MaterialFilter.MaterialFilterWindow") is Type type
-                    && AccessTools.Constructor(type, new Type[] {
-                        typeof(ThingFilter), typeof(float), typeof(float), typeof(WindowLayer)
-                    }) is ConstructorInfo ctor)
+                 && AccessTools.TypeByName("MaterialFilter.MaterialFilterWindow") is Type type
+                 && AccessTools.Constructor(type,
+                                            new[]
+                                            {
+                                                typeof(ThingFilter), typeof(float), typeof(float),
+                                                typeof(WindowLayer)
+                                            }) is
+                        ConstructorInfo ctor)
                 {
-                    _ = harmony.Patch(
-                        original: drawFilterButton,
-                        prefix: new HarmonyMethod(typeof(HarmonyPatches), nameof(DrawFilterButton))
-                    );
-                    materialFilterWindowType = type;
-                    materialFilterWindowCtor = ctor;
+                    _ = harmony.Patch(drawFilterButton,
+                                      new HarmonyMethod(typeof(HarmonyPatches), nameof(DrawFilterButton)));
+                    MaterialFilterWindowType = type;
+                    MaterialFilterWindowCtor = ctor;
                 }
             }
-            PickUpAndHaulActive = Compatibility.IsModActive("mehni.pickupandhaul");
-            if (PickUpAndHaulActive)
+
+            bool pickUpAndHaulActive = Compatibility.IsModActive("mehni.pickupandhaul");
+            if (pickUpAndHaulActive)
             {
-                MethodInfo capacityAt = Compatibility.GetConsistentMethod("mehni.pickupandhaul", "PickUpAndHaul.WorkGiver_HaulToInventory", "CapacityAt", new Type[] {
-                    typeof(Thing), typeof(IntVec3), typeof(Map)
-                }, logError: true);
+                MethodInfo capacityAt = Compatibility.GetConsistentMethod("mehni.pickupandhaul",
+                                                                          "PickUpAndHaul.WorkGiver_HaulToInventory",
+                                                                          "CapacityAt",
+                                                                          new[]
+                                                                          {
+                                                                              typeof(Thing), typeof(IntVec3),
+                                                                              typeof(Map)
+                                                                          }, true);
                 if (!(capacityAt is null))
-                    _ = harmony.Patch(
-                        original: capacityAt,
-                        prefix: new HarmonyMethod(typeof(HarmonyPatches), nameof(CapacityAt))
-                    );
-                MethodInfo tryFindBestBetterStoreCellFor = Compatibility.GetConsistentMethod("mehni.pickupandhaul", "PickUpAndHaul.WorkGiver_HaulToInventory", "TryFindBestBetterStoreCellFor", new Type[] {
-                    typeof(Thing), typeof(Pawn), typeof(Map), typeof(StoragePriority), typeof(Faction), typeof(IntVec3)
-                }, logError: true);
+                    _ = harmony.Patch(capacityAt,
+                                      new HarmonyMethod(typeof(HarmonyPatches), nameof(CapacityAt)));
+                MethodInfo tryFindBestBetterStoreCellFor = Compatibility.GetConsistentMethod("mehni.pickupandhaul",
+                    "PickUpAndHaul.WorkGiver_HaulToInventory", "TryFindBestBetterStoreCellFor",
+                    new[]
+                    {
+                        typeof(Thing), typeof(Pawn), typeof(Map), typeof(StoragePriority), typeof(Faction),
+                        typeof(IntVec3)
+                    }, true);
                 if (!(tryFindBestBetterStoreCellFor is null))
-                    _ = harmony.Patch(
-                    original: tryFindBestBetterStoreCellFor,
-                        prefix: new HarmonyMethod(typeof(HarmonyPatches), nameof(PUAH_TryFindBestBetterStoreCellFor))
-                    );
+                    _ = harmony.Patch(tryFindBestBetterStoreCellFor,
+                                      new HarmonyMethod(typeof(HarmonyPatches),
+                                                        nameof(PUAH_TryFindBestBetterStoreCellFor)));
             }
-            _ = harmony.Patch(
-                original: AccessTools.Method(typeof(ITab_Storage), "FillTab"),
-                postfix: new HarmonyMethod(typeof(HarmonyPatches), nameof(FillTab))
-            );
-            _ = harmony.Patch(
-                original: AccessTools.Method(typeof(ITab_Storage), "get_TopAreaHeight"),
-                postfix: new HarmonyMethod(typeof(HarmonyPatches), nameof(TopAreaHeight))
-            );
-            _ = harmony.Patch(
-                original: AccessTools.Method(typeof(ThingFilterUI), "DoThingFilterConfigWindow"),
-                prefix: new HarmonyMethod(typeof(HarmonyPatches), nameof(DoThingFilterConfigWindow))
-            );
-            _ = harmony.Patch(
-                original: AccessTools.Method(typeof(StorageSettings), "AllowedToAccept", new Type[] { typeof(Thing) }),
-                prefix: new HarmonyMethod(typeof(HarmonyPatches), nameof(AllowedToAccept))
-            );
-            _ = harmony.Patch(
-                original: AccessTools.Method(typeof(HaulAIUtility), "HaulToStorageJob"),
-                postfix: new HarmonyMethod(typeof(HarmonyPatches), nameof(HaulToStorageJob))
-            );
-            _ = harmony.Patch(
-                original: AccessTools.Method(typeof(StoreUtility), "NoStorageBlockersIn"),
-                postfix: new HarmonyMethod(typeof(HarmonyPatches), nameof(NoStorageBlockersIn))
-            );
-            _ = harmony.Patch(
-                original: AccessTools.Method(typeof(GenPlace), "PlaceSpotQualityAt"),
-                prefix: new HarmonyMethod(typeof(HarmonyPatches), nameof(PlaceSpotQualityAt))
-            );
-            _ = harmony.Patch(
-                original: AccessTools.Method(typeof(StoreUtility), "TryFindBestBetterStoreCellFor"),
-                prefix: new HarmonyMethod(typeof(HarmonyPatches), nameof(TryFindBestBetterStoreCellFor))
-            );
-            _ = harmony.Patch(
-                original: AccessTools.Method(typeof(ThingUtility), "TryAbsorbStackNumToTake"),
-                postfix: new HarmonyMethod(typeof(HarmonyPatches), nameof(TryAbsorbStackNumToTake))
-            );
-            _ = harmony.Patch(
-                original: AccessTools.Method(typeof(ListerMergeables), "ShouldBeMergeable"),
-                postfix: new HarmonyMethod(typeof(HarmonyPatches), nameof(ShouldBeMergeable))
-            );
-            _ = harmony.Patch(
-                original: AccessTools.Method(typeof(StorageSettingsClipboard), "Copy"),
-                postfix: new HarmonyMethod(typeof(HarmonyPatches), nameof(Copy))
-            );
-            _ = harmony.Patch(
-                original: AccessTools.Method(typeof(StorageSettingsClipboard), "PasteInto"),
-                postfix: new HarmonyMethod(typeof(HarmonyPatches), nameof(PasteInto))
-            );
-            _ = harmony.Patch(
-                original: AccessTools.Method(typeof(Log), "Error", new Type[] { typeof(string) }),
-                prefix: new HarmonyMethod(typeof(HarmonyPatches), nameof(Error))
-            );
+
+            _ = harmony.Patch(AccessTools.Method(typeof(ITab_Storage), "FillTab"),
+                              postfix: new HarmonyMethod(typeof(HarmonyPatches), nameof(FillTab)));
+            _ = harmony.Patch(AccessTools.Method(typeof(ITab_Storage), "get_TopAreaHeight"),
+                              postfix: new HarmonyMethod(typeof(HarmonyPatches), nameof(TopAreaHeight)));
+            _ = harmony.Patch(AccessTools.Method(typeof(ThingFilterUI), "DoThingFilterConfigWindow"),
+                              new HarmonyMethod(typeof(HarmonyPatches), nameof(DoThingFilterConfigWindow)));
+            _ = harmony.Patch(AccessTools.Method(typeof(StorageSettings), "AllowedToAccept", new[] { typeof(Thing) }),
+                              new HarmonyMethod(typeof(HarmonyPatches), nameof(AllowedToAccept)));
+            _ = harmony.Patch(AccessTools.Method(typeof(HaulAIUtility), "HaulToStorageJob"),
+                              postfix: new HarmonyMethod(typeof(HarmonyPatches), nameof(HaulToStorageJob)));
+            _ = harmony.Patch(AccessTools.Method(typeof(StoreUtility), "NoStorageBlockersIn"),
+                              postfix: new HarmonyMethod(typeof(HarmonyPatches), nameof(NoStorageBlockersIn)));
+            _ = harmony.Patch(AccessTools.Method(typeof(GenPlace), "PlaceSpotQualityAt"),
+                              new HarmonyMethod(typeof(HarmonyPatches), nameof(PlaceSpotQualityAt)));
+            _ = harmony.Patch(AccessTools.Method(typeof(StoreUtility), "TryFindBestBetterStoreCellFor"),
+                              new HarmonyMethod(typeof(HarmonyPatches), nameof(TryFindBestBetterStoreCellFor)));
+            _ = harmony.Patch(AccessTools.Method(typeof(ThingUtility), "TryAbsorbStackNumToTake"),
+                              postfix: new HarmonyMethod(typeof(HarmonyPatches), nameof(TryAbsorbStackNumToTake)));
+            _ = harmony.Patch(AccessTools.Method(typeof(ListerMergeables), "ShouldBeMergeable"),
+                              postfix: new HarmonyMethod(typeof(HarmonyPatches), nameof(ShouldBeMergeable)));
+            _ = harmony.Patch(AccessTools.Method(typeof(StorageSettingsClipboard), "Copy"),
+                              postfix: new HarmonyMethod(typeof(HarmonyPatches), nameof(Copy)));
+            _ = harmony.Patch(AccessTools.Method(typeof(StorageSettingsClipboard), "PasteInto"),
+                              postfix: new HarmonyMethod(typeof(HarmonyPatches), nameof(PasteInto)));
+            _ = harmony.Patch(AccessTools.Method(typeof(Log), "Error", new[] { typeof(string) }),
+                              new HarmonyMethod(typeof(HarmonyPatches), nameof(Error)));
         }
 
-        private static float oldMaxFilterStringWidth = 0;
-        private static Rect? lastButton;
-
-        private static MethodInfo windowOfType;
-        public static void SetMaterialFilterWindowActive(ThingFilter filter = null, Vector2 position = default, bool toggle = true, bool active = false)
+        public static void SetMaterialFilterWindowActive(ThingFilter filter = null, Vector2 position = default,
+                                                         bool toggle = true, bool active = false)
         {
             if (!MaterialFilterActive)
                 return;
             if (windowOfType is null)
-                windowOfType = typeof(WindowStack)?.GetMethod("WindowOfType", (BindingFlags)(-1))?.MakeGenericMethod(materialFilterWindowType);
+                windowOfType = typeof(WindowStack).GetMethod("WindowOfType", (BindingFlags)(-1))
+                                                 ?.MakeGenericMethod(MaterialFilterWindowType);
             if (windowOfType is null)
                 return;
             bool shouldShow = !toggle && active;
@@ -141,13 +122,13 @@ namespace StorageFilters
                 shouldShow = true;
             if (shouldShow)
             {
-                _ = Find.WindowStack.TryRemove(typeof(Dialog_Confirmation), true);
-                _ = Find.WindowStack.TryRemove(typeof(Dialog_EditFilter), true);
-                _ = Find.WindowStack.TryRemove(typeof(Dialog_NewFilter), true);
-                _ = Find.WindowStack.TryRemove(typeof(Dialog_RenameSavedFilter), true);
-                Find.WindowStack.Add(materialFilterWindowCtor.Invoke(new object[] {
-                    filter, position.y, position.x, WindowLayer.GameUI
-                }) as Window);
+                _ = Find.WindowStack.TryRemove(typeof(Dialog_Confirmation));
+                _ = Find.WindowStack.TryRemove(typeof(Dialog_EditFilter));
+                _ = Find.WindowStack.TryRemove(typeof(Dialog_NewFilter));
+                _ = Find.WindowStack.TryRemove(typeof(Dialog_RenameSavedFilter));
+                Find.WindowStack.Add(
+                    MaterialFilterWindowCtor.Invoke(new object[] { filter, position.y, position.x, WindowLayer.GameUI })
+                        as Window);
             }
         }
 
@@ -158,18 +139,19 @@ namespace StorageFilters
             IStoreSettingsParent storeSettingsParent = GenUtils.GetSelectedStoreSettingsParent();
             if (storeSettingsParent is null)
                 return true;
-            Rect TabRect = StorageFilters.StorageTabRect.Value;
+            Rect tabRect = StorageFilters.StorageTabRect.Value;
             ThingFilter filter = storeSettingsParent.GetStoreSettings()?.filter;
             if (filter is null)
                 return true;
             string text = ">>";
-            GUI.BeginGroup(TabRect.ContractedBy(10f));
+            GUI.BeginGroup(tabRect.ContractedBy(10f));
             float width = Text.CalcSize(text).x + 10f;
             if (oldMaxFilterStringWidth is 0)
             {
                 oldMaxFilterStringWidth = StorageFiltersData.MaxFilterStringWidth;
                 StorageFiltersData.MaxFilterStringWidth -= width;
             }
+
             Rect position = new Rect(lastButton.Value.x + oldMaxFilterStringWidth - width, 0, width, 29f);
             if (Widgets.ButtonText(position, text))
                 SetMaterialFilterWindowActive(filter, GenUtils.GetDialogPosition());
@@ -197,10 +179,11 @@ namespace StorageFilters
 
         public static void TopAreaHeight(float __result) => _ = Math.Max(__result, 35f);
 
-        public static void DoThingFilterConfigWindow(ref ThingFilter filter)
-            => StorageFilters.DoThingFilterConfigWindow(ref filter);
+        public static void DoThingFilterConfigWindow(ref ThingFilter filter, ThingFilter parentFilter)
+            => StorageFilters.DoThingFilterConfigWindow(ref filter, parentFilter);
 
-        public static bool AllowedToAccept(Thing t, ref bool __result, ThingFilter ___filter, IStoreSettingsParent ___owner)
+        public static bool AllowedToAccept(Thing t, ref bool __result, ThingFilter ___filter,
+                                           IStoreSettingsParent ___owner)
             => StorageFilters.AllowedToAccept(___owner, ___filter, t, ref __result);
 
         public static void HaulToStorageJob(Thing t, ref Job __result)
@@ -226,6 +209,8 @@ namespace StorageFilters
         public static void PasteInto(StorageSettings s) => StorageFilters.Paste(s);
 
         public static bool Error(string text) => !text.StartsWith("Could not load reference to ")
-            && !ReflectionUtils.IsMethodInCallStack(AccessTools.Method(typeof(ExtraThingFilter), nameof(ExtraThingFilter.ExposeData)));
+                                              && !ReflectionUtils.IsMethodInCallStack(
+                                                     AccessTools.Method(typeof(ExtraThingFilter),
+                                                                        nameof(ExtraThingFilter.ExposeData)));
     }
 }

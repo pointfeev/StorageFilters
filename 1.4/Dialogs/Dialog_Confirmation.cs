@@ -1,26 +1,27 @@
-﻿using RimWorld;
-
-using System;
-
+﻿using System;
+using RimWorld;
+using StorageFilters.Utilities;
 using UnityEngine;
-
 using Verse;
 
-namespace StorageFilters
+namespace StorageFilters.Dialogs
 {
     internal class Dialog_Confirmation : Window
     {
-        private Vector2 initialSize = new Vector2(600f, 108f);
-        public override Vector2 InitialSize => initialSize;
+        private readonly Action action;
 
         private readonly Dialog_EditFilter editFilterDialog;
+        private readonly Vector2 initialSize = new Vector2(600f, 108f);
 
-        protected override void SetInitialSizeAndPosition() => windowRect = GenUtils.GetDialogSizeAndPosition(this, editFilterDialog);
+        private readonly string question;
+
+        private readonly string questionExtra;
 
         private readonly ITab_Storage storageTab;
         private readonly IStoreSettingsParent storeSettingsParent;
 
-        public Dialog_Confirmation(ITab_Storage instance, IStoreSettingsParent storeSettingsParent, Dialog_EditFilter editDialog = null)
+        public Dialog_Confirmation(ITab_Storage instance, IStoreSettingsParent storeSettingsParent,
+                                   Dialog_EditFilter editDialog = null)
         {
             layer = WindowLayer.GameUI;
             preventCameraMotion = false;
@@ -36,10 +37,10 @@ namespace StorageFilters
             editFilterDialog = editDialog;
         }
 
-        private readonly string question;
-        private readonly Action action;
-
-        public Dialog_Confirmation(ITab_Storage instance, IStoreSettingsParent storeSettingsParent, string confirmQuestion, Action confirmAction, Dialog_EditFilter editDialog = null) : this(instance, storeSettingsParent, editDialog)
+        public Dialog_Confirmation(ITab_Storage instance, IStoreSettingsParent storeSettingsParent,
+                                   string confirmQuestion, Action confirmAction,
+                                   Dialog_EditFilter editDialog = null) : this(instance,
+                                                                               storeSettingsParent, editDialog)
         {
             question = confirmQuestion;
             action = confirmAction;
@@ -49,9 +50,10 @@ namespace StorageFilters
             SetInitialSizeAndPosition();
         }
 
-        private readonly string questionExtra;
-
-        public Dialog_Confirmation(ITab_Storage instance, IStoreSettingsParent storeSettingsParent, string confirmQuestion, string confirmQuestionExtra, Action confirmAction, Dialog_EditFilter editDialog = null) : this(instance, storeSettingsParent, editDialog)
+        public Dialog_Confirmation(ITab_Storage instance, IStoreSettingsParent storeSettingsParent,
+                                   string confirmQuestion, string confirmQuestionExtra, Action confirmAction,
+                                   Dialog_EditFilter editDialog = null) : this(
+            instance, storeSettingsParent, editDialog)
         {
             question = confirmQuestion;
             questionExtra = confirmQuestionExtra;
@@ -65,6 +67,11 @@ namespace StorageFilters
             SetInitialSizeAndPosition();
         }
 
+        public override Vector2 InitialSize => initialSize;
+
+        protected sealed override void SetInitialSizeAndPosition()
+            => windowRect = GenUtils.GetDialogSizeAndPosition(this, editFilterDialog);
+
         public override void DoWindowContents(Rect winRect)
         {
             if (!GenUtils.IsStorageTabOpen(storageTab, storeSettingsParent))
@@ -72,18 +79,21 @@ namespace StorageFilters
                 _ = Find.WindowStack.TryRemove(this, false);
                 return;
             }
+
             bool esc = false;
             if (Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.Escape)
             {
                 esc = true;
                 Event.current.Use();
             }
+
             bool enter = false;
             if (Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.Return)
             {
                 enter = true;
                 Event.current.Use();
             }
+
             Text.Font = GameFont.Small;
             string confirmString = question;
             Vector2 confirmStringSize = Text.CalcSize(confirmString);
@@ -95,25 +105,29 @@ namespace StorageFilters
                 string confirmExtraString = questionExtra;
                 Vector2 confirmExtraStringSize = Text.CalcSize(confirmExtraString);
                 float confirmExtraStringY = confirmExtraStringSize.y;
-                float X = 0f;
+                float x = 0f;
                 if (confirmExtraStringSize.x < confirmStringSize.x)
-                    X = winRect.width / 2 - confirmExtraStringSize.x / 2;
-                Widgets.Label(new Rect(X, yesNoY - 6f, confirmExtraStringSize.x, confirmExtraStringY), confirmExtraString);
+                    x = winRect.width / 2 - confirmExtraStringSize.x / 2;
+                Widgets.Label(new Rect(x, yesNoY - 6f, confirmExtraStringSize.x, confirmExtraStringY),
+                              confirmExtraString);
                 yesNoY += confirmExtraStringY + 6f;
             }
+
             string yesString = "ASF_Confirm".Translate();
             float yesStringX = Text.CalcSize(yesString).x;
             string noString = "ASF_Deny".Translate();
             float noStringX = Text.CalcSize(noString).x;
-            if (Widgets.ButtonText(new Rect(winRect.width / 2f - yesStringX - 28f, yesNoY, yesStringX + 24f, 35f), yesString) || enter)
+            if (Widgets.ButtonText(new Rect(winRect.width / 2f - yesStringX - 28f, yesNoY, yesStringX + 24f, 35f),
+                                   yesString) || enter)
             {
                 action();
-                _ = Find.WindowStack.TryRemove(this, true);
+                _ = Find.WindowStack.TryRemove(this);
                 Event.current.Use();
             }
+
             if (Widgets.ButtonText(new Rect(winRect.width / 2f + 4f, yesNoY, noStringX + 24f, 35f), noString) || esc)
             {
-                _ = Find.WindowStack.TryRemove(this, true);
+                _ = Find.WindowStack.TryRemove(this);
                 Event.current.Use();
             }
         }

@@ -1,47 +1,46 @@
-﻿using RimWorld;
-
-using System.Collections.Generic;
-
+﻿using System.Collections.Generic;
+using RimWorld;
+using StorageFilters.Utilities;
 using Verse;
 
 namespace StorageFilters
 {
     public class StorageFiltersData : GameComponent
     {
-        public StorageFiltersData(Game _) { }
-
         public static readonly string DefaultMainFilterString = "ASF_MainFilter".Translate();
         public static float MaxFilterStringWidth = 94f;
 
-        private static List<string> savedFilterKeys;
-        private static List<ExtraThingFilter> savedFilterValues;
-        private static Dictionary<string, ExtraThingFilter> savedFilter = SavedFilter;
+        private static List<string> _savedFilterKeys;
+        private static List<ExtraThingFilter> _savedFilterValues;
+        private static Dictionary<string, ExtraThingFilter> _savedFilter = SavedFilter;
 
-        private static List<IStoreSettingsParent> filterKeys;
-        private static List<ExtraThingFilters> filterValues;
-        private static Dictionary<IStoreSettingsParent, ExtraThingFilters> filters = Filters;
+        private static List<IStoreSettingsParent> _filterKeys;
+        private static List<ExtraThingFilters> _filterValues;
+        private static Dictionary<IStoreSettingsParent, ExtraThingFilters> _filters = Filters;
 
-        private static List<IStoreSettingsParent> mainFilterStringKeys;
-        private static List<string> mainFilterStringValues;
-        private static Dictionary<IStoreSettingsParent, string> mainFilterString = MainFilterString;
+        private static List<IStoreSettingsParent> _mainFilterStringKeys;
+        private static List<string> _mainFilterStringValues;
+        private static Dictionary<IStoreSettingsParent, string> _mainFilterString = MainFilterString;
 
-        private static Dictionary<IStoreSettingsParent, string> currentFilterKey = CurrentFilterKey;
-        private static Dictionary<IStoreSettingsParent, int> currentFilterDepth = CurrentFilterDepth;
+        private static Dictionary<IStoreSettingsParent, string> _currentFilterKey = CurrentFilterKey;
+        private static Dictionary<IStoreSettingsParent, int> _currentFilterDepth = CurrentFilterDepth;
+
+        public StorageFiltersData(Game _) { }
 
         public static Dictionary<string, ExtraThingFilter> SavedFilterNoLoad
         {
             get
             {
-                if (savedFilter is null)
-                    savedFilter = new Dictionary<string, ExtraThingFilter>();
-                if (savedFilterKeys is null)
-                    savedFilterKeys = new List<string>();
-                if (savedFilterValues is null)
-                    savedFilterValues = new List<ExtraThingFilter>();
-                _ = savedFilter.RemoveAll((KeyValuePair<string, ExtraThingFilter> entry) => entry.Key is null || entry.Value is null);
-                _ = savedFilterKeys.RemoveAll((string entry) => entry is null);
-                _ = savedFilterValues.RemoveAll((ExtraThingFilter entry) => entry is null);
-                return savedFilter;
+                if (_savedFilter is null)
+                    _savedFilter = new Dictionary<string, ExtraThingFilter>();
+                if (_savedFilterKeys is null)
+                    _savedFilterKeys = new List<string>();
+                if (_savedFilterValues is null)
+                    _savedFilterValues = new List<ExtraThingFilter>();
+                _ = _savedFilter.RemoveAll(entry => entry.Key is null || entry.Value is null);
+                _ = _savedFilterKeys.RemoveAll(entry => entry is null);
+                _ = _savedFilterValues.RemoveAll(entry => entry is null);
+                return _savedFilter;
             }
         }
 
@@ -58,16 +57,16 @@ namespace StorageFilters
         {
             get
             {
-                if (filters is null)
-                    filters = new Dictionary<IStoreSettingsParent, ExtraThingFilters>();
-                if (filterKeys is null)
-                    filterKeys = new List<IStoreSettingsParent>();
-                if (filterValues is null)
-                    filterValues = new List<ExtraThingFilters>();
-                _ = filters.RemoveAll((KeyValuePair<IStoreSettingsParent, ExtraThingFilters> entry) => entry.Key is null || entry.Value is null);
-                _ = filterKeys.RemoveAll((IStoreSettingsParent entry) => entry is null);
-                _ = filterValues.RemoveAll((ExtraThingFilters entry) => entry is null);
-                return filters;
+                if (_filters is null)
+                    _filters = new Dictionary<IStoreSettingsParent, ExtraThingFilters>();
+                if (_filterKeys is null)
+                    _filterKeys = new List<IStoreSettingsParent>();
+                if (_filterValues is null)
+                    _filterValues = new List<ExtraThingFilters>();
+                _ = _filters.RemoveAll(entry => entry.Key is null || entry.Value is null);
+                _ = _filterKeys.RemoveAll(entry => entry is null);
+                _ = _filterValues.RemoveAll(entry => entry is null);
+                return _filters;
             }
         }
 
@@ -75,16 +74,16 @@ namespace StorageFilters
         {
             get
             {
-                if (mainFilterString is null)
-                    mainFilterString = new Dictionary<IStoreSettingsParent, string>();
-                if (mainFilterStringKeys is null)
-                    mainFilterStringKeys = new List<IStoreSettingsParent>();
-                if (mainFilterStringValues is null)
-                    mainFilterStringValues = new List<string>();
-                _ = mainFilterString.RemoveAll((KeyValuePair<IStoreSettingsParent, string> entry) => entry.Key is null || entry.Value is null);
-                _ = mainFilterStringKeys.RemoveAll((IStoreSettingsParent entry) => entry is null);
-                _ = mainFilterStringValues.RemoveAll((string entry) => entry is null);
-                return mainFilterString;
+                if (_mainFilterString is null)
+                    _mainFilterString = new Dictionary<IStoreSettingsParent, string>();
+                if (_mainFilterStringKeys is null)
+                    _mainFilterStringKeys = new List<IStoreSettingsParent>();
+                if (_mainFilterStringValues is null)
+                    _mainFilterStringValues = new List<string>();
+                _ = _mainFilterString.RemoveAll(entry => entry.Key is null || entry.Value is null);
+                _ = _mainFilterStringKeys.RemoveAll(entry => entry is null);
+                _ = _mainFilterStringValues.RemoveAll(entry => entry is null);
+                return _mainFilterString;
             }
         }
 
@@ -92,10 +91,10 @@ namespace StorageFilters
         {
             get
             {
-                if (currentFilterKey is null)
-                    currentFilterKey = new Dictionary<IStoreSettingsParent, string>();
-                _ = currentFilterKey.RemoveAll((KeyValuePair<IStoreSettingsParent, string> entry) => entry.Key is null || entry.Value is null);
-                return currentFilterKey;
+                if (_currentFilterKey is null)
+                    _currentFilterKey = new Dictionary<IStoreSettingsParent, string>();
+                _ = _currentFilterKey.RemoveAll(entry => entry.Key is null || entry.Value is null);
+                return _currentFilterKey;
             }
         }
 
@@ -103,16 +102,18 @@ namespace StorageFilters
         {
             get
             {
-                if (currentFilterDepth is null)
-                    currentFilterDepth = new Dictionary<IStoreSettingsParent, int>();
-                _ = currentFilterDepth.RemoveAll((KeyValuePair<IStoreSettingsParent, int> entry) => entry.Key is null);
-                return currentFilterDepth;
+                if (_currentFilterDepth is null)
+                    _currentFilterDepth = new Dictionary<IStoreSettingsParent, int>();
+                _ = _currentFilterDepth.RemoveAll(entry => entry.Key is null);
+                return _currentFilterDepth;
             }
         }
 
         public static void ExposeSavedFilter()
         {
-            Scribe_Collections.Look(ref savedFilter, "savedFilter", LookMode.Value, LookMode.Deep, ref savedFilterKeys, ref savedFilterValues);
+            Scribe_Collections.Look(ref _savedFilter, "savedFilter", LookMode.Value, LookMode.Deep,
+                                    ref _savedFilterKeys,
+                                    ref _savedFilterValues);
             if (Scribe.mode == LoadSaveMode.PostLoadInit)
                 _ = SavedFilterNoLoad;
         }
@@ -120,13 +121,14 @@ namespace StorageFilters
         public override void ExposeData()
         {
             base.ExposeData();
-            Scribe_Collections.Look(ref filters, "filters", LookMode.Reference, LookMode.Deep, ref filterKeys, ref filterValues);
-            Scribe_Collections.Look(ref mainFilterString, "mainFilterString", LookMode.Reference, LookMode.Value, ref mainFilterStringKeys, ref mainFilterStringValues);
-            if (Scribe.mode == LoadSaveMode.PostLoadInit)
-            {
-                _ = Filters;
-                _ = MainFilterString;
-            }
+            Scribe_Collections.Look(ref _filters, "filters", LookMode.Reference, LookMode.Deep, ref _filterKeys,
+                                    ref _filterValues);
+            Scribe_Collections.Look(ref _mainFilterString, "mainFilterString", LookMode.Reference, LookMode.Value,
+                                    ref _mainFilterStringKeys, ref _mainFilterStringValues);
+            if (Scribe.mode != LoadSaveMode.PostLoadInit)
+                return;
+            _ = Filters;
+            _ = MainFilterString;
         }
     }
 }

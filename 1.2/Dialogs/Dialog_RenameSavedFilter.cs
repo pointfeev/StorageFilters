@@ -1,18 +1,17 @@
 ﻿using RimWorld;
-
+using StorageFilters.Utilities;
 using UnityEngine;
-
 using Verse;
 
-namespace StorageFilters
+namespace StorageFilters.Dialogs
 {
     internal class Dialog_RenameSavedFilter : Window
     {
-        public override Vector2 InitialSize => new Vector2(260f, 150f);
-
         private readonly Dialog_EditFilter editFilterDialog;
 
-        protected override void SetInitialSizeAndPosition() => windowRect = GenUtils.GetDialogSizeAndPosition(this, editFilterDialog);
+        private readonly string key;
+        private readonly ExtraThingFilter value;
+        private string curName;
 
         public Dialog_RenameSavedFilter(Dialog_EditFilter editDialog)
         {
@@ -29,16 +28,18 @@ namespace StorageFilters
             editFilterDialog = editDialog;
         }
 
-        private readonly string key;
-        private readonly ExtraThingFilter value;
-        private string curName;
-
-        public Dialog_RenameSavedFilter(Dialog_EditFilter editDialog, string key, ExtraThingFilter value) : this(editDialog)
+        public Dialog_RenameSavedFilter(Dialog_EditFilter editDialog, string key, ExtraThingFilter value) : this(
+            editDialog)
         {
             this.key = key;
             this.value = value;
             curName = key;
         }
+
+        public override Vector2 InitialSize => new Vector2(260f, 150f);
+
+        protected override void SetInitialSizeAndPosition()
+            => windowRect = GenUtils.GetDialogSizeAndPosition(this, editFilterDialog);
 
         private void CheckCurName()
         {
@@ -52,8 +53,10 @@ namespace StorageFilters
                         StorageFiltersData.SavedFilterNoLoad.Add(curName, value);
                         SaveUtils.Save();
                     }
-                    Messages.Message("ASF_RenamedSavedFilter".Translate(key, curName), MessageTypeDefOf.TaskCompletion, false);
-                    _ = Find.WindowStack.TryRemove(this, true);
+
+                    Messages.Message("ASF_RenamedSavedFilter".Translate(key, curName), MessageTypeDefOf.TaskCompletion,
+                                     false);
+                    _ = Find.WindowStack.TryRemove(this);
                 }
                 else
                 {
@@ -73,18 +76,21 @@ namespace StorageFilters
                 _ = Find.WindowStack.TryRemove(this, false);
                 return;
             }
+
             bool esc = false;
             if (Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.Escape)
             {
                 esc = true;
                 Event.current.Use();
             }
+
             bool enter = false;
             if (Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.Return)
             {
                 enter = true;
                 Event.current.Use();
             }
+
             Text.Font = GameFont.Small;
             string renameString = "ASF_RenamingSavedFilter".Translate(key);
             float renameStringY = Text.CalcSize(renameString).y;
@@ -92,12 +98,15 @@ namespace StorageFilters
             float nameY = renameStringY + 8f;
             curName = Widgets.TextField(new Rect(0f, nameY, winRect.width, 35f), curName);
             float cancelRenameY = nameY + 35f + 12f;
-            if (Widgets.ButtonText(new Rect(0f, cancelRenameY, winRect.width / 2f - 4f, 35f), "ASF_Cancel".Translate()) || esc)
+            if (Widgets.ButtonText(new Rect(0f, cancelRenameY, winRect.width / 2f - 4f, 35f),
+                                   "ASF_Cancel".Translate()) || esc)
             {
-                _ = Find.WindowStack.TryRemove(this, true);
+                _ = Find.WindowStack.TryRemove(this);
                 Event.current.Use();
             }
-            if (Widgets.ButtonText(new Rect(winRect.width / 2f + 4f, cancelRenameY, winRect.width / 2f - 4f, 35f), "ASF_RenameFilter".Translate()) || enter)
+
+            if (Widgets.ButtonText(new Rect(winRect.width / 2f + 4f, cancelRenameY, winRect.width / 2f - 4f, 35f),
+                                   "ASF_RenameFilter".Translate()) || enter)
             {
                 CheckCurName();
                 Event.current.Use();

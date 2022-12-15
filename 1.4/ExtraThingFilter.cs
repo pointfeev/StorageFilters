@@ -1,42 +1,22 @@
-﻿using RimWorld;
-
-using System.Collections.Generic;
-
+﻿using System.Collections.Generic;
+using RimWorld;
 using Verse;
 
 namespace StorageFilters
 {
-    public class ExtraThingFilter : ThingFilter
+    public sealed class ExtraThingFilter : ThingFilter
     {
+        private readonly ThingFilter originalFilter;
         public bool Enabled = true;
-        //public int StackCountLimit = 0;
-        public int StackSizeLimit = 0;
-        public int FilterDepth = 0;
-        private ExtraThingFilter nextInPriorityFilterParent = null;
-        public ExtraThingFilter NextInPriorityFilterParent
-        {
-            get
-            {
-                if (nextInPriorityFilterParent is null)
-                    foreach (KeyValuePair<IStoreSettingsParent, ExtraThingFilters> filters in StorageFiltersData.Filters)
-                        foreach (KeyValuePair<string, ExtraThingFilter> filter in filters.Value)
-                        {
-                            ExtraThingFilter currentFilter = filter.Value;
-                            while (nextInPriorityFilterParent is null && !(currentFilter.NextInPriorityFilter is null))
-                                if (currentFilter.NextInPriorityFilter == this)
-                                {
-                                    nextInPriorityFilterParent = currentFilter;
-                                    return currentFilter;
-                                }
-                                else currentFilter = currentFilter.NextInPriorityFilter;
-                        }
-                return nextInPriorityFilterParent;
-            }
-            set => nextInPriorityFilterParent = value;
-        }
-        public ExtraThingFilter NextInPriorityFilter = null;
+        public int FilterDepth;
+        public ExtraThingFilter NextInPriorityFilter;
 
-        public ExtraThingFilter() : base() { }
+        private ExtraThingFilter nextInPriorityFilterParent;
+
+        //public int StackCountLimit = 0;
+        public int StackSizeLimit;
+
+        public ExtraThingFilter() { }
 
         public ExtraThingFilter(ExtraThingFilter parent = null, int filterDepth = 0) : this()
         {
@@ -44,11 +24,37 @@ namespace StorageFilters
             FilterDepth = filterDepth;
         }
 
-        public ThingFilter OriginalFilter = null;
         public ExtraThingFilter(ThingFilter originalFilter) : this()
         {
             CopyAllowancesFrom(originalFilter);
-            OriginalFilter = originalFilter;
+            this.originalFilter = originalFilter;
+        }
+
+        public ExtraThingFilter NextInPriorityFilterParent
+        {
+            get
+            {
+                if (!(nextInPriorityFilterParent is null))
+                    return nextInPriorityFilterParent;
+                foreach (KeyValuePair<IStoreSettingsParent, ExtraThingFilters> filters in StorageFiltersData.Filters)
+                    foreach (KeyValuePair<string, ExtraThingFilter> filter in filters.Value)
+                    {
+                        ExtraThingFilter currentFilter = filter.Value;
+                        while (nextInPriorityFilterParent is null && !(currentFilter.NextInPriorityFilter is null))
+                            if (currentFilter.NextInPriorityFilter == this)
+                            {
+                                nextInPriorityFilterParent = currentFilter;
+                                return currentFilter;
+                            }
+                            else
+                            {
+                                currentFilter = currentFilter.NextInPriorityFilter;
+                            }
+                    }
+
+                return nextInPriorityFilterParent;
+            }
+            private set => nextInPriorityFilterParent = value;
         }
 
         public void CopyFrom(ExtraThingFilter otherFilter)
@@ -62,8 +68,9 @@ namespace StorageFilters
                 NextInPriorityFilter = otherFilter.NextInPriorityFilter.Copy();
                 NextInPriorityFilter.NextInPriorityFilterParent = this;
             }
+
             CopyAllowancesFrom(otherFilter);
-            OriginalFilter?.CopyAllowancesFrom(this);
+            originalFilter?.CopyAllowancesFrom(this);
         }
 
         public ExtraThingFilter Copy()
@@ -73,7 +80,7 @@ namespace StorageFilters
             return copy;
         }
 
-        private void SyncWithMainFilter() => OriginalFilter?.CopyAllowancesFrom(this);
+        private void SyncWithMainFilter() => originalFilter?.CopyAllowancesFrom(this);
 
         public new void SetAllow(ThingDef thingDef, bool allow)
         {
@@ -93,7 +100,8 @@ namespace StorageFilters
             SyncWithMainFilter();
         }
 
-        public new void SetDisallowAll(IEnumerable<ThingDef> exceptedDefs = null, IEnumerable<SpecialThingFilterDef> exceptedFilters = null)
+        public new void SetDisallowAll(IEnumerable<ThingDef> exceptedDefs = null,
+                                       IEnumerable<SpecialThingFilterDef> exceptedFilters = null)
         {
             base.SetDisallowAll(exceptedDefs, exceptedFilters);
             SyncWithMainFilter();
@@ -102,14 +110,13 @@ namespace StorageFilters
         public override void ExposeData()
         {
             base.ExposeData();
-            if (OriginalFilter is null)
-            {
-                Scribe_Values.Look(ref Enabled, "Enabled", true);
-                //Scribe_Values.Look(ref StackCountLimit, "StackCountLimit", 0);
-                Scribe_Values.Look(ref StackSizeLimit, "StackSizeLimit", 0);
-                Scribe_Deep.Look(ref NextInPriorityFilter, false, "NextInPriorityFilter");
-                Scribe_Values.Look(ref FilterDepth, "NextInPriorityFilterDepth", 0);
-            }
+            if (!(originalFilter is null))
+                return;
+            Scribe_Values.Look(ref Enabled, "Enabled", true);
+            //Scribe_Values.Look(ref StackCountLimit, "StackCountLimit", 0);
+            Scribe_Values.Look(ref StackSizeLimit, "StackSizeLimit");
+            Scribe_Deep.Look(ref NextInPriorityFilter, false, "NextInPriorityFilter");
+            Scribe_Values.Look(ref FilterDepth, "NextInPriorityFilterDepth");
         }
     }
 }
