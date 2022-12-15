@@ -82,25 +82,28 @@ namespace StorageFilters
             return position;
         }
 
-        public static void DoThingFilterConfigWindow(ref ThingFilter filter, ThingFilter parentFilter)
+        internal static ThingFilter GetCurrentFilter(ThingFilter filter = null, ThingFilter parentFilter = null)
         {
             IStoreSettingsParent storeGroupParent = GenUtils.GetSelectedStoreSettingsParent();
             StorageSettings settings = storeGroupParent?.GetStoreSettings();
-            if (settings is null || (settings.filter != filter && settings.filter != parentFilter))
-                return;
+            if (settings == null || (filter != null && settings.filter != filter
+                                                    && parentFilter != null && settings.filter != parentFilter))
+                return filter;
             ExtraThingFilters tabFilters = StorageFiltersData.Filters.TryGetValue(storeGroupParent);
             string tabFilter = StorageFiltersData.CurrentFilterKey.TryGetValue(storeGroupParent);
             int tabFilterDepth = !(Find.WindowStack.WindowOfType<Dialog_EditFilter>() is null)
                 ? StorageFiltersData.CurrentFilterDepth.TryGetValue(storeGroupParent)
                 : 0;
             if (tabFilters is null || tabFilter is null)
-                return;
+                return filter ?? settings.filter;
             ExtraThingFilter extraFilter = tabFilters.Get(tabFilter);
             while (!(extraFilter is null) && extraFilter.FilterDepth < tabFilterDepth)
                 extraFilter = extraFilter.NextInPriorityFilter;
-            if (!(extraFilter is null))
-                filter = extraFilter;
+            return extraFilter ?? filter ?? settings.filter;
         }
+
+        public static void DoThingFilterConfigWindow(ref ThingFilter filter, ThingFilter parentFilter = null)
+            => filter = GetCurrentFilter(filter, parentFilter);
 
         public static void GetStackLimitsForThing(IStoreSettingsParent owner, Thing thing, out int stackCountLimit,
                                                   out int stackSizeLimit, ExtraThingFilters extraFilters = null)

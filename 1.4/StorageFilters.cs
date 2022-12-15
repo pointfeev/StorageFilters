@@ -25,10 +25,10 @@ namespace StorageFilters
         private static string copiedCurrentFilterKey;
 
         private static StorageGroup GetStorageGroup(this IStoreSettingsParent owner)
-            => (owner as IStorageGroupMember)?.Group;
+            => (owner as ISlotGroupParent)?.GetSlotGroup()?.StorageGroup;
 
-        private static IStoreSettingsParent GetStorageGroupParent(this IStoreSettingsParent owner)
-            => owner.GetStorageGroup()?.GetParentStoreSettings()?.owner ?? owner;
+        internal static IStoreSettingsParent GetStorageGroupLeader(this IStoreSettingsParent owner)
+            => owner.GetStorageGroup()?.members?.FirstOrFallback() as IStoreSettingsParent ?? owner;
 
         public static Rect? FillTab(ITab_Storage instance, Vector2 size)
         {
@@ -43,7 +43,7 @@ namespace StorageFilters
                 return null;
             }
 
-            IStoreSettingsParent storeGroupParent = GenUtils.GetSelectedStoreSettingsParent().GetStorageGroupParent();
+            IStoreSettingsParent storeGroupParent = GenUtils.GetSelectedStoreSettingsParent().GetStorageGroupLeader();
             if (storeGroupParent is null)
             {
                 Log.Warning("ASF_ModPrefix".Translate() + "ASF_StoreSettingsParentError".Translate());
@@ -88,25 +88,28 @@ namespace StorageFilters
             return position;
         }
 
-        public static void DoThingFilterConfigWindow(ref ThingFilter filter, ThingFilter parentFilter)
+        internal static ThingFilter GetCurrentFilter(ThingFilter filter = null, ThingFilter parentFilter = null)
         {
-            IStoreSettingsParent storeGroupParent = GenUtils.GetSelectedStoreSettingsParent().GetStorageGroupParent();
+            IStoreSettingsParent storeGroupParent = GenUtils.GetSelectedStoreSettingsParent().GetStorageGroupLeader();
             StorageSettings settings = storeGroupParent?.GetStoreSettings();
-            if (settings is null || (settings.filter != filter && settings.filter != parentFilter))
-                return;
+            if (settings == null || (filter != null && settings.filter != filter
+                                                    && parentFilter != null && settings.filter != parentFilter))
+                return filter;
             ExtraThingFilters tabFilters = StorageFiltersData.Filters.TryGetValue(storeGroupParent);
             string tabFilter = StorageFiltersData.CurrentFilterKey.TryGetValue(storeGroupParent);
             int tabFilterDepth = !(Find.WindowStack.WindowOfType<Dialog_EditFilter>() is null)
                 ? StorageFiltersData.CurrentFilterDepth.TryGetValue(storeGroupParent)
                 : 0;
             if (tabFilters is null || tabFilter is null)
-                return;
+                return filter ?? settings.filter;
             ExtraThingFilter extraFilter = tabFilters.Get(tabFilter);
             while (!(extraFilter is null) && extraFilter.FilterDepth < tabFilterDepth)
                 extraFilter = extraFilter.NextInPriorityFilter;
-            if (!(extraFilter is null))
-                filter = extraFilter;
+            return extraFilter ?? filter ?? settings.filter;
         }
+
+        public static void DoThingFilterConfigWindow(ref ThingFilter filter, ThingFilter parentFilter = null)
+            => filter = GetCurrentFilter(filter, parentFilter);
 
         public static void GetStackLimitsForThing(IStoreSettingsParent owner, Thing thing, out int stackCountLimit,
                                                   out int stackSizeLimit, ExtraThingFilters extraFilters = null)
@@ -174,7 +177,7 @@ namespace StorageFilters
                            parentStoreSettings.AllowedToAccept(thing)))
                 return false;
             result = false;
-            IStoreSettingsParent storeGroupParent = owner.GetStorageGroupParent();
+            IStoreSettingsParent storeGroupParent = owner.GetStorageGroupLeader();
             if (!(StorageFiltersData.Filters.TryGetValue(storeGroupParent) is ExtraThingFilters extraFilters) ||
                 extraFilters.Count <= 0)
                 return false;
@@ -250,7 +253,7 @@ namespace StorageFilters
                 return;
             if (thing.GetSlotGroup()?.parent is IStoreSettingsParent ownerFrom)
             {
-                GetStackLimitsForThing(ownerFrom.GetStorageGroupParent(), thing, out _, out int stackSizeLimitFrom);
+                GetStackLimitsForThing(ownerFrom.GetStorageGroupLeader(), thing, out _, out int stackSizeLimitFrom);
                 if (stackSizeLimitFrom > 0)
                 {
                     int shouldTake = thing.stackCount - stackSizeLimitFrom;
@@ -265,7 +268,7 @@ namespace StorageFilters
             }
 
             if (!(destination.GetSlotGroup(map)?.parent is IStoreSettingsParent ownerTo)) return;
-            GetStackLimitsForThing(ownerTo.GetStorageGroupParent(), thing, out _, out int stackSizeLimitTo);
+            GetStackLimitsForThing(ownerTo.GetStorageGroupLeader(), thing, out _, out int stackSizeLimitTo);
             if (stackSizeLimitTo <= 0)
                 return;
             int amountAt = map.thingGrid.ThingsListAt(destination).Where(th => th.CanStackWith(thing))
@@ -283,7 +286,7 @@ namespace StorageFilters
         public static void NoStorageBlockersIn(IntVec3 position, Map map, Thing thing, ref bool result)
         {
             if (!result || !(position.GetSlotGroup(map)?.parent is IStoreSettingsParent owner)) return;
-            GetStackLimitsForThing(owner.GetStorageGroupParent(), thing, out _, out int stackSizeLimit);
+            GetStackLimitsForThing(owner.GetStorageGroupLeader(), thing, out _, out int stackSizeLimit);
             if (stackSizeLimit <= 0)
                 return;
             if (!Enumerable.Any(map.thingGrid.ThingsListAt(position),
@@ -294,7 +297,7 @@ namespace StorageFilters
         public static void PlaceSpotQualityAt(Thing thing, bool allowStacking, ref object result)
         {
             if (!allowStacking || !(thing.GetSlotGroup()?.parent is IStoreSettingsParent owner)) return;
-            GetStackLimitsForThing(owner.GetStorageGroupParent(), thing, out _, out int stackSizeLimit);
+            GetStackLimitsForThing(owner.GetStorageGroupLeader(), thing, out _, out int stackSizeLimit);
             if (stackSizeLimit > 0 && thing.stackCount >= stackSizeLimit)
                 result = 0;
         }
@@ -302,7 +305,7 @@ namespace StorageFilters
         public static void TryFindBestBetterStoreCellFor(Thing thing, ref StoragePriority currentPriority)
         {
             if (!(thing.GetSlotGroup()?.parent is IStoreSettingsParent owner)) return;
-            GetStackLimitsForThing(owner.GetStorageGroupParent(), thing, out _, out int stackSizeLimit);
+            GetStackLimitsForThing(owner.GetStorageGroupLeader(), thing, out _, out int stackSizeLimit);
             if (stackSizeLimit > 0 && thing.stackCount > stackSizeLimit)
                 currentPriority = StoragePriority.Unstored;
         }
@@ -310,7 +313,7 @@ namespace StorageFilters
         public static void TryAbsorbStackNumToTake(Thing thing, Thing other, bool respectStackLimit, ref int result)
         {
             if (!respectStackLimit || !(thing.GetSlotGroup()?.parent is IStoreSettingsParent owner)) return;
-            GetStackLimitsForThing(owner.GetStorageGroupParent(), thing, out _, out int stackSizeLimit);
+            GetStackLimitsForThing(owner.GetStorageGroupLeader(), thing, out _, out int stackSizeLimit);
             if (stackSizeLimit > 0)
                 result = Math.Min(Math.Max(0, Math.Min(other.stackCount, stackSizeLimit - thing.stackCount)),
                                   thing.def.stackLimit);
@@ -319,7 +322,7 @@ namespace StorageFilters
         public static void ShouldBeMergeable(Thing thing, ref bool result)
         {
             if (!result || !(thing.GetSlotGroup()?.parent is IStoreSettingsParent owner)) return;
-            GetStackLimitsForThing(owner.GetStorageGroupParent(), thing, out _, out int stackSizeLimit);
+            GetStackLimitsForThing(owner.GetStorageGroupLeader(), thing, out _, out int stackSizeLimit);
             if (stackSizeLimit > 0 && thing.stackCount >= stackSizeLimit)
                 result = false;
         }
@@ -328,7 +331,7 @@ namespace StorageFilters
         {
             if (!(storageSettings.owner is IStoreSettingsParent owner))
                 return;
-            IStoreSettingsParent storeGroupParent = owner.GetStorageGroupParent();
+            IStoreSettingsParent storeGroupParent = owner.GetStorageGroupLeader();
             if (StorageFiltersData.Filters.TryGetValue(storeGroupParent) is ExtraThingFilters filters)
             {
                 copiedFilters = new ExtraThingFilters();
@@ -344,7 +347,7 @@ namespace StorageFilters
         {
             if (!(storageSettings.owner is IStoreSettingsParent owner))
                 return;
-            IStoreSettingsParent storeGroupParent = owner.GetStorageGroupParent();
+            IStoreSettingsParent storeGroupParent = owner.GetStorageGroupLeader();
             if (!(copiedFilters is null))
                 StorageFiltersData.Filters.SetOrAdd(storeGroupParent, copiedFilters);
             if (!(copiedMainFilterString is null))

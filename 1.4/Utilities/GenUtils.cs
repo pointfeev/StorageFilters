@@ -14,7 +14,9 @@ namespace StorageFilters.Utilities
     {
         public static bool IsStorageTabOpen(ITab_Storage storageTab, IStoreSettingsParent storeSettingsParent)
         {
-            if (storageTab is null || !storageTab.IsVisible || GetSelectedStoreSettingsParent() != storeSettingsParent)
+            if (storageTab is null || !storageTab.IsVisible
+                                   || GetSelectedStoreSettingsParent().GetStorageGroupLeader()
+                                   != storeSettingsParent.GetStorageGroupLeader())
                 return false;
             foreach (Window window in Find.WindowStack.Windows)
                 if (window.ID == -235086)

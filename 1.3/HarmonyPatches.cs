@@ -44,7 +44,7 @@ namespace StorageFilters
                         ConstructorInfo ctor)
                 {
                     _ = harmony.Patch(drawFilterButton,
-                                      new HarmonyMethod(typeof(HarmonyPatches), nameof(DrawFilterButton)));
+                                      new HarmonyMethod(typeof(HarmonyPatches), nameof(DrawMaterialFilterButton)));
                     MaterialFilterWindowType = type;
                     MaterialFilterWindowCtor = ctor;
                 }
@@ -132,18 +132,13 @@ namespace StorageFilters
             }
         }
 
-        public static bool DrawFilterButton()
+        public static bool DrawMaterialFilterButton()
         {
-            if (!StorageFilters.StorageTabRect.HasValue || lastButton is null)
-                return true;
-            IStoreSettingsParent storeSettingsParent = GenUtils.GetSelectedStoreSettingsParent();
-            if (storeSettingsParent is null)
+            if (!StorageFilters.StorageTabRect.HasValue || lastButton is null
+                                                        || !(StorageFilters.GetCurrentFilter() is ThingFilter filter))
                 return true;
             Rect tabRect = StorageFilters.StorageTabRect.Value;
-            ThingFilter filter = storeSettingsParent.GetStoreSettings()?.filter;
-            if (filter is null)
-                return true;
-            string text = ">>";
+            const string text = ">>";
             GUI.BeginGroup(tabRect.ContractedBy(10f));
             float width = Text.CalcSize(text).x + 10f;
             if (oldMaxFilterStringWidth is 0)
