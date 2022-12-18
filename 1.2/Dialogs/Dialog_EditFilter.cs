@@ -78,7 +78,6 @@ namespace StorageFilters.Dialogs
                             tabFilters.Remove(key);
                             tabFilters.Add(curName, Filter);
                         }
-
                         if (StorageFiltersData.CurrentFilterKey.TryGetValue(storeSettingsParent) == key)
                             StorageFiltersData.CurrentFilterKey.SetOrAdd(storeSettingsParent, curName);
                         key = curName;
@@ -96,7 +95,6 @@ namespace StorageFilters.Dialogs
             {
                 Messages.Message("ASF_InvalidString".Translate(), MessageTypeDefOf.RejectInput, false);
             }
-
             return false;
         }
 
@@ -107,14 +105,12 @@ namespace StorageFilters.Dialogs
                 _ = Find.WindowStack.TryRemove(this, false);
                 return;
             }
-
             if (Widgets.CloseButtonFor(windowRect.AtZero()))
             {
                 _ = Find.WindowStack.TryRemove(this);
                 Event.current.Use();
                 return;
             }
-
             if (Filter is null || (Event.current.type == EventType.KeyDown &&
                                    (Event.current.keyCode == KeyCode.Escape ||
                                     Event.current.keyCode == KeyCode.Return)))
@@ -123,7 +119,6 @@ namespace StorageFilters.Dialogs
                 Event.current.Use();
                 return;
             }
-
             if (tabFilters != null)
             {
                 string mainFilterString = StorageFiltersData.MainFilterString.TryGetValue(storeSettingsParent);
@@ -133,7 +128,6 @@ namespace StorageFilters.Dialogs
                     StorageFiltersData.CurrentFilterKey.SetOrAdd(storeSettingsParent, key);
                 StorageFiltersData.CurrentFilterDepth.SetOrAdd(storeSettingsParent, Filter.FilterDepth);
             }
-
             Text.Font = GameFont.Small;
             string editString = "ASF_EditingFilter".Translate(key);
             float editStringY = Text.CalcSize(editString).y;
@@ -153,7 +147,6 @@ namespace StorageFilters.Dialogs
                     _ = CheckCurName();
                     Event.current.Use();
                 }
-
                 if (!keyIsMainFilterString)
                 {
                     /*string stackCountString = "ASF_StackCountLimit".Translate();
@@ -174,7 +167,6 @@ namespace StorageFilters.Dialogs
                     if (int.TryParse(stackSizeLimitString, out int stackSizeLimit))
                         Filter.StackSizeLimit = stackSizeLimit;
                 }
-
                 if (Widgets.ButtonText(new Rect(0f, saveLoadY, winRect.width / 2f - 4f, 35f),
                                        "ASF_SaveFilter".Translate()))
                 {
@@ -199,10 +191,8 @@ namespace StorageFilters.Dialogs
                         SaveUtils.Save();
                         Messages.Message("ASF_SavedFilter".Translate(key), MessageTypeDefOf.TaskCompletion, false);
                     }
-
                     Event.current.Use();
                 }
-
                 if (Widgets.ButtonText(new Rect(winRect.width / 2f + 4f, saveLoadY, winRect.width / 2f - 4f, 35f),
                                        "ASF_LoadSavedFilter".Translate()))
                 {
@@ -257,7 +247,6 @@ namespace StorageFilters.Dialogs
                     {
                         Messages.Message("ASF_NoSavedFilters".Translate(), MessageTypeDefOf.RejectInput, false);
                     }
-
                     Event.current.Use();
                 }
             }
@@ -279,17 +268,14 @@ namespace StorageFilters.Dialogs
                                                                          StorageFiltersData.CurrentFilterDepth.SetOrAdd(
                                                                              storeSettingsParent,
                                                                              previousDialog.Filter.FilterDepth);
-
                                                                      Find.WindowStack.Add(previousDialog);
                                                                  }, this));
                     Event.current.Use();
                 }
             }
-
             if (!keyIsMainFilterString)
             {
                 float priorityY = saveLoadY + 35f + 8f;
-
                 float x = 0f;
                 float width = winRect.width;
                 if (!(previousDialog is null))
@@ -303,11 +289,9 @@ namespace StorageFilters.Dialogs
                         Find.WindowStack.Add(previousDialog);
                         Event.current.Use();
                     }
-
                     x += backStringX + 8f;
                     width -= backStringX + 8f;
                 }
-
                 void EditNIPF()
                 {
                     string nipKey = Filter.NextInPriorityFilterParent is null
@@ -321,7 +305,6 @@ namespace StorageFilters.Dialogs
                                                                Filter.NextInPriorityFilter,
                                                                previousEditFilterDialog: this));
                 }
-
                 if (Filter.NextInPriorityFilter is null)
                 {
                     if (Widgets.ButtonText(new Rect(x, priorityY, width, 35f), "ASF_AddNIPF".Translate()))

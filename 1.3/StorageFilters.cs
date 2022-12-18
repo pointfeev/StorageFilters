@@ -36,14 +36,12 @@ namespace StorageFilters
             {
                 return null;
             }
-
             IStoreSettingsParent storeGroupParent = GenUtils.GetSelectedStoreSettingsParent();
             if (storeGroupParent is null)
             {
                 Log.Warning("ASF_ModPrefix".Translate() + "ASF_StoreSettingsParentError".Translate());
                 return null;
             }
-
             if (!(storeGroupParent is IHaulDestination) || !(storeGroupParent is ISlotGroupParent))
                 return null;
             ExtraThingFilters tabFilters = StorageFiltersData.Filters.TryGetValue(storeGroupParent);
@@ -52,7 +50,6 @@ namespace StorageFilters
                 StorageFiltersData.Filters.SetOrAdd(storeGroupParent, new ExtraThingFilters());
                 tabFilters = StorageFiltersData.Filters.TryGetValue(storeGroupParent);
             }
-
             string mainFilterString = StorageFiltersData.MainFilterString.TryGetValue(storeGroupParent);
             if (mainFilterString is null)
             {
@@ -60,7 +57,6 @@ namespace StorageFilters
                                                              StorageFiltersData.DefaultMainFilterString);
                 mainFilterString = StorageFiltersData.MainFilterString.TryGetValue(storeGroupParent);
             }
-
             string tabFilter = StorageFiltersData.CurrentFilterKey.TryGetValue(storeGroupParent);
             if (tabFilter is null)
             {
@@ -68,7 +64,6 @@ namespace StorageFilters
                 StorageFiltersData.CurrentFilterDepth.SetOrAdd(storeGroupParent, 0);
                 tabFilter = StorageFiltersData.CurrentFilterKey.TryGetValue(storeGroupParent);
             }
-
             Rect window = new Rect(0, 0, size.x, size.y);
             StorageTabRect = window;
             GUI.BeginGroup(window.ContractedBy(10f));
@@ -127,16 +122,13 @@ namespace StorageFilters
                                 applicable = true;
                                 break;
                             }
-
                             currentFilter = currentFilter.NextInPriorityFilter;
                         }
                     }
-
                     if (applicable)
                         //stackCountLimit += extraFilter.StackCountLimit;
                         stackSizeLimit += extraFilter.StackSizeLimit;
                 }
-
             stackSizeLimit = Math.Min(stackSizeLimit, thing.def.stackLimit);
         }
 
@@ -193,7 +185,6 @@ namespace StorageFilters
                                 if (ShouldStore.Count >= cellCount)
                                     break;
                             }
-
                             if (ShouldStore.Count >= cellCount && !ShouldStore.Any(t
                                     => t.Key.stackCount <
                                        (stackSizeLimit <= 0
@@ -215,7 +206,6 @@ namespace StorageFilters
                                 if (ShouldStore.Count >= cellCount)
                                     break;
                             }
-
                             if (ShouldStore.Count >= cellCount)
                                 break; // do not consider the NIPF
                             currentFilter = nextFilter;
@@ -224,7 +214,6 @@ namespace StorageFilters
                         {
                             break;
                         }
-
             return false;
         }
 
@@ -249,11 +238,9 @@ namespace StorageFilters
                         job = null;
                         return;
                     }
-
                     job.count = Math.Min(job.count, shouldTake);
                 }
             }
-
             if (!(destination.GetSlotGroup(map)?.parent is IStoreSettingsParent ownerTo)) return;
             GetStackLimitsForThing(ownerTo, thing, out _, out int stackSizeLimitTo);
             if (stackSizeLimitTo <= 0)
@@ -266,7 +253,6 @@ namespace StorageFilters
                 job = null;
                 return;
             }
-
             job.count = Math.Min(job.count, stackSizeLimitTo - amountAt);
         }
 
@@ -325,7 +311,6 @@ namespace StorageFilters
                 foreach (KeyValuePair<string, ExtraThingFilter> entry in filters)
                     copiedFilters.Set(entry.Key, entry.Value.Copy());
             }
-
             copiedMainFilterString = StorageFiltersData.MainFilterString.TryGetValue(storeGroupParent);
             copiedCurrentFilterKey = StorageFiltersData.CurrentFilterKey.TryGetValue(storeGroupParent);
         }

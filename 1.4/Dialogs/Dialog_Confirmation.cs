@@ -79,21 +79,18 @@ namespace StorageFilters.Dialogs
                 _ = Find.WindowStack.TryRemove(this, false);
                 return;
             }
-
             bool esc = false;
             if (Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.Escape)
             {
                 esc = true;
                 Event.current.Use();
             }
-
             bool enter = false;
             if (Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.Return)
             {
                 enter = true;
                 Event.current.Use();
             }
-
             Text.Font = GameFont.Small;
             string confirmString = question;
             Vector2 confirmStringSize = Text.CalcSize(confirmString);
@@ -112,7 +109,6 @@ namespace StorageFilters.Dialogs
                               confirmExtraString);
                 yesNoY += confirmExtraStringY + 6f;
             }
-
             string yesString = "ASF_Confirm".Translate();
             float yesStringX = Text.CalcSize(yesString).x;
             string noString = "ASF_Deny".Translate();
@@ -124,7 +120,6 @@ namespace StorageFilters.Dialogs
                 _ = Find.WindowStack.TryRemove(this);
                 Event.current.Use();
             }
-
             if (Widgets.ButtonText(new Rect(winRect.width / 2f + 4f, yesNoY, noStringX + 24f, 35f), noString) || esc)
             {
                 _ = Find.WindowStack.TryRemove(this);

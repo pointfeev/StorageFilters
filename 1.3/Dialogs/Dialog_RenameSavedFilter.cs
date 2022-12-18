@@ -53,7 +53,6 @@ namespace StorageFilters.Dialogs
                         StorageFiltersData.SavedFilterNoLoad.Add(curName, value);
                         SaveUtils.Save();
                     }
-
                     Messages.Message("ASF_RenamedSavedFilter".Translate(key, curName), MessageTypeDefOf.TaskCompletion,
                                      false);
                     _ = Find.WindowStack.TryRemove(this);
@@ -76,21 +75,18 @@ namespace StorageFilters.Dialogs
                 _ = Find.WindowStack.TryRemove(this, false);
                 return;
             }
-
             bool esc = false;
             if (Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.Escape)
             {
                 esc = true;
                 Event.current.Use();
             }
-
             bool enter = false;
             if (Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.Return)
             {
                 enter = true;
                 Event.current.Use();
             }
-
             Text.Font = GameFont.Small;
             string renameString = "ASF_RenamingSavedFilter".Translate(key);
             float renameStringY = Text.CalcSize(renameString).y;
@@ -104,7 +100,6 @@ namespace StorageFilters.Dialogs
                 _ = Find.WindowStack.TryRemove(this);
                 Event.current.Use();
             }
-
             if (Widgets.ButtonText(new Rect(winRect.width / 2f + 4f, cancelRenameY, winRect.width / 2f - 4f, 35f),
                                    "ASF_RenameFilter".Translate()) || enter)
             {

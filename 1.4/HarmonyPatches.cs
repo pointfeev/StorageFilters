@@ -49,7 +49,6 @@ namespace StorageFilters
                     MaterialFilterWindowCtor = ctor;
                 }
             }
-
             bool pickUpAndHaulActive = Compatibility.IsModActive("mehni.pickupandhaul");
             if (pickUpAndHaulActive)
             {
@@ -76,7 +75,6 @@ namespace StorageFilters
                                       new HarmonyMethod(typeof(HarmonyPatches),
                                                         nameof(PUAH_TryFindBestBetterStoreCellFor)));
             }
-
             _ = harmony.Patch(AccessTools.Method(typeof(ITab_Storage), "FillTab"),
                               postfix: new HarmonyMethod(typeof(HarmonyPatches), nameof(FillTab)));
             _ = harmony.Patch(AccessTools.Method(typeof(ITab_Storage), "get_TopAreaHeight"),
@@ -84,7 +82,7 @@ namespace StorageFilters
             _ = harmony.Patch(AccessTools.Method(typeof(ThingFilterUI), "DoThingFilterConfigWindow"),
                               new HarmonyMethod(typeof(HarmonyPatches), nameof(DoThingFilterConfigWindow)));
             _ = harmony.Patch(AccessTools.Method(typeof(StorageSettings), "AllowedToAccept", new[] { typeof(Thing) }),
-                              new HarmonyMethod(typeof(HarmonyPatches), nameof(AllowedToAccept)));
+                              postfix: new HarmonyMethod(typeof(HarmonyPatches), nameof(AllowedToAccept)));
             _ = harmony.Patch(AccessTools.Method(typeof(HaulAIUtility), "HaulToStorageJob"),
                               postfix: new HarmonyMethod(typeof(HarmonyPatches), nameof(HaulToStorageJob)));
             _ = harmony.Patch(AccessTools.Method(typeof(StoreUtility), "NoStorageBlockersIn"),
@@ -146,7 +144,6 @@ namespace StorageFilters
                 oldMaxFilterStringWidth = StorageFiltersData.MaxFilterStringWidth;
                 StorageFiltersData.MaxFilterStringWidth -= width;
             }
-
             Rect position = new Rect(lastButton.Value.x + oldMaxFilterStringWidth - width, 0, width, 29f);
             if (Widgets.ButtonText(position, text))
                 SetMaterialFilterWindowActive(filter, GenUtils.GetDialogPosition());
@@ -177,9 +174,8 @@ namespace StorageFilters
         public static void DoThingFilterConfigWindow(ref ThingFilter filter, ThingFilter parentFilter)
             => StorageFilters.DoThingFilterConfigWindow(ref filter, parentFilter);
 
-        public static bool AllowedToAccept(Thing t, ref bool __result, ThingFilter ___filter,
-                                           IStoreSettingsParent ___owner)
-            => StorageFilters.AllowedToAccept(___owner, ___filter, t, ref __result);
+        public static void AllowedToAccept(Thing t, StorageSettings __instance, ref bool __result)
+            => StorageFilters.AllowedToAccept(__instance, t, ref __result);
 
         public static void HaulToStorageJob(Thing t, ref Job __result)
             => StorageFilters.HaulToStorageJob(t, ref __result);

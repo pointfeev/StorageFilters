@@ -34,7 +34,6 @@ namespace StorageFilters.Utilities
                 if (!(editDialog is null))
                     x += editDialog.InitialSize.x - 1f;
             }
-
             return new Vector2(x, y).Rounded();
         }
 
@@ -71,13 +70,11 @@ namespace StorageFilters.Utilities
             {
                 HarmonyPatches.SetMaterialFilterWindowActive(toggle: false, active: false);
                 Dictionary<FloatMenuOption, int> floatMenuOptionOrder = new Dictionary<FloatMenuOption, int>();
-
                 FloatMenuOption NewFilterOption(FloatMenuOption floatMenuOption)
                 {
                     floatMenuOptionOrder.SetOrAdd(floatMenuOption, floatMenuOptionOrder.Count);
                     return floatMenuOption;
                 }
-
                 List<FloatMenuOption> filterFloatMenuOptions = new List<FloatMenuOption>();
                 FloatMenu filterFloatMenu = null;
                 string editString = "ASF_EditFilter".Translate();
@@ -112,7 +109,6 @@ namespace StorageFilters.Utilities
                             StorageFiltersData.CurrentFilterKey.SetOrAdd(storeSettingsParent, entry.Key);
                             StorageFiltersData.CurrentFilterDepth.SetOrAdd(storeSettingsParent, 0);
                         }
-
                         FloatMenuOption floatMenuOption = null;
                         string enableString = "ASF_EnableFilter".Translate();
                         string disableString = "ASF_DisableFilter".Translate();
@@ -216,7 +212,6 @@ namespace StorageFilters.Utilities
                         floatMenuOption.Disabled = !entry.Value.Enabled;
                         filterFloatMenuOptions.Add(floatMenuOption);
                     }
-
                 filterFloatMenuOptions.Add(NewFilterOption(new FloatMenuOption("ASF_NewFilter".Translate(), delegate
                 {
                     _ = Find.WindowStack.TryRemove(typeof(Dialog_EditFilter), false);
@@ -233,7 +228,6 @@ namespace StorageFilters.Utilities
                                             select option).ToList());
                 Find.WindowStack.Add(filterFloatMenu);
             }
-
             UIHighlighter.HighlightOpportunity(position, "StorageFilters");
         }
     }

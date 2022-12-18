@@ -26,7 +26,6 @@ namespace StorageFilters.Utilities
                     Log.Warning("ASF_ModPrefix".Translate() + "ASF_SaveDirectoryError".Translate());
                     throw;
                 }
-
                 return result;
             }
         }
@@ -44,7 +43,6 @@ namespace StorageFilters.Utilities
                     else
                         File.Move(oldFilePath, filePath);
                 }
-
                 return filePath;
             }
         }

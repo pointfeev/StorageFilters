@@ -69,21 +69,18 @@ namespace StorageFilters.Dialogs
                 _ = Find.WindowStack.TryRemove(this, false);
                 return;
             }
-
             bool esc = false;
             if (Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.Escape)
             {
                 esc = true;
                 Event.current.Use();
             }
-
             bool enter = false;
             if (Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.Return)
             {
                 enter = true;
                 Event.current.Use();
             }
-
             Text.Font = GameFont.Small;
             string newString = "ASF_NewFilter".Translate();
             float newStringY = Text.CalcSize(newString).y;
@@ -97,7 +94,6 @@ namespace StorageFilters.Dialogs
                 _ = Find.WindowStack.TryRemove(this);
                 Event.current.Use();
             }
-
             if (Widgets.ButtonText(new Rect(winRect.width / 2f + 4f, cancelOkY, winRect.width / 2f - 4f, 35f),
                                    "ASF_Accept".Translate()) || enter)
             {

@@ -51,7 +51,6 @@ namespace StorageFilters
                                 currentFilter = currentFilter.NextInPriorityFilter;
                             }
                     }
-
                 return nextInPriorityFilterParent;
             }
             private set => nextInPriorityFilterParent = value;
@@ -68,7 +67,6 @@ namespace StorageFilters
                 NextInPriorityFilter = otherFilter.NextInPriorityFilter.Copy();
                 NextInPriorityFilter.NextInPriorityFilterParent = this;
             }
-
             CopyAllowancesFrom(otherFilter);
             originalFilter?.CopyAllowancesFrom(this);
         }
