@@ -17,9 +17,6 @@ namespace StorageFilters
 
         private static MethodInfo getTopAreaHeight;
 
-        private static IEnumerable<Thing> haulables;
-        private static readonly Dictionary<Thing, bool> ShouldStore = new Dictionary<Thing, bool>();
-
         private static ExtraThingFilters copiedFilters;
         private static string copiedMainFilterString;
         private static string copiedCurrentFilterKey;
@@ -160,6 +157,59 @@ namespace StorageFilters
             return priority < destinationPriority;
         }
 
+        private static IEnumerable<Thing> haulables;
+        private static readonly HashSet<int> ThingIDsReturned = new HashSet<int>();
+
+        private static IEnumerable<Thing> GetThingsForStorage(this Map map, IStoreSettingsParent storeSettingsParent,
+                                                              bool destEqualTo = false,
+                                                              bool destEqualToOrWorseThan = false)
+        {
+            switch (storeSettingsParent)
+            {
+                case StorageGroup group:
+                {
+                    ThingIDsReturned.Clear();
+                    foreach (IStorageGroupMember member in group.members)
+                        if (member is ISlotGroupParent memberSlotGroupParent)
+                            foreach (IntVec3 position in memberSlotGroupParent.AllSlotCells())
+                                foreach (Thing thing in map.thingGrid.ThingsAt(position))
+                                    if (ThingIDsReturned.Add(thing.thingIDNumber))
+                                        yield return thing;
+                    break;
+                }
+                case ISlotGroupParent slotGroupParent:
+                {
+                    ThingIDsReturned.Clear();
+                    foreach (IntVec3 position in slotGroupParent.AllSlotCells())
+                        foreach (Thing thing in map.thingGrid.ThingsAt(position))
+                            if (ThingIDsReturned.Add(thing.thingIDNumber))
+                                yield return thing;
+                    break;
+                }
+                default:
+                    yield break;
+            }
+            if (haulables == null)
+                haulables = map.listerThings.ThingsInGroup(ThingRequestGroup.HaulableAlways);
+            if (destEqualToOrWorseThan)
+            {
+                foreach (Thing thing in haulables.Where(t => !t.IsForbidden(Faction.OfPlayer)
+                                                          && t.IsCurrentDestinationEqualToOrWorseThan(
+                                                                 storeSettingsParent)))
+                    if (ThingIDsReturned.Add(thing.thingIDNumber))
+                        yield return thing;
+            }
+            else if (destEqualTo)
+            {
+                foreach (Thing thing in haulables.Where(t => !t.IsForbidden(Faction.OfPlayer)
+                                                          && t.IsCurrentDestinationEqualTo(storeSettingsParent)))
+                    if (ThingIDsReturned.Add(thing.thingIDNumber))
+                        yield return thing;
+            }
+        }
+
+        private static readonly HashSet<Thing> Allowed = new HashSet<Thing>();
+
         public static void AllowedToAccept(StorageSettings settings, Thing thing, ref bool result)
         {
             if (result)
@@ -194,7 +244,7 @@ namespace StorageFilters
                 extraFilters.Count <= 0)
                 return;
             GetStackLimitsForThing(storageGroupLeader, thing, out _, out int stackSizeLimit, extraFilters);
-            ShouldStore.Clear();
+            Allowed.Clear();
             foreach (ExtraThingFilter extraFilter in extraFilters.Values)
                 if (extraFilter.Enabled && extraFilter is ExtraThingFilter currentFilter)
                     while (!(currentFilter is null))
@@ -202,41 +252,27 @@ namespace StorageFilters
                         {
                             if (currentFilter == extraFilter)
                                 return; // is NIPF
-                            if (haulables is null)
-                                haulables = map.listerThings.ThingsInGroup(ThingRequestGroup.HaulableAlways);
-                            foreach (Thing t in haulables.Where(t => !t.IsForbidden(Faction.OfPlayer)
-                                                                  && currentFilter.Allows(t) &&
-                                                                     t.IsCurrentDestinationEqualTo(storageGroupLeader)))
-                            {
-                                if (t == thing)
-                                    continue;
-                                ShouldStore[t] = true;
-                                if (ShouldStore.Count >= cellCount)
-                                    break;
-                            }
-                            if (ShouldStore.Count >= cellCount && !ShouldStore.Any(t
-                                    => t.Key.stackCount <
-                                       (stackSizeLimit <= 0
-                                           ? t.Key.def.stackLimit
-                                           : Math.Min(t.Key.def.stackLimit, stackSizeLimit))
-                                    && t.Key.CanStackWith(thing)))
+                            if (Allowed.Count < cellCount)
+                                foreach (Thing t in map.GetThingsForStorage(storageGroupLeader, true)
+                                                       .Where(t => t != thing && currentFilter.Allows(t)))
+                                    if (Allowed.Add(t) && Allowed.Count >= cellCount)
+                                        break;
+                            if (Allowed.Count >= cellCount
+                             && !Allowed.Any(t => t.stackCount < (stackSizeLimit <= 0
+                                                      ? t.def.stackLimit
+                                                      : Math.Min(t.def.stackLimit, stackSizeLimit))
+                                               && t.CanStackWith(thing)))
                                 result = false;
                             return;
                         }
                         else if (currentFilter.NextInPriorityFilter is ExtraThingFilter nextFilter)
                         {
-                            if (haulables is null)
-                                haulables = map.listerThings.ThingsInGroup(ThingRequestGroup.HaulableAlways);
-                            foreach (Thing t in haulables.Where(t => !t.IsForbidden(Faction.OfPlayer)
-                                                                  && currentFilter.Allows(t) &&
-                                                                     t.IsCurrentDestinationEqualToOrWorseThan(
-                                                                         storageGroupLeader)))
-                            {
-                                ShouldStore[t] = true;
-                                if (ShouldStore.Count >= cellCount)
-                                    break;
-                            }
-                            if (ShouldStore.Count >= cellCount)
+                            if (Allowed.Count < cellCount)
+                                foreach (Thing t in map.GetThingsForStorage(storageGroupLeader, true, true)
+                                                       .Where(t => currentFilter.Allows(t)))
+                                    if (Allowed.Add(t) && Allowed.Count >= cellCount)
+                                        break;
+                            if (Allowed.Count >= cellCount)
                                 break; // do not consider the NIPF
                             currentFilter = nextFilter;
                         }
