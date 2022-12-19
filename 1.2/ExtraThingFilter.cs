@@ -13,7 +13,7 @@ namespace StorageFilters
 
         private ExtraThingFilter nextInPriorityFilterParent;
 
-        //public int StackCountLimit = 0;
+        //public int StackCountLimit;
         public int StackSizeLimit;
 
         public ExtraThingFilter() { }
@@ -111,7 +111,7 @@ namespace StorageFilters
             if (!(originalFilter is null))
                 return;
             Scribe_Values.Look(ref Enabled, "Enabled", true);
-            //Scribe_Values.Look(ref StackCountLimit, "StackCountLimit", 0);
+            //Scribe_Values.Look(ref StackCountLimit, "StackCountLimit");
             Scribe_Values.Look(ref StackSizeLimit, "StackSizeLimit");
             Scribe_Deep.Look(ref NextInPriorityFilter, false, "NextInPriorityFilter");
             Scribe_Values.Look(ref FilterDepth, "NextInPriorityFilterDepth");

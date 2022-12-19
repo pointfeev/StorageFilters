@@ -79,27 +79,33 @@ namespace StorageFilters
                               postfix: new HarmonyMethod(typeof(HarmonyPatches), nameof(FillTab)));
             _ = harmony.Patch(AccessTools.Method(typeof(ITab_Storage), "get_TopAreaHeight"),
                               postfix: new HarmonyMethod(typeof(HarmonyPatches), nameof(TopAreaHeight)));
-            _ = harmony.Patch(AccessTools.Method(typeof(ThingFilterUI), "DoThingFilterConfigWindow"),
-                              new HarmonyMethod(typeof(HarmonyPatches), nameof(DoThingFilterConfigWindow)));
-            _ = harmony.Patch(AccessTools.Method(typeof(StorageSettings), "AllowedToAccept", new[] { typeof(Thing) }),
-                              new HarmonyMethod(typeof(HarmonyPatches), nameof(AllowedToAccept)));
-            _ = harmony.Patch(AccessTools.Method(typeof(HaulAIUtility), "HaulToStorageJob"),
+            _ = harmony.Patch(
+                AccessTools.Method(typeof(ThingFilterUI), nameof(ThingFilterUI.DoThingFilterConfigWindow)),
+                new HarmonyMethod(typeof(HarmonyPatches), nameof(DoThingFilterConfigWindow)));
+            _ = harmony.Patch(AccessTools.Method(typeof(StorageSettings), nameof(StorageSettings.AllowedToAccept),
+                                                 new[] { typeof(Thing) }),
+                              postfix: new HarmonyMethod(typeof(HarmonyPatches), nameof(AllowedToAccept)));
+            _ = harmony.Patch(AccessTools.Method(typeof(HaulAIUtility), nameof(HaulAIUtility.HaulToStorageJob)),
                               postfix: new HarmonyMethod(typeof(HarmonyPatches), nameof(HaulToStorageJob)));
             _ = harmony.Patch(AccessTools.Method(typeof(StoreUtility), "NoStorageBlockersIn"),
                               postfix: new HarmonyMethod(typeof(HarmonyPatches), nameof(NoStorageBlockersIn)));
-            _ = harmony.Patch(AccessTools.Method(typeof(GenPlace), "PlaceSpotQualityAt"),
-                              new HarmonyMethod(typeof(HarmonyPatches), nameof(PlaceSpotQualityAt)));
-            _ = harmony.Patch(AccessTools.Method(typeof(StoreUtility), "TryFindBestBetterStoreCellFor"),
-                              new HarmonyMethod(typeof(HarmonyPatches), nameof(TryFindBestBetterStoreCellFor)));
-            _ = harmony.Patch(AccessTools.Method(typeof(ThingUtility), "TryAbsorbStackNumToTake"),
+            _ = harmony.Patch(
+                AccessTools.Method(typeof(StoreUtility), nameof(StoreUtility.TryFindBestBetterStoreCellFor)),
+                new HarmonyMethod(typeof(HarmonyPatches), nameof(TryFindBestBetterStoreCellFor)));
+            _ = harmony.Patch(
+                AccessTools.Method(typeof(StoreUtility), nameof(StoreUtility.TryFindBestBetterStoreCellForIn)),
+                new HarmonyMethod(typeof(HarmonyPatches), nameof(TryFindBestBetterStoreCellForIn)));
+            _ = harmony.Patch(AccessTools.Method(typeof(ThingUtility), nameof(ThingUtility.TryAbsorbStackNumToTake)),
                               postfix: new HarmonyMethod(typeof(HarmonyPatches), nameof(TryAbsorbStackNumToTake)));
             _ = harmony.Patch(AccessTools.Method(typeof(ListerMergeables), "ShouldBeMergeable"),
                               postfix: new HarmonyMethod(typeof(HarmonyPatches), nameof(ShouldBeMergeable)));
-            _ = harmony.Patch(AccessTools.Method(typeof(StorageSettingsClipboard), "Copy"),
-                              postfix: new HarmonyMethod(typeof(HarmonyPatches), nameof(Copy)));
-            _ = harmony.Patch(AccessTools.Method(typeof(StorageSettingsClipboard), "PasteInto"),
-                              postfix: new HarmonyMethod(typeof(HarmonyPatches), nameof(PasteInto)));
-            _ = harmony.Patch(AccessTools.Method(typeof(Log), "Error", new[] { typeof(string) }),
+            _ = harmony.Patch(
+                AccessTools.Method(typeof(StorageSettingsClipboard), nameof(StorageSettingsClipboard.Copy)),
+                postfix: new HarmonyMethod(typeof(HarmonyPatches), nameof(Copy)));
+            _ = harmony.Patch(
+                AccessTools.Method(typeof(StorageSettingsClipboard), nameof(StorageSettingsClipboard.PasteInto)),
+                postfix: new HarmonyMethod(typeof(HarmonyPatches), nameof(PasteInto)));
+            _ = harmony.Patch(AccessTools.Method(typeof(Log), nameof(Log.Error), new[] { typeof(string) }),
                               new HarmonyMethod(typeof(HarmonyPatches), nameof(Error)));
         }
 
@@ -159,8 +165,8 @@ namespace StorageFilters
                 __result = 0;
         }
 
-        public static void PUAH_TryFindBestBetterStoreCellFor(Thing thing, ref StoragePriority currentPriority)
-            => StorageFilters.TryFindBestBetterStoreCellFor(thing, ref currentPriority);
+        public static void PUAH_TryFindBestBetterStoreCellFor(Thing thing, Map map, ref StoragePriority currentPriority)
+            => StorageFilters.TryFindBestBetterStoreCellFor(thing, map, ref currentPriority);
 
         public static void FillTab(ITab_Storage __instance, Vector2 ___size)
         {
@@ -174,9 +180,8 @@ namespace StorageFilters
         public static void DoThingFilterConfigWindow(ref ThingFilter filter, ThingFilter parentFilter)
             => StorageFilters.DoThingFilterConfigWindow(ref filter, parentFilter);
 
-        public static bool AllowedToAccept(Thing t, ref bool __result, ThingFilter ___filter,
-                                           IStoreSettingsParent ___owner)
-            => StorageFilters.AllowedToAccept(___owner, ___filter, t, ref __result);
+        public static void AllowedToAccept(Thing t, StorageSettings __instance, ref bool __result)
+            => StorageFilters.AllowedToAccept(__instance, t, ref __result);
 
         public static void HaulToStorageJob(Thing t, ref Job __result)
             => StorageFilters.HaulToStorageJob(t, ref __result);
@@ -184,11 +189,11 @@ namespace StorageFilters
         public static void NoStorageBlockersIn(IntVec3 c, Map map, Thing thing, ref bool __result)
             => StorageFilters.NoStorageBlockersIn(c, map, thing, ref __result);
 
-        public static void PlaceSpotQualityAt(Thing thing, bool allowStacking, ref object __result)
-            => StorageFilters.PlaceSpotQualityAt(thing, allowStacking, ref __result);
+        public static void TryFindBestBetterStoreCellFor(Thing t, Map map, ref StoragePriority currentPriority)
+            => StorageFilters.TryFindBestBetterStoreCellFor(t, map, ref currentPriority);
 
-        public static void TryFindBestBetterStoreCellFor(Thing t, ref StoragePriority currentPriority)
-            => StorageFilters.TryFindBestBetterStoreCellFor(t, ref currentPriority);
+        public static void TryFindBestBetterStoreCellForIn(Thing t, Map map, ref StoragePriority currentPriority)
+            => StorageFilters.TryFindBestBetterStoreCellFor(t, map, ref currentPriority);
 
         public static void ShouldBeMergeable(Thing t, ref bool __result)
             => StorageFilters.ShouldBeMergeable(t, ref __result);

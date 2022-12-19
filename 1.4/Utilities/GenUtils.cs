@@ -15,13 +15,11 @@ namespace StorageFilters.Utilities
         public static bool IsStorageTabOpen(ITab_Storage storageTab, IStoreSettingsParent storeSettingsParent)
         {
             if (storageTab is null || !storageTab.IsVisible
-                                   || GetSelectedStoreSettingsParent().GetStorageGroupLeader()
-                                   != storeSettingsParent.GetStorageGroupLeader())
+                                   || GetSelectedStoreSettingsParent().GetStorageGroupOwner()
+                                   != storeSettingsParent.GetStorageGroupOwner())
                 return false;
-            foreach (Window window in Find.WindowStack.Windows)
-                if (window.ID == -235086)
-                    return window.IsOpen;
-            return false;
+            return (from window in Find.WindowStack.Windows where window.ID == -235086 select window.IsOpen)
+               .FirstOrDefault();
         }
 
         public static void PlayClick() => SoundDefOf.Click.PlayOneShotOnCamera();
