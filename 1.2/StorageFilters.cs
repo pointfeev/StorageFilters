@@ -21,7 +21,6 @@ namespace StorageFilters
         private static string copiedMainFilterString;
         private static string copiedCurrentFilterKey;
 
-        private static IEnumerable<Thing> haulables;
         private static readonly HashSet<int> ThingIDsReturned = new HashSet<int>();
 
         private static readonly HashSet<Thing> ThingsAllowed = new HashSet<Thing>();
@@ -140,7 +139,8 @@ namespace StorageFilters
                                                         IStoreSettingsParent haulDestination = null)
         {
             haulDestination = haulDestination ?? StoreUtility.CurrentHaulDestinationOf(thing);
-            return !(haulDestination is null) && haulDestination == owner;
+            return !(haulDestination is null)
+                && haulDestination == owner;
         }
 
         private static bool IsCurrentDestinationEqualToOrWorseThan(this Thing thing, IStoreSettingsParent owner)
@@ -172,19 +172,19 @@ namespace StorageFilters
                 default:
                     yield break;
             }
-            if (haulables == null)
-                haulables = map.listerThings.ThingsInGroup(ThingRequestGroup.HaulableAlways);
             if (destEqualToOrWorseThan)
             {
-                foreach (Thing thing in haulables.Where(t => !t.IsForbidden(Faction.OfPlayer)
-                                                          && t.IsCurrentDestinationEqualToOrWorseThan(owner)))
+                foreach (Thing thing in map.listerHaulables.ThingsPotentiallyNeedingHauling()
+                                           .Where(t => !t.IsForbidden(Faction.OfPlayer)
+                                                    && t.IsCurrentDestinationEqualToOrWorseThan(owner)))
                     if (ThingIDsReturned.Add(thing.thingIDNumber))
                         yield return thing;
             }
             else if (destEqualTo)
             {
-                foreach (Thing thing in haulables.Where(t => !t.IsForbidden(Faction.OfPlayer)
-                                                          && t.IsCurrentDestinationEqualTo(owner)))
+                foreach (Thing thing in map.listerHaulables.ThingsPotentiallyNeedingHauling()
+                                           .Where(t => !t.IsForbidden(Faction.OfPlayer)
+                                                    && t.IsCurrentDestinationEqualTo(owner)))
                     if (ThingIDsReturned.Add(thing.thingIDNumber))
                         yield return thing;
             }
