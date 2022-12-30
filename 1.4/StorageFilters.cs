@@ -114,7 +114,7 @@ namespace StorageFilters
             if (extraFilters is null)
                 extraFilters = StorageFiltersData.GetExtraThingFilters(owner);
             if (!(extraFilters is null) && extraFilters.Count > 0)
-                foreach (ExtraThingFilter extraFilter in extraFilters.Values.Where(f => f.Enabled))
+                foreach (ExtraThingFilter extraFilter in extraFilters.Filters.Where(f => f.Enabled))
                 {
                     bool applicable = extraFilter.Allows(thing);
                     if (!applicable)
@@ -233,7 +233,7 @@ namespace StorageFilters
             }
             GetStackLimitsForThing(owner, thing, out _, out int stackSizeLimit, extraFilters);
             ThingsAllowed.Clear();
-            foreach (ExtraThingFilter extraFilter in extraFilters.Values)
+            foreach (ExtraThingFilter extraFilter in extraFilters.Filters)
                 if (extraFilter.Enabled && extraFilter is ExtraThingFilter currentFilter)
                     while (!(currentFilter is null))
                         if (result = currentFilter.Allows(thing))
