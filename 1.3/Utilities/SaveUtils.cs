@@ -17,9 +17,8 @@ namespace StorageFilters.Utilities
                 string result;
                 try
                 {
-                    result = typeof(GenFilePaths)
-                            .GetMethod("FolderUnderSaveData", BindingFlags.Static | BindingFlags.NonPublic)
-                           ?.Invoke(null, new object[] { "StorageFilters" }) as string;
+                    result = typeof(GenFilePaths).GetMethod("FolderUnderSaveData", BindingFlags.Static | BindingFlags.NonPublic)
+                                                ?.Invoke(null, new object[] { "StorageFilters" }) as string;
                 }
                 catch (Exception)
                 {

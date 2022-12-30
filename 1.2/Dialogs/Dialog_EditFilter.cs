@@ -34,10 +34,9 @@ namespace StorageFilters.Dialogs
             this.storeSettingsParent = storeSettingsParent;
         }
 
-        public Dialog_EditFilter(ITab_Storage instance, IStoreSettingsParent storeSettingsParent, string key,
-                                 ExtraThingFilter value, ExtraThingFilters tabFilters = null,
-                                 Dialog_EditFilter previousEditFilterDialog = null) : this(
-            instance, storeSettingsParent)
+        public Dialog_EditFilter
+        (ITab_Storage instance, IStoreSettingsParent storeSettingsParent, string key, ExtraThingFilter value, ExtraThingFilters tabFilters = null,
+            Dialog_EditFilter previousEditFilterDialog = null) : this(instance, storeSettingsParent)
         {
             this.key = key;
             Filter = value;
@@ -46,10 +45,9 @@ namespace StorageFilters.Dialogs
             previousDialog = previousEditFilterDialog;
         }
 
-        public Dialog_EditFilter(ITab_Storage instance, IStoreSettingsParent storeSettingsParent, string key,
-                                 bool keyIsMainFilterString, ExtraThingFilters tabFilters) : this(
-            instance, storeSettingsParent, key, null,
-            tabFilters)
+        public Dialog_EditFilter
+            (ITab_Storage instance, IStoreSettingsParent storeSettingsParent, string key, bool keyIsMainFilterString, ExtraThingFilters tabFilters) : this(
+            instance, storeSettingsParent, key, null, tabFilters)
         {
             this.keyIsMainFilterString = keyIsMainFilterString;
             Filter = new ExtraThingFilter(storeSettingsParent.GetStoreSettings().filter);
@@ -63,23 +61,21 @@ namespace StorageFilters.Dialogs
         {
             if (NamePlayerFactionDialogUtility.IsValidName(curName))
             {
-                if (key == curName ||
-                    (StorageFiltersData.MainFilterString.TryGetValue(storeSettingsParent) != curName &&
-                     !tabFilters.ContainsKey(curName)))
+                if (key == curName || (StorageFiltersData.GetMainFilterName(storeSettingsParent) != curName && !tabFilters.ContainsKey(curName)))
                 {
                     if (key != curName)
                     {
                         if (keyIsMainFilterString)
                         {
-                            StorageFiltersData.MainFilterString.SetOrAdd(storeSettingsParent, curName);
+                            StorageFiltersData.SetMainFilterName(storeSettingsParent, curName);
                         }
                         else
                         {
                             tabFilters.Remove(key);
                             tabFilters.Add(curName, Filter);
                         }
-                        if (StorageFiltersData.CurrentFilterKey.TryGetValue(storeSettingsParent) == key)
-                            StorageFiltersData.CurrentFilterKey.SetOrAdd(storeSettingsParent, curName);
+                        if (StorageFiltersData.GetCurrentFilterKey(storeSettingsParent) == key)
+                            StorageFiltersData.SetCurrentFilterKey(storeSettingsParent, curName);
                         key = curName;
                         GenUtils.PlayClick();
                         return true;
@@ -87,8 +83,7 @@ namespace StorageFilters.Dialogs
                 }
                 else
                 {
-                    Messages.Message("ASF_StorageAreaAlreadyHasFilterNamed".Translate(curName),
-                                     MessageTypeDefOf.RejectInput, false);
+                    Messages.Message("ASF_StorageAreaAlreadyHasFilterNamed".Translate(curName), MessageTypeDefOf.RejectInput, false);
                 }
             }
             else
@@ -111,9 +106,8 @@ namespace StorageFilters.Dialogs
                 Event.current.Use();
                 return;
             }
-            if (Filter is null || (Event.current.type == EventType.KeyDown &&
-                                   (Event.current.keyCode == KeyCode.Escape ||
-                                    Event.current.keyCode == KeyCode.Return)))
+            if (Filter is null || (Event.current.type == EventType.KeyDown
+                                && (Event.current.keyCode == KeyCode.Escape || Event.current.keyCode == KeyCode.Return)))
             {
                 _ = Find.WindowStack.TryRemove(this);
                 Event.current.Use();
@@ -121,12 +115,12 @@ namespace StorageFilters.Dialogs
             }
             if (tabFilters != null)
             {
-                string mainFilterString = StorageFiltersData.MainFilterString.TryGetValue(storeSettingsParent);
+                string mainFilterString = StorageFiltersData.GetMainFilterName(storeSettingsParent);
                 if (keyIsMainFilterString && !(mainFilterString is null))
-                    StorageFiltersData.CurrentFilterKey.SetOrAdd(storeSettingsParent, mainFilterString);
+                    StorageFiltersData.SetCurrentFilterKey(storeSettingsParent, mainFilterString);
                 else if (!(key is null))
-                    StorageFiltersData.CurrentFilterKey.SetOrAdd(storeSettingsParent, key);
-                StorageFiltersData.CurrentFilterDepth.SetOrAdd(storeSettingsParent, Filter.FilterDepth);
+                    StorageFiltersData.SetCurrentFilterKey(storeSettingsParent, key);
+                StorageFiltersData.SetCurrentFilterDepth(storeSettingsParent, Filter.FilterDepth);
             }
             Text.Font = GameFont.Small;
             string editString = "ASF_EditingFilter".Translate(key);
@@ -141,8 +135,7 @@ namespace StorageFilters.Dialogs
                 string renameString = "ASF_RenameFilter".Translate();
                 float renameStringX = Text.CalcSize(renameString).x + 30f;
                 curName = Widgets.TextField(new Rect(0f, renameY, winRect.width - 8f - renameStringX, 35f), curName);
-                if (Widgets.ButtonText(new Rect(winRect.width - renameStringX, renameY, renameStringX, 35f),
-                                       renameString))
+                if (Widgets.ButtonText(new Rect(winRect.width - renameStringX, renameY, renameStringX, 35f), renameString))
                 {
                     _ = CheckCurName();
                     Event.current.Use();
@@ -157,53 +150,43 @@ namespace StorageFilters.Dialogs
                         Filter.StackCountLimit = stackCountLimit;*/
                     string stackSizeString = "ASF_StackSizeLimit".Translate();
                     Vector2 stackSizeStringSize = Text.CalcSize(stackSizeString);
-                    Widgets.Label(
-                        new Rect(0f, stackLimitY + 35f / 2 - stackSizeStringSize.y / 2, stackSizeStringSize.x, 35f),
-                        stackSizeString);
-                    string stackSizeLimitString =
-                        Widgets.TextField(new Rect(stackSizeStringSize.x + 8f, stackLimitY,
-                                                   winRect.width - stackSizeStringSize.x - 8f, 35f),
-                                          Filter.StackSizeLimit.ToString());
+                    Widgets.Label(new Rect(0f, stackLimitY + 35f / 2 - stackSizeStringSize.y / 2, stackSizeStringSize.x, 35f), stackSizeString);
+                    string stackSizeLimitString
+                        = Widgets.TextField(new Rect(stackSizeStringSize.x + 8f, stackLimitY, winRect.width - stackSizeStringSize.x - 8f, 35f),
+                            Filter.StackSizeLimit.ToString());
                     if (int.TryParse(stackSizeLimitString, out int stackSizeLimit))
                         Filter.StackSizeLimit = stackSizeLimit;
                 }
-                if (Widgets.ButtonText(new Rect(0f, saveLoadY, winRect.width / 2f - 4f, 35f),
-                                       "ASF_SaveFilter".Translate()))
+                if (Widgets.ButtonText(new Rect(0f, saveLoadY, winRect.width / 2f - 4f, 35f), "ASF_SaveFilter".Translate()))
                 {
-                    if (StorageFiltersData.SavedFilter.TryGetValue(key) != null)
+                    if (StorageFiltersData.SavedFilters.TryGetValue(key) != null)
                     {
-                        Find.WindowStack.Add(new Dialog_Confirmation(storageTab, storeSettingsParent,
-                                                                     "ASF_ConfirmOverwriteSavedFilter".Translate(key),
-                                                                     delegate
-                                                                     {
-                                                                         StorageFiltersData.SavedFilter.SetOrAdd(
-                                                                             key, Filter);
-                                                                         SaveUtils.Save();
-                                                                         Messages.Message(
-                                                                             "ASF_SavedFilter".Translate(key),
-                                                                             MessageTypeDefOf.TaskCompletion,
-                                                                             false);
-                                                                     }, this));
+                        Find.WindowStack.Add(new Dialog_Confirmation(storageTab, storeSettingsParent, "ASF_ConfirmOverwriteSavedFilter".Translate(key), delegate
+                        {
+                            StorageFiltersData.SavedFilters.SetOrAdd(key, Filter);
+                            SaveUtils.Save();
+                            Messages.Message("ASF_SavedFilter".Translate(key), MessageTypeDefOf.TaskCompletion, false);
+                        }, this));
                     }
                     else
                     {
-                        StorageFiltersData.SavedFilter.SetOrAdd(key, Filter);
+                        StorageFiltersData.SavedFilters.SetOrAdd(key, Filter);
                         SaveUtils.Save();
                         Messages.Message("ASF_SavedFilter".Translate(key), MessageTypeDefOf.TaskCompletion, false);
                     }
                     Event.current.Use();
                 }
-                if (Widgets.ButtonText(new Rect(winRect.width / 2f + 4f, saveLoadY, winRect.width / 2f - 4f, 35f),
-                                       "ASF_LoadSavedFilter".Translate()))
+                if (Widgets.ButtonText(new Rect(winRect.width / 2f + 4f, saveLoadY, winRect.width / 2f - 4f, 35f), "ASF_LoadSavedFilter".Translate()))
                 {
-                    if (StorageFiltersData.SavedFilter.Count > 0)
+                    if (StorageFiltersData.SavedFilters.Count > 0)
                     {
                         List<FloatMenuOption> filterFloatMenuOptions = new List<FloatMenuOption>();
                         FloatMenu filterFloatMenu = null;
                         string removeString = "ASF_DeleteSavedFilter".Translate();
                         float renameX = Text.CalcSize(renameString).x + 8f;
                         float removeX = Text.CalcSize(removeString).x + 8f;
-                        foreach (KeyValuePair<string, ExtraThingFilter> entry in StorageFiltersData.SavedFilter)
+                        SaveUtils.Load();
+                        foreach (KeyValuePair<string, ExtraThingFilter> entry in StorageFiltersData.SavedFilters)
                             filterFloatMenuOptions.Add(new FloatMenuOption(entry.Key, delegate
                             {
                                 string oldCurName = curName;
@@ -228,15 +211,12 @@ namespace StorageFilters.Dialogs
                                 {
                                     filterFloatMenu.Close();
                                     Find.WindowStack.Add(new Dialog_Confirmation(storageTab, storeSettingsParent,
-                                                             "ASF_ConfirmDeleteSavedFilter".Translate(entry.Key),
-                                                             delegate
-                                                             {
-                                                                 _ = StorageFiltersData.SavedFilter.Remove(entry.Key);
-                                                                 SaveUtils.Save();
-                                                                 Messages.Message(
-                                                                     "ASF_DeletedSavedFilter".Translate(entry.Key),
-                                                                     MessageTypeDefOf.TaskCompletion, false);
-                                                             }, this));
+                                        "ASF_ConfirmDeleteSavedFilter".Translate(entry.Key), delegate
+                                        {
+                                            _ = StorageFiltersData.SavedFilters.Remove(entry.Key);
+                                            SaveUtils.Save();
+                                            Messages.Message("ASF_DeletedSavedFilter".Translate(entry.Key), MessageTypeDefOf.TaskCompletion, false);
+                                        }, this));
                                 }).DoGUI(removeRect, false, null);
                                 return false;
                             }));
@@ -254,22 +234,15 @@ namespace StorageFilters.Dialogs
             {
                 if (Widgets.ButtonText(new Rect(0f, renameY, winRect.width, 35f), "ASF_RemoveThisNIPF".Translate()))
                 {
-                    Find.WindowStack.Add(new Dialog_Confirmation(storageTab, storeSettingsParent,
-                                                                 "ASF_ConfirmRemoveNIPF".Translate(key),
-                                                                 !(Filter.NextInPriorityFilter is null)
-                                                                     ? "ASF_ConfirmRemoveNIPF_RemoveMore".Translate()
-                                                                     : null,
-                                                                 delegate
-                                                                 {
-                                                                     Filter.NextInPriorityFilterParent
-                                                                           .NextInPriorityFilter = null;
-                                                                     Filter = null;
-                                                                     if (!(previousDialog is null))
-                                                                         StorageFiltersData.CurrentFilterDepth.SetOrAdd(
-                                                                             storeSettingsParent,
-                                                                             previousDialog.Filter.FilterDepth);
-                                                                     Find.WindowStack.Add(previousDialog);
-                                                                 }, this));
+                    Find.WindowStack.Add(new Dialog_Confirmation(storageTab, storeSettingsParent, "ASF_ConfirmRemoveNIPF".Translate(key),
+                        !(Filter.NextInPriorityFilter is null) ? "ASF_ConfirmRemoveNIPF_RemoveMore".Translate() : null, delegate
+                        {
+                            Filter.NextInPriorityFilterParent.NextInPriorityFilter = null;
+                            Filter = null;
+                            if (!(previousDialog is null))
+                                StorageFiltersData.SetCurrentFilterDepth(storeSettingsParent, previousDialog.Filter.FilterDepth);
+                            Find.WindowStack.Add(previousDialog);
+                        }, this));
                     Event.current.Use();
                 }
             }
@@ -284,8 +257,7 @@ namespace StorageFilters.Dialogs
                     float backStringX = Text.CalcSize(backString).x + 30f;
                     if (Widgets.ButtonText(new Rect(x, priorityY, backStringX, 35f), backString))
                     {
-                        StorageFiltersData.CurrentFilterDepth.SetOrAdd(storeSettingsParent,
-                                                                       previousDialog.Filter.FilterDepth);
+                        StorageFiltersData.SetCurrentFilterDepth(storeSettingsParent, previousDialog.Filter.FilterDepth);
                         Find.WindowStack.Add(previousDialog);
                         Event.current.Use();
                     }
@@ -296,14 +268,11 @@ namespace StorageFilters.Dialogs
                 {
                     string nipKey = Filter.NextInPriorityFilterParent is null
                         ? "ASF_HierarchyNIPF".Translate(key, Filter.NextInPriorityFilter.FilterDepth).ToString()
-                        : key?.Substring(0,
-                                         key.Length - (Filter.NextInPriorityFilter.FilterDepth - 1).ToString().Length) +
-                          Filter.NextInPriorityFilter.FilterDepth;
-                    StorageFiltersData.CurrentFilterDepth.SetOrAdd(storeSettingsParent,
-                                                                   Filter.NextInPriorityFilter.FilterDepth);
-                    Find.WindowStack.Add(new Dialog_EditFilter(storageTab, storeSettingsParent, nipKey,
-                                                               Filter.NextInPriorityFilter,
-                                                               previousEditFilterDialog: this));
+                        : key?.Substring(0, key.Length - (Filter.NextInPriorityFilter.FilterDepth - 1).ToString().Length)
+                        + Filter.NextInPriorityFilter.FilterDepth;
+                    StorageFiltersData.SetCurrentFilterDepth(storeSettingsParent, Filter.NextInPriorityFilter.FilterDepth);
+                    Find.WindowStack.Add(new Dialog_EditFilter(storageTab, storeSettingsParent, nipKey, Filter.NextInPriorityFilter,
+                        previousEditFilterDialog: this));
                 }
                 if (Filter.NextInPriorityFilter is null)
                 {

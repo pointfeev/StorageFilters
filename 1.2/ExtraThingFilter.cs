@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using RimWorld;
 using Verse;
 
 namespace StorageFilters
@@ -36,21 +35,20 @@ namespace StorageFilters
             {
                 if (!(nextInPriorityFilterParent is null))
                     return nextInPriorityFilterParent;
-                foreach (KeyValuePair<IStoreSettingsParent, ExtraThingFilters> filters in StorageFiltersData.Filters)
-                    foreach (KeyValuePair<string, ExtraThingFilter> filter in filters.Value)
-                    {
-                        ExtraThingFilter currentFilter = filter.Value;
-                        while (nextInPriorityFilterParent is null && !(currentFilter.NextInPriorityFilter is null))
-                            if (currentFilter.NextInPriorityFilter == this)
-                            {
-                                nextInPriorityFilterParent = currentFilter;
-                                return currentFilter;
-                            }
-                            else
-                            {
-                                currentFilter = currentFilter.NextInPriorityFilter;
-                            }
-                    }
+                foreach (ExtraThingFilter filter in StorageFiltersData.AllFilters())
+                {
+                    ExtraThingFilter currentFilter = filter;
+                    while (nextInPriorityFilterParent is null && !(currentFilter.NextInPriorityFilter is null))
+                        if (currentFilter.NextInPriorityFilter == this)
+                        {
+                            nextInPriorityFilterParent = currentFilter;
+                            return currentFilter;
+                        }
+                        else
+                        {
+                            currentFilter = currentFilter.NextInPriorityFilter;
+                        }
+                }
                 return nextInPriorityFilterParent;
             }
             private set => nextInPriorityFilterParent = value;
@@ -98,8 +96,7 @@ namespace StorageFilters
             SyncWithMainFilter();
         }
 
-        public new void SetDisallowAll(IEnumerable<ThingDef> exceptedDefs = null,
-                                       IEnumerable<SpecialThingFilterDef> exceptedFilters = null)
+        public new void SetDisallowAll(IEnumerable<ThingDef> exceptedDefs = null, IEnumerable<SpecialThingFilterDef> exceptedFilters = null)
         {
             base.SetDisallowAll(exceptedDefs, exceptedFilters);
             SyncWithMainFilter();

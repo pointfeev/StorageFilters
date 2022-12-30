@@ -27,8 +27,8 @@ namespace StorageFilters.Dialogs
             this.storeSettingsParent = storeSettingsParent;
         }
 
-        public Dialog_NewFilter(ITab_Storage instance, IStoreSettingsParent storeSettingsParent,
-                                ExtraThingFilters tabFilters) : this(instance, storeSettingsParent)
+        public Dialog_NewFilter
+            (ITab_Storage instance, IStoreSettingsParent storeSettingsParent, ExtraThingFilters tabFilters) : this(instance, storeSettingsParent)
         {
             this.tabFilters = tabFilters;
             curName = "ASF_DefaultName".Translate(tabFilters.Count + 1);
@@ -42,18 +42,16 @@ namespace StorageFilters.Dialogs
         {
             if (NamePlayerFactionDialogUtility.IsValidName(curName))
             {
-                if (StorageFiltersData.MainFilterString.TryGetValue(storeSettingsParent) != curName &&
-                    !tabFilters.ContainsKey(curName))
+                if (StorageFiltersData.GetMainFilterName(storeSettingsParent) != curName && !tabFilters.ContainsKey(curName))
                 {
                     tabFilters.Add(curName, new ExtraThingFilter());
-                    StorageFiltersData.CurrentFilterKey.SetOrAdd(storeSettingsParent, curName);
+                    StorageFiltersData.SetCurrentFilterKey(storeSettingsParent, curName);
                     //Messages.Message("Added new filter named '" + curName + "' to the specified storage area", MessageTypeDefOf.TaskCompletion, false);
                     _ = Find.WindowStack.TryRemove(this);
                 }
                 else
                 {
-                    Messages.Message("ASF_StorageAreaAlreadyHasFilter".Translate(curName), MessageTypeDefOf.RejectInput,
-                                     false);
+                    Messages.Message("ASF_StorageAreaAlreadyHasFilter".Translate(curName), MessageTypeDefOf.RejectInput, false);
                 }
             }
             else
@@ -88,14 +86,12 @@ namespace StorageFilters.Dialogs
             float nameY = newStringY + 8f;
             curName = Widgets.TextField(new Rect(0f, nameY, winRect.width, 35f), curName);
             float cancelOkY = nameY + 35f + 12f;
-            if (Widgets.ButtonText(new Rect(0f, cancelOkY, winRect.width / 2f - 4f, 35f), "ASF_Cancel".Translate()) ||
-                esc)
+            if (Widgets.ButtonText(new Rect(0f, cancelOkY, winRect.width / 2f - 4f, 35f), "ASF_Cancel".Translate()) || esc)
             {
                 _ = Find.WindowStack.TryRemove(this);
                 Event.current.Use();
             }
-            if (Widgets.ButtonText(new Rect(winRect.width / 2f + 4f, cancelOkY, winRect.width / 2f - 4f, 35f),
-                                   "ASF_Accept".Translate()) || enter)
+            if (Widgets.ButtonText(new Rect(winRect.width / 2f + 4f, cancelOkY, winRect.width / 2f - 4f, 35f), "ASF_Accept".Translate()) || enter)
             {
                 CheckCurName();
                 Event.current.Use();

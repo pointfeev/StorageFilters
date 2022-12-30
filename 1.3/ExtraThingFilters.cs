@@ -17,8 +17,7 @@ namespace StorageFilters
 
         public int Count => filters.Count;
 
-        public void ExposeData() => Scribe_Collections.Look(ref filters, "filters", LookMode.Value, LookMode.Deep,
-                                                            ref filterKeys, ref filterValues);
+        public void ExposeData() => Scribe_Collections.Look(ref filters, "filters", LookMode.Value, LookMode.Deep, ref filterKeys, ref filterValues);
 
         public Dictionary<string, ExtraThingFilter>.Enumerator GetEnumerator() => filters.GetEnumerator();
 

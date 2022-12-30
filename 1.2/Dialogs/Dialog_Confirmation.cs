@@ -20,8 +20,7 @@ namespace StorageFilters.Dialogs
         private readonly ITab_Storage storageTab;
         private readonly IStoreSettingsParent storeSettingsParent;
 
-        public Dialog_Confirmation(ITab_Storage instance, IStoreSettingsParent storeSettingsParent,
-                                   Dialog_EditFilter editDialog = null)
+        public Dialog_Confirmation(ITab_Storage instance, IStoreSettingsParent storeSettingsParent, Dialog_EditFilter editDialog = null)
         {
             layer = WindowLayer.GameUI;
             preventCameraMotion = false;
@@ -37,10 +36,9 @@ namespace StorageFilters.Dialogs
             editFilterDialog = editDialog;
         }
 
-        public Dialog_Confirmation(ITab_Storage instance, IStoreSettingsParent storeSettingsParent,
-                                   string confirmQuestion, Action confirmAction,
-                                   Dialog_EditFilter editDialog = null) : this(instance,
-                                                                               storeSettingsParent, editDialog)
+        public Dialog_Confirmation
+            (ITab_Storage instance, IStoreSettingsParent storeSettingsParent, string confirmQuestion, Action confirmAction, Dialog_EditFilter editDialog = null)
+            : this(instance, storeSettingsParent, editDialog)
         {
             question = confirmQuestion;
             action = confirmAction;
@@ -50,10 +48,9 @@ namespace StorageFilters.Dialogs
             SetInitialSizeAndPosition();
         }
 
-        public Dialog_Confirmation(ITab_Storage instance, IStoreSettingsParent storeSettingsParent,
-                                   string confirmQuestion, string confirmQuestionExtra, Action confirmAction,
-                                   Dialog_EditFilter editDialog = null) : this(
-            instance, storeSettingsParent, editDialog)
+        public Dialog_Confirmation
+        (ITab_Storage instance, IStoreSettingsParent storeSettingsParent, string confirmQuestion, string confirmQuestionExtra, Action confirmAction,
+            Dialog_EditFilter editDialog = null) : this(instance, storeSettingsParent, editDialog)
         {
             question = confirmQuestion;
             questionExtra = confirmQuestionExtra;
@@ -69,8 +66,7 @@ namespace StorageFilters.Dialogs
 
         public override Vector2 InitialSize => initialSize;
 
-        protected sealed override void SetInitialSizeAndPosition()
-            => windowRect = GenUtils.GetDialogSizeAndPosition(this, editFilterDialog);
+        protected sealed override void SetInitialSizeAndPosition() => windowRect = GenUtils.GetDialogSizeAndPosition(this, editFilterDialog);
 
         public override void DoWindowContents(Rect winRect)
         {
@@ -105,16 +101,14 @@ namespace StorageFilters.Dialogs
                 float x = 0f;
                 if (confirmExtraStringSize.x < confirmStringSize.x)
                     x = winRect.width / 2 - confirmExtraStringSize.x / 2;
-                Widgets.Label(new Rect(x, yesNoY - 6f, confirmExtraStringSize.x, confirmExtraStringY),
-                              confirmExtraString);
+                Widgets.Label(new Rect(x, yesNoY - 6f, confirmExtraStringSize.x, confirmExtraStringY), confirmExtraString);
                 yesNoY += confirmExtraStringY + 6f;
             }
             string yesString = "ASF_Confirm".Translate();
             float yesStringX = Text.CalcSize(yesString).x;
             string noString = "ASF_Deny".Translate();
             float noStringX = Text.CalcSize(noString).x;
-            if (Widgets.ButtonText(new Rect(winRect.width / 2f - yesStringX - 28f, yesNoY, yesStringX + 24f, 35f),
-                                   yesString) || enter)
+            if (Widgets.ButtonText(new Rect(winRect.width / 2f - yesStringX - 28f, yesNoY, yesStringX + 24f, 35f), yesString) || enter)
             {
                 action();
                 _ = Find.WindowStack.TryRemove(this);

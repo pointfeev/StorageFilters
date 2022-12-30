@@ -28,8 +28,7 @@ namespace StorageFilters.Dialogs
             editFilterDialog = editDialog;
         }
 
-        public Dialog_RenameSavedFilter(Dialog_EditFilter editDialog, string key, ExtraThingFilter value) : this(
-            editDialog)
+        public Dialog_RenameSavedFilter(Dialog_EditFilter editDialog, string key, ExtraThingFilter value) : this(editDialog)
         {
             this.key = key;
             this.value = value;
@@ -38,23 +37,21 @@ namespace StorageFilters.Dialogs
 
         public override Vector2 InitialSize => new Vector2(260f, 150f);
 
-        protected override void SetInitialSizeAndPosition()
-            => windowRect = GenUtils.GetDialogSizeAndPosition(this, editFilterDialog);
+        protected override void SetInitialSizeAndPosition() => windowRect = GenUtils.GetDialogSizeAndPosition(this, editFilterDialog);
 
         private void CheckCurName()
         {
             if (NamePlayerFactionDialogUtility.IsValidName(curName))
             {
-                if (key == curName || !StorageFiltersData.SavedFilter.ContainsKey(curName))
+                if (key == curName || !StorageFiltersData.SavedFilters.ContainsKey(curName))
                 {
                     if (key != curName)
                     {
-                        _ = StorageFiltersData.SavedFilterNoLoad.Remove(key);
-                        StorageFiltersData.SavedFilterNoLoad.Add(curName, value);
+                        _ = StorageFiltersData.SavedFilters.Remove(key);
+                        StorageFiltersData.SavedFilters.Add(curName, value);
                         SaveUtils.Save();
                     }
-                    Messages.Message("ASF_RenamedSavedFilter".Translate(key, curName), MessageTypeDefOf.TaskCompletion,
-                                     false);
+                    Messages.Message("ASF_RenamedSavedFilter".Translate(key, curName), MessageTypeDefOf.TaskCompletion, false);
                     _ = Find.WindowStack.TryRemove(this);
                 }
                 else
@@ -94,14 +91,12 @@ namespace StorageFilters.Dialogs
             float nameY = renameStringY + 8f;
             curName = Widgets.TextField(new Rect(0f, nameY, winRect.width, 35f), curName);
             float cancelRenameY = nameY + 35f + 12f;
-            if (Widgets.ButtonText(new Rect(0f, cancelRenameY, winRect.width / 2f - 4f, 35f),
-                                   "ASF_Cancel".Translate()) || esc)
+            if (Widgets.ButtonText(new Rect(0f, cancelRenameY, winRect.width / 2f - 4f, 35f), "ASF_Cancel".Translate()) || esc)
             {
                 _ = Find.WindowStack.TryRemove(this);
                 Event.current.Use();
             }
-            if (Widgets.ButtonText(new Rect(winRect.width / 2f + 4f, cancelRenameY, winRect.width / 2f - 4f, 35f),
-                                   "ASF_RenameFilter".Translate()) || enter)
+            if (Widgets.ButtonText(new Rect(winRect.width / 2f + 4f, cancelRenameY, winRect.width / 2f - 4f, 35f), "ASF_RenameFilter".Translate()) || enter)
             {
                 CheckCurName();
                 Event.current.Use();
