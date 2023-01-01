@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using RimWorld;
 using StorageFilters.Dialogs;
 using StorageFilters.Utilities;
@@ -25,12 +26,16 @@ namespace StorageFilters
 
         private static readonly HashSet<Thing> ThingsAllowed = new HashSet<Thing>();
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static StorageGroup GetStorageGroup(this IStoreSettingsParent owner) => owner as StorageGroup ?? (owner as IStorageGroupMember)?.Group;
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static IStoreSettingsParent GetStorageGroupOrSelf(this IStoreSettingsParent owner) => owner.GetStorageGroup() ?? owner;
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static StorageSettings GetStorageGroupSettings(this IStoreSettingsParent owner) => owner.GetStorageGroupOrSelf().GetStoreSettings();
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static IStoreSettingsParent GetStorageGroupOwner
             (this IStoreSettingsParent owner)
             => owner.GetStorageGroup()?.members?.FirstOrFallback() as IStoreSettingsParent ?? owner;
@@ -104,6 +109,7 @@ namespace StorageFilters
             (ref ThingFilter filter, ThingFilter parentFilter = null)
             => filter = GetCurrentFilter(filter, parentFilter);
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void GetStackLimitsForThing
             (IStoreSettingsParent owner, Thing thing, out int stackCountLimit, out int stackSizeLimit, ExtraThingFilters extraFilters = null)
         {
@@ -226,7 +232,7 @@ namespace StorageFilters
                     map = slotGroupParent.Map;
                     if (map == null)
                         return;
-                    cellCount = slotGroupParent.AllSlotCells()?.Sum(c => c.GetMaxItemsAllowedInCell(map)) ?? 0;
+                    cellCount = slotGroupParent.AllSlotCells().Sum(c => c.GetMaxItemsAllowedInCell(map));
                     break;
                 default:
                     return;

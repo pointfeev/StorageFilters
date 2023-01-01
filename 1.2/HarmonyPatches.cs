@@ -136,12 +136,7 @@ namespace StorageFilters
             (Thing thing, Map map, ref StoragePriority currentPriority)
             => StorageFilters.TryFindBestBetterStoreCellFor(thing, map, ref currentPriority);
 
-        public static void FillTab(ITab_Storage __instance, Vector2 ___size)
-        {
-            if (MaterialFilterActive)
-                lastButton = StorageFilters.FillTab(__instance, ___size);
-            else _ = StorageFilters.FillTab(__instance, ___size);
-        }
+        public static void FillTab(ITab_Storage __instance, Vector2 ___size) => lastButton = StorageFilters.FillTab(__instance, ___size);
 
         public static void TopAreaHeight(float __result) => _ = Math.Max(__result, 35f);
 

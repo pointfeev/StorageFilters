@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using RimWorld;
 using Verse;
 
@@ -48,6 +49,7 @@ namespace StorageFilters
 
         public StorageFiltersData(Game _) { }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static void SetMainFilterName(IStoreSettingsParent owner, string name)
         {
             switch (owner)
@@ -64,6 +66,7 @@ namespace StorageFilters
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static string GetMainFilterName(IStoreSettingsParent owner)
         {
             string name;
@@ -96,6 +99,7 @@ namespace StorageFilters
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static void SetCurrentFilterKey(IStoreSettingsParent owner, string key)
         {
             switch (owner)
@@ -112,6 +116,7 @@ namespace StorageFilters
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static string GetCurrentFilterKey(IStoreSettingsParent owner)
         {
             string key;
@@ -132,6 +137,7 @@ namespace StorageFilters
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static void SetCurrentFilterDepth(IStoreSettingsParent owner, int depth)
         {
             switch (owner)
@@ -148,6 +154,7 @@ namespace StorageFilters
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static int GetCurrentFilterDepth(IStoreSettingsParent owner)
         {
             int depth;
@@ -162,6 +169,7 @@ namespace StorageFilters
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static void SetExtraThingFilters(IStoreSettingsParent owner, ExtraThingFilters extraThingFilters)
         {
             switch (owner)
@@ -178,6 +186,7 @@ namespace StorageFilters
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static ExtraThingFilters GetExtraThingFilters(IStoreSettingsParent owner)
         {
             ExtraThingFilters extraThingFilters;
@@ -206,16 +215,21 @@ namespace StorageFilters
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static IEnumerable<ExtraThingFilter> AllFilters()
         {
-            foreach (KeyValuePair<int, ExtraThingFilters> zoneFilter in zoneFilters)
-                foreach (KeyValuePair<string, ExtraThingFilter> filter in zoneFilter.Value)
+            foreach (KeyValuePair<int, ExtraThingFilters> zoneFilters in zoneFilters)
+                foreach (KeyValuePair<string, ExtraThingFilter> filter in zoneFilters.Value)
                     yield return filter.Value;
-            foreach (KeyValuePair<int, ExtraThingFilters> buildingFilter in buildingFilters)
-                foreach (KeyValuePair<string, ExtraThingFilter> filter in buildingFilter.Value)
+            foreach (KeyValuePair<int, ExtraThingFilters> buildingFilters in buildingFilters)
+                foreach (KeyValuePair<string, ExtraThingFilter> filter in buildingFilters.Value)
+                    yield return filter.Value;
+            foreach (KeyValuePair<IStoreSettingsParent, ExtraThingFilters> genericFilters in filters)
+                foreach (KeyValuePair<string, ExtraThingFilter> filter in genericFilters.Value)
                     yield return filter.Value;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static void Initialize<TK, TV>(ref List<TK> keys, ref List<TV> values, ref Dictionary<TK, TV> dictionary)
         {
             if (keys == null)
