@@ -62,7 +62,7 @@ namespace StorageFilters.Utilities
             Text.Font = GameFont.Small;
             if (Widgets.ButtonText(position, tabFilter))
             {
-                HarmonyPatches.SetMaterialFilterWindowActive(toggle: false, active: false);
+                ModCompatibility.SetMaterialFilterWindowActive(toggle: false, active: false);
                 Dictionary<FloatMenuOption, int> floatMenuOptionOrder = new Dictionary<FloatMenuOption, int>();
                 FloatMenuOption NewFilterOption(FloatMenuOption floatMenuOption)
                 {

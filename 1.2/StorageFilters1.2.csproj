@@ -37,6 +37,7 @@
     <Compile Include="ExtraThingFilter.cs" />
     <Compile Include="ExtraThingFilters.cs" />
     <Compile Include="HarmonyPatches.cs" />
+    <Compile Include="ModCompatibility.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StorageFilters.cs" />
     <Compile Include="StorageFiltersData.cs" />

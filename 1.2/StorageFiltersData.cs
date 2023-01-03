@@ -52,15 +52,23 @@ namespace StorageFilters
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static void SetMainFilterName(IStoreSettingsParent owner, string name)
         {
+            if (owner == null)
+                return;
             switch (owner)
             {
                 case Zone_Stockpile zone:
+                    if (zoneMainFilterNames == null)
+                        zoneMainFilterNames = new Dictionary<int, string>();
                     zoneMainFilterNames.SetOrAdd(zone.ID, name);
                     return;
                 case Building_Storage building:
+                    if (buildingMainFilterNames == null)
+                        buildingMainFilterNames = new Dictionary<int, string>();
                     buildingMainFilterNames.SetOrAdd(building.thingIDNumber, name);
                     return;
                 default:
+                    if (mainFilterNames == null)
+                        mainFilterNames = new Dictionary<IStoreSettingsParent, string>();
                     mainFilterNames.SetOrAdd(owner, name);
                     return;
             }
@@ -69,12 +77,18 @@ namespace StorageFilters
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static string GetMainFilterName(IStoreSettingsParent owner)
         {
+            if (owner == null)
+                return DefaultMainFilterString;
             string name;
             switch (owner)
             {
                 case Zone_Stockpile zone:
+                    if (zoneMainFilterNames == null)
+                        zoneMainFilterNames = new Dictionary<int, string>();
                     if (zoneMainFilterNames.TryGetValue(zone.ID, out name))
                         return name;
+                    if (mainFilterNames == null)
+                        mainFilterNames = new Dictionary<IStoreSettingsParent, string>();
                     if (mainFilterNames.TryGetValue(owner, out name)) // handle pre-optimization zones
                     {
                         zoneMainFilterNames.SetOrAdd(zone.ID, name);
@@ -83,8 +97,12 @@ namespace StorageFilters
                     }
                     return DefaultMainFilterString;
                 case Building_Storage building:
+                    if (buildingMainFilterNames == null)
+                        buildingMainFilterNames = new Dictionary<int, string>();
                     if (buildingMainFilterNames.TryGetValue(building.thingIDNumber, out name))
                         return name;
+                    if (mainFilterNames == null)
+                        mainFilterNames = new Dictionary<IStoreSettingsParent, string>();
                     if (mainFilterNames.TryGetValue(owner, out name)) // handle pre-optimization buildings
                     {
                         buildingMainFilterNames.SetOrAdd(building.thingIDNumber, name);
@@ -93,6 +111,8 @@ namespace StorageFilters
                     }
                     return DefaultMainFilterString;
                 default:
+                    if (mainFilterNames == null)
+                        mainFilterNames = new Dictionary<IStoreSettingsParent, string>();
                     if (mainFilterNames.TryGetValue(owner, out name))
                         return name;
                     return DefaultMainFilterString;
@@ -102,6 +122,8 @@ namespace StorageFilters
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static void SetCurrentFilterKey(IStoreSettingsParent owner, string key)
         {
+            if (owner == null)
+                return;
             switch (owner)
             {
                 case Zone_Stockpile zone:
@@ -119,6 +141,8 @@ namespace StorageFilters
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static string GetCurrentFilterKey(IStoreSettingsParent owner)
         {
+            if (owner == null)
+                return null;
             string key;
             switch (owner)
             {
@@ -140,6 +164,8 @@ namespace StorageFilters
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static void SetCurrentFilterDepth(IStoreSettingsParent owner, int depth)
         {
+            if (owner == null)
+                return;
             switch (owner)
             {
                 case Zone_Stockpile zone:
@@ -157,6 +183,8 @@ namespace StorageFilters
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static int GetCurrentFilterDepth(IStoreSettingsParent owner)
         {
+            if (owner == null)
+                return 0;
             int depth;
             switch (owner)
             {
@@ -172,15 +200,23 @@ namespace StorageFilters
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static void SetExtraThingFilters(IStoreSettingsParent owner, ExtraThingFilters extraThingFilters)
         {
+            if (owner == null)
+                return;
             switch (owner)
             {
                 case Zone_Stockpile zone:
+                    if (zoneFilters == null)
+                        zoneFilters = new Dictionary<int, ExtraThingFilters>();
                     zoneFilters.SetOrAdd(zone.ID, extraThingFilters);
                     return;
                 case Building_Storage building:
+                    if (buildingFilters == null)
+                        buildingFilters = new Dictionary<int, ExtraThingFilters>();
                     buildingFilters.SetOrAdd(building.thingIDNumber, extraThingFilters);
                     return;
                 default:
+                    if (filters == null)
+                        filters = new Dictionary<IStoreSettingsParent, ExtraThingFilters>();
                     filters.SetOrAdd(owner, extraThingFilters);
                     return;
             }
@@ -189,12 +225,18 @@ namespace StorageFilters
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static ExtraThingFilters GetExtraThingFilters(IStoreSettingsParent owner)
         {
+            if (owner == null)
+                return null;
             ExtraThingFilters extraThingFilters;
             switch (owner)
             {
                 case Zone_Stockpile zone:
+                    if (zoneFilters == null)
+                        zoneFilters = new Dictionary<int, ExtraThingFilters>();
                     if (zoneFilters.TryGetValue(zone.ID, out extraThingFilters))
                         return extraThingFilters;
+                    if (filters == null)
+                        filters = new Dictionary<IStoreSettingsParent, ExtraThingFilters>();
                     if (filters.TryGetValue(owner, out extraThingFilters)) // handle pre-optimization zones
                     {
                         zoneFilters.SetOrAdd(zone.ID, extraThingFilters);
@@ -202,8 +244,12 @@ namespace StorageFilters
                     }
                     return extraThingFilters;
                 case Building_Storage building:
+                    if (buildingFilters == null)
+                        buildingFilters = new Dictionary<int, ExtraThingFilters>();
                     if (buildingFilters.TryGetValue(building.thingIDNumber, out extraThingFilters))
                         return extraThingFilters;
+                    if (filters == null)
+                        filters = new Dictionary<IStoreSettingsParent, ExtraThingFilters>();
                     if (filters.TryGetValue(owner, out extraThingFilters)) // handle pre-optimization buildings
                     {
                         buildingFilters.SetOrAdd(building.thingIDNumber, extraThingFilters);
@@ -211,6 +257,8 @@ namespace StorageFilters
                     }
                     return extraThingFilters;
                 default:
+                    if (filters == null)
+                        filters = new Dictionary<IStoreSettingsParent, ExtraThingFilters>();
                     return filters.TryGetValue(owner);
             }
         }

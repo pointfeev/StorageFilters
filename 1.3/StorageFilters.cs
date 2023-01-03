@@ -58,21 +58,21 @@ namespace StorageFilters
             ExtraThingFilters tabFilters = StorageFiltersData.GetExtraThingFilters(owner);
             if (tabFilters is null)
             {
-                StorageFiltersData.SetExtraThingFilters(owner, new ExtraThingFilters());
-                tabFilters = StorageFiltersData.GetExtraThingFilters(owner);
+                tabFilters = new ExtraThingFilters();
+                StorageFiltersData.SetExtraThingFilters(owner, tabFilters);
             }
             string mainFilterString = StorageFiltersData.GetMainFilterName(owner);
             if (mainFilterString is null)
             {
-                StorageFiltersData.SetMainFilterName(owner, StorageFiltersData.DefaultMainFilterString);
-                mainFilterString = StorageFiltersData.GetMainFilterName(owner);
+                mainFilterString = StorageFiltersData.DefaultMainFilterString;
+                StorageFiltersData.SetMainFilterName(owner, mainFilterString);
             }
             string tabFilter = StorageFiltersData.GetCurrentFilterKey(owner);
             if (tabFilter is null)
             {
+                tabFilter = mainFilterString;
                 StorageFiltersData.SetCurrentFilterKey(owner, mainFilterString);
                 StorageFiltersData.SetCurrentFilterDepth(owner, 0);
-                tabFilter = StorageFiltersData.GetCurrentFilterKey(owner);
             }
             Rect window = new Rect(0, 0, size.x, size.y);
             StorageTabRect = window;
@@ -83,15 +83,18 @@ namespace StorageFilters
             return position;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static ThingFilter GetCurrentFilter(ThingFilter filter = null, ThingFilter parentFilter = null)
         {
-            IStoreSettingsParent storeGroupParent = GenUtils.GetSelectedStoreSettingsParent().GetStorageGroupOwner();
+            IStoreSettingsParent storeGroupParent = GenUtils.GetSelectedStoreSettingsParent()?.GetStorageGroupOwner();
             StorageSettings settings = storeGroupParent?.GetStoreSettings();
             if (settings == null || (filter != null && settings.filter != filter && parentFilter != null && settings.filter != parentFilter))
                 return filter;
             ExtraThingFilters tabFilters = StorageFiltersData.GetExtraThingFilters(storeGroupParent);
             string tabFilter = StorageFiltersData.GetCurrentFilterKey(storeGroupParent);
-            int tabFilterDepth = !(Find.WindowStack.WindowOfType<Dialog_EditFilter>() is null) ? StorageFiltersData.GetCurrentFilterDepth(storeGroupParent) : 0;
+            int tabFilterDepth = !(Find.WindowStack?.WindowOfType<Dialog_EditFilter>() is null)
+                ? StorageFiltersData.GetCurrentFilterDepth(storeGroupParent)
+                : 0;
             if (tabFilters is null || tabFilter is null)
                 return filter ?? settings.filter;
             ExtraThingFilter extraFilter = tabFilters.Get(tabFilter);
@@ -106,7 +109,7 @@ namespace StorageFilters
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void GetStackLimitsForThing
-            (IStoreSettingsParent owner, Thing thing, out int stackCountLimit, out int stackSizeLimit, ExtraThingFilters extraFilters = null)
+            (this IStoreSettingsParent owner, Thing thing, out int stackCountLimit, out int stackSizeLimit, ExtraThingFilters extraFilters = null)
         {
             stackCountLimit = 0;
             stackSizeLimit = 0;
@@ -198,19 +201,19 @@ namespace StorageFilters
             if (!(StorageFiltersData.GetExtraThingFilters(owner) is ExtraThingFilters extraFilters) || extraFilters.Count <= 0)
                 return;
             Map map;
-            int cellCount;
+            int maxThings = 0;
             switch (settings.owner)
             {
                 case ISlotGroupParent slotGroupParent:
                     map = slotGroupParent.Map;
                     if (map == null)
                         return;
-                    cellCount = slotGroupParent.AllSlotCellsList().Count;
+                    maxThings = slotGroupParent.AllSlotCellsList().Count;
                     break;
                 default:
                     return;
             }
-            GetStackLimitsForThing(owner, thing, out _, out int stackSizeLimit, extraFilters);
+            owner.GetStackLimitsForThing(thing, out _, out int stackSizeLimit, extraFilters);
             ThingsAllowed.Clear();
             foreach (ExtraThingFilter extraFilter in extraFilters.Filters)
                 if (extraFilter.Enabled && extraFilter is ExtraThingFilter currentFilter)
@@ -219,22 +222,22 @@ namespace StorageFilters
                         {
                             if (currentFilter == extraFilter)
                                 return; // is NIPF
-                            if (ThingsAllowed.Count < cellCount)
+                            if (ThingsAllowed.Count < maxThings)
                                 foreach (Thing t in map.GetThingsForStorage(owner, true).Where(t => t != thing && currentFilter.Allows(t)))
-                                    if (ThingsAllowed.Add(t) && ThingsAllowed.Count >= cellCount)
+                                    if (ThingsAllowed.Add(t) && ThingsAllowed.Count >= maxThings)
                                         break;
-                            if (ThingsAllowed.Count >= cellCount && !ThingsAllowed.Any(t
+                            if (ThingsAllowed.Count >= maxThings && !ThingsAllowed.Any(t
                                     => t.stackCount < Math.Min(t.def.stackLimit, stackSizeLimit > 0 ? stackSizeLimit : int.MaxValue) && t.CanStackWith(thing)))
                                 result = false;
                             return;
                         }
                         else if (currentFilter.NextInPriorityFilter is ExtraThingFilter nextFilter)
                         {
-                            if (ThingsAllowed.Count < cellCount)
+                            if (ThingsAllowed.Count < maxThings)
                                 foreach (Thing t in map.GetThingsForStorage(owner, true, true).Where(t => currentFilter.Allows(t)))
-                                    if (ThingsAllowed.Add(t) && ThingsAllowed.Count >= cellCount)
+                                    if (ThingsAllowed.Add(t) && ThingsAllowed.Count >= maxThings)
                                         break;
-                            if (ThingsAllowed.Count >= cellCount)
+                            if (ThingsAllowed.Count >= maxThings)
                                 break; // do not consider the NIPF
                             currentFilter = nextFilter;
                         }
@@ -256,7 +259,7 @@ namespace StorageFilters
                 return;
             if (thing.GetSlotGroup()?.parent?.GetStorageGroupOwner() is IStoreSettingsParent ownerFrom)
             {
-                GetStackLimitsForThing(ownerFrom, thing, out _, out int stackSizeLimitFrom);
+                ownerFrom.GetStackLimitsForThing(thing, out _, out int stackSizeLimitFrom);
                 if (stackSizeLimitFrom > 0)
                 {
                     int shouldTake = thing.stackCount - stackSizeLimitFrom;
@@ -270,7 +273,7 @@ namespace StorageFilters
             }
             if (!(destination.GetSlotGroup(map)?.parent?.GetStorageGroupOwner() is IStoreSettingsParent ownerTo))
                 return;
-            GetStackLimitsForThing(ownerTo, thing, out _, out int stackSizeLimitTo);
+            ownerTo.GetStackLimitsForThing(thing, out _, out int stackSizeLimitTo);
             if (stackSizeLimitTo <= 0)
                 return;
             int shouldPlace = stackSizeLimitTo - (job.targetB.Thing?.stackCount
@@ -287,7 +290,7 @@ namespace StorageFilters
         {
             if (!result || !(position.GetSlotGroup(map)?.parent?.GetStorageGroupOwner() is IStoreSettingsParent owner))
                 return;
-            GetStackLimitsForThing(owner, thing, out _, out int stackSizeLimit);
+            owner.GetStackLimitsForThing(thing, out _, out int stackSizeLimit);
             if (stackSizeLimit > 0 && map.thingGrid.ThingsAt(position).Any(t => t.CanStackWith(thing) && t.stackCount >= stackSizeLimit))
                 result = false; // return;
             /*if (stackCountLimit <= 0)
@@ -307,9 +310,9 @@ namespace StorageFilters
 
         public static void TryFindBestBetterStoreCellFor(Thing thing, Map map, ref StoragePriority currentPriority)
         {
-            if (!(thing.GetSlotGroup()?.parent?.GetStorageGroupOwner() is IStoreSettingsParent owner))
+            if (currentPriority == StoragePriority.Unstored || !(thing.GetSlotGroup()?.parent?.GetStorageGroupOwner() is IStoreSettingsParent owner))
                 return;
-            GetStackLimitsForThing(owner, thing, out _, out int stackSizeLimit);
+            owner.GetStackLimitsForThing(thing, out _, out int stackSizeLimit);
             if (stackSizeLimit > 0 && thing.stackCount > stackSizeLimit)
                 currentPriority = StoragePriority.Unstored; // return;
             /*if (stackCountLimit <= 0)
@@ -331,7 +334,7 @@ namespace StorageFilters
         {
             if (!respectStackLimit || !(thing.GetSlotGroup()?.parent?.GetStorageGroupOwner() is IStoreSettingsParent owner))
                 return;
-            GetStackLimitsForThing(owner, thing, out _, out int stackSizeLimit);
+            owner.GetStackLimitsForThing(thing, out _, out int stackSizeLimit);
             if (stackSizeLimit > 0)
                 result = Math.Min(Math.Max(0, Math.Min(other.stackCount, stackSizeLimit - thing.stackCount)), thing.def.stackLimit);
         }
@@ -340,7 +343,7 @@ namespace StorageFilters
         {
             if (!result || !(thing.GetSlotGroup()?.parent?.GetStorageGroupOwner() is IStoreSettingsParent owner))
                 return;
-            GetStackLimitsForThing(owner, thing, out _, out int stackSizeLimit);
+            owner.GetStackLimitsForThing(thing, out _, out int stackSizeLimit);
             if (stackSizeLimit > 0 && thing.stackCount >= stackSizeLimit)
                 result = false;
         }
