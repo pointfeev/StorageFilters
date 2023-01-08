@@ -34,9 +34,8 @@ namespace StorageFilters.Dialogs
             this.storeSettingsParent = storeSettingsParent;
         }
 
-        public Dialog_EditFilter
-        (ITab_Storage instance, IStoreSettingsParent storeSettingsParent, string key, ExtraThingFilter value, ExtraThingFilters tabFilters = null,
-            Dialog_EditFilter previousEditFilterDialog = null) : this(instance, storeSettingsParent)
+        public Dialog_EditFilter(ITab_Storage instance, IStoreSettingsParent storeSettingsParent, string key, ExtraThingFilter value,
+            ExtraThingFilters tabFilters = null, Dialog_EditFilter previousEditFilterDialog = null) : this(instance, storeSettingsParent)
         {
             this.key = key;
             Filter = value;
@@ -45,9 +44,8 @@ namespace StorageFilters.Dialogs
             previousDialog = previousEditFilterDialog;
         }
 
-        public Dialog_EditFilter
-            (ITab_Storage instance, IStoreSettingsParent storeSettingsParent, string key, bool keyIsMainFilterString, ExtraThingFilters tabFilters) : this(
-            instance, storeSettingsParent, key, null, tabFilters)
+        public Dialog_EditFilter(ITab_Storage instance, IStoreSettingsParent storeSettingsParent, string key, bool keyIsMainFilterString,
+            ExtraThingFilters tabFilters) : this(instance, storeSettingsParent, key, null, tabFilters)
         {
             this.keyIsMainFilterString = keyIsMainFilterString;
             Filter = new ExtraThingFilter(storeSettingsParent.GetStoreSettings().filter);
@@ -61,14 +59,12 @@ namespace StorageFilters.Dialogs
         {
             if (NamePlayerFactionDialogUtility.IsValidName(curName))
             {
-                if (key == curName || (StorageFiltersData.GetMainFilterName(storeSettingsParent) != curName && !tabFilters.ContainsKey(curName)))
+                if (key == curName || StorageFiltersData.GetMainFilterName(storeSettingsParent) != curName && !tabFilters.ContainsKey(curName))
                 {
                     if (key != curName)
                     {
                         if (keyIsMainFilterString)
-                        {
                             StorageFiltersData.SetMainFilterName(storeSettingsParent, curName);
-                        }
                         else
                         {
                             tabFilters.Remove(key);
@@ -82,14 +78,10 @@ namespace StorageFilters.Dialogs
                     }
                 }
                 else
-                {
                     Messages.Message("ASF_StorageAreaAlreadyHasFilterNamed".Translate(curName), MessageTypeDefOf.RejectInput, false);
-                }
             }
             else
-            {
                 Messages.Message("ASF_InvalidString".Translate(), MessageTypeDefOf.RejectInput, false);
-            }
             return false;
         }
 
@@ -106,8 +98,8 @@ namespace StorageFilters.Dialogs
                 Event.current.Use();
                 return;
             }
-            if (Filter is null || (Event.current.type == EventType.KeyDown
-                                && (Event.current.keyCode == KeyCode.Escape || Event.current.keyCode == KeyCode.Return)))
+            if (Filter is null || Event.current.type == EventType.KeyDown
+             && (Event.current.keyCode == KeyCode.Escape || Event.current.keyCode == KeyCode.Return))
             {
                 _ = Find.WindowStack.TryRemove(this);
                 Event.current.Use();
@@ -160,14 +152,12 @@ namespace StorageFilters.Dialogs
                 if (Widgets.ButtonText(new Rect(0f, saveLoadY, winRect.width / 2f - 4f, 35f), "ASF_SaveFilter".Translate()))
                 {
                     if (StorageFiltersData.SavedFilters.TryGetValue(key) != null)
-                    {
                         Find.WindowStack.Add(new Dialog_Confirmation(storageTab, storeSettingsParent, "ASF_ConfirmOverwriteSavedFilter".Translate(key), delegate
                         {
                             StorageFiltersData.SavedFilters.SetOrAdd(key, Filter);
                             SaveUtils.Save();
                             Messages.Message("ASF_SavedFilter".Translate(key), MessageTypeDefOf.TaskCompletion, false);
                         }, this));
-                    }
                     else
                     {
                         StorageFiltersData.SavedFilters.SetOrAdd(key, Filter);
@@ -224,9 +214,7 @@ namespace StorageFilters.Dialogs
                         Find.WindowStack.Add(filterFloatMenu);
                     }
                     else
-                    {
                         Messages.Message("ASF_NoSavedFilters".Translate(), MessageTypeDefOf.RejectInput, false);
-                    }
                     Event.current.Use();
                 }
             }

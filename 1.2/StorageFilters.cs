@@ -88,7 +88,7 @@ namespace StorageFilters
         {
             IStoreSettingsParent storeGroupParent = GenUtils.GetSelectedStoreSettingsParent()?.GetStorageGroupOwner();
             StorageSettings settings = storeGroupParent?.GetStoreSettings();
-            if (settings == null || (filter != null && settings.filter != filter && parentFilter != null && settings.filter != parentFilter))
+            if (settings == null || filter != null && settings.filter != filter && parentFilter != null && settings.filter != parentFilter)
                 return filter;
             ExtraThingFilters tabFilters = StorageFiltersData.GetExtraThingFilters(storeGroupParent);
             string tabFilter = StorageFiltersData.GetCurrentFilterKey(storeGroupParent);
@@ -103,13 +103,12 @@ namespace StorageFilters
             return extraFilter ?? filter ?? settings.filter;
         }
 
-        public static void DoThingFilterConfigWindow
-            (ref ThingFilter filter, ThingFilter parentFilter = null)
+        public static void DoThingFilterConfigWindow(ref ThingFilter filter, ThingFilter parentFilter = null)
             => filter = GetCurrentFilter(filter, parentFilter);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void GetStackLimitsForThing
-            (this IStoreSettingsParent owner, Thing thing, out int stackCountLimit, out int stackSizeLimit, ExtraThingFilters extraFilters = null)
+        public static void GetStackLimitsForThing(this IStoreSettingsParent owner, Thing thing, out int stackCountLimit, out int stackSizeLimit,
+            ExtraThingFilters extraFilters = null)
         {
             stackCountLimit = 0;
             stackSizeLimit = 0;
@@ -159,8 +158,8 @@ namespace StorageFilters
                  < (owner.GetStorageGroupSettings()?.Priority ?? StoragePriority.Unstored);
         }
 
-        private static IEnumerable<Thing> GetThingsForStorage
-            (this Map map, IStoreSettingsParent owner, bool destEqualTo = false, bool destEqualToOrWorseThan = false)
+        private static IEnumerable<Thing> GetThingsForStorage(this Map map, IStoreSettingsParent owner, bool destEqualTo = false,
+            bool destEqualToOrWorseThan = false)
         {
             IStoreSettingsParent storageGroup = owner.GetStorageGroupOrSelf();
             switch (storageGroup)
@@ -185,12 +184,10 @@ namespace StorageFilters
                         yield return thing;
             }
             else if (destEqualTo)
-            {
                 foreach (Thing thing in map.listerHaulables.ThingsPotentiallyNeedingHauling()
                                            .Where(t => !t.IsForbidden(Faction.OfPlayer) && t.IsCurrentDestinationEqualTo(storageGroup)))
                     if (ThingIDsReturned.Add(thing.thingIDNumber))
                         yield return thing;
-            }
         }
 
         public static void AllowedToAccept(StorageSettings settings, Thing thing, ref bool result)
@@ -242,14 +239,13 @@ namespace StorageFilters
                             currentFilter = nextFilter;
                         }
                         else
-                        {
                             break;
-                        }
         }
 
         public static void HaulToStorageJob(Thing thing, ref Job job)
         {
-            if (job is null || !(thing.Map is Map map)) return;
+            if (job is null || !(thing.Map is Map map))
+                return;
             IntVec3 destination;
             if (job.def == JobDefOf.HaulToContainer && job.targetB.Thing is Thing t)
                 destination = t.Position;

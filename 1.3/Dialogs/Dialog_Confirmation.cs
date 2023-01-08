@@ -36,9 +36,8 @@ namespace StorageFilters.Dialogs
             editFilterDialog = editDialog;
         }
 
-        public Dialog_Confirmation
-            (ITab_Storage instance, IStoreSettingsParent storeSettingsParent, string confirmQuestion, Action confirmAction, Dialog_EditFilter editDialog = null)
-            : this(instance, storeSettingsParent, editDialog)
+        public Dialog_Confirmation(ITab_Storage instance, IStoreSettingsParent storeSettingsParent, string confirmQuestion, Action confirmAction,
+            Dialog_EditFilter editDialog = null) : this(instance, storeSettingsParent, editDialog)
         {
             question = confirmQuestion;
             action = confirmAction;
@@ -48,9 +47,8 @@ namespace StorageFilters.Dialogs
             SetInitialSizeAndPosition();
         }
 
-        public Dialog_Confirmation
-        (ITab_Storage instance, IStoreSettingsParent storeSettingsParent, string confirmQuestion, string confirmQuestionExtra, Action confirmAction,
-            Dialog_EditFilter editDialog = null) : this(instance, storeSettingsParent, editDialog)
+        public Dialog_Confirmation(ITab_Storage instance, IStoreSettingsParent storeSettingsParent, string confirmQuestion, string confirmQuestionExtra,
+            Action confirmAction, Dialog_EditFilter editDialog = null) : this(instance, storeSettingsParent, editDialog)
         {
             question = confirmQuestion;
             questionExtra = confirmQuestionExtra;

@@ -45,9 +45,7 @@ namespace StorageFilters
                             return currentFilter;
                         }
                         else
-                        {
                             currentFilter = currentFilter.NextInPriorityFilter;
-                        }
                 }
                 return nextInPriorityFilterParent;
             }

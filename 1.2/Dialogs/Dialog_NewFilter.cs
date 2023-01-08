@@ -27,8 +27,8 @@ namespace StorageFilters.Dialogs
             this.storeSettingsParent = storeSettingsParent;
         }
 
-        public Dialog_NewFilter
-            (ITab_Storage instance, IStoreSettingsParent storeSettingsParent, ExtraThingFilters tabFilters) : this(instance, storeSettingsParent)
+        public Dialog_NewFilter(ITab_Storage instance, IStoreSettingsParent storeSettingsParent, ExtraThingFilters tabFilters) : this(instance,
+            storeSettingsParent)
         {
             this.tabFilters = tabFilters;
             curName = "ASF_DefaultName".Translate(tabFilters.Count + 1);
@@ -50,14 +50,10 @@ namespace StorageFilters.Dialogs
                     _ = Find.WindowStack.TryRemove(this);
                 }
                 else
-                {
                     Messages.Message("ASF_StorageAreaAlreadyHasFilter".Translate(curName), MessageTypeDefOf.RejectInput, false);
-                }
             }
             else
-            {
                 Messages.Message("ASF_InvalidString".Translate(), MessageTypeDefOf.RejectInput, false);
-            }
         }
 
         public override void DoWindowContents(Rect winRect)

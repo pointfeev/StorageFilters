@@ -46,40 +46,33 @@ namespace StorageFilters
 
         public static void TopAreaHeight(float __result) => _ = Math.Max(__result, 35f);
 
-        public static void DoThingFilterConfigWindow
-            (ref ThingFilter filter, ThingFilter parentFilter)
+        public static void DoThingFilterConfigWindow(ref ThingFilter filter, ThingFilter parentFilter)
             => StorageFilters.DoThingFilterConfigWindow(ref filter, parentFilter);
 
-        public static void AllowedToAccept
-            (Thing t, StorageSettings __instance, ref bool __result)
+        public static void AllowedToAccept(Thing t, StorageSettings __instance, ref bool __result)
             => StorageFilters.AllowedToAccept(__instance, t, ref __result);
 
         public static void HaulToStorageJob(Thing t, ref Job __result) => StorageFilters.HaulToStorageJob(t, ref __result);
 
-        public static void NoStorageBlockersIn
-            (IntVec3 c, Map map, Thing thing, ref bool __result)
+        public static void NoStorageBlockersIn(IntVec3 c, Map map, Thing thing, ref bool __result)
             => StorageFilters.NoStorageBlockersIn(c, map, thing, ref __result);
 
-        public static void TryFindBestBetterStoreCellFor
-            (Thing t, Map map, ref StoragePriority currentPriority)
+        public static void TryFindBestBetterStoreCellFor(Thing t, Map map, ref StoragePriority currentPriority)
             => StorageFilters.TryFindBestBetterStoreCellFor(t, map, ref currentPriority);
 
-        public static void TryFindBestBetterStoreCellForIn
-            (Thing t, Map map, ref StoragePriority currentPriority)
+        public static void TryFindBestBetterStoreCellForIn(Thing t, Map map, ref StoragePriority currentPriority)
             => StorageFilters.TryFindBestBetterStoreCellFor(t, map, ref currentPriority);
 
         public static void ShouldBeMergeable(Thing t, ref bool __result) => StorageFilters.ShouldBeMergeable(t, ref __result);
 
-        public static void TryAbsorbStackNumToTake
-            (Thing thing, Thing other, bool respectStackLimit, ref int __result)
+        public static void TryAbsorbStackNumToTake(Thing thing, Thing other, bool respectStackLimit, ref int __result)
             => StorageFilters.TryAbsorbStackNumToTake(thing, other, respectStackLimit, ref __result);
 
         public static void Copy(StorageSettings s) => StorageFilters.Copy(s);
 
         public static void PasteInto(StorageSettings s) => StorageFilters.Paste(s);
 
-        public static bool Error
-            (string text)
+        public static bool Error(string text)
             => !text.StartsWith("Could not load reference to ")
             && !ReflectionUtils.IsMethodInCallStack(AccessTools.Method(typeof(ExtraThingFilter), nameof(ExtraThingFilter.ExposeData)));
     }

@@ -55,9 +55,8 @@ namespace StorageFilters.Utilities
         public static IStoreSettingsParent GetSelectedStoreSettingsParent()
             => !(Find.UIRoot is UIRoot_Play) || Find.MapUI is null ? null : GetStoreSettingsParent(Find.Selector.SingleSelectedObject);
 
-        public static void FilterSelectionButton
-        (ITab_Storage instance, IStoreSettingsParent storeSettingsParent, ExtraThingFilters tabFilters, string mainFilterString, string tabFilter,
-            Rect position)
+        public static void FilterSelectionButton(ITab_Storage instance, IStoreSettingsParent storeSettingsParent, ExtraThingFilters tabFilters,
+            string mainFilterString, string tabFilter, Rect position)
         {
             Text.Font = GameFont.Small;
             if (Widgets.ButtonText(position, tabFilter))

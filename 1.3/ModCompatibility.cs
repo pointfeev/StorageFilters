@@ -23,30 +23,32 @@ namespace StorageFilters
 
         internal static void PatchForMods(this Harmony harmony)
         {
-            materialFilterActive = Compatibility.IsModActive("kamikatze.materialfilter");
-            if (!materialFilterActive)
-                return;
-            MethodInfo drawFilterButton = Compatibility.GetConsistentMethod("kamikatze.materialfilter", "MaterialFilter.ITab_Storage_FillTab_Patch",
-                "drawFilterButton", new[] { typeof(ITab_Storage), typeof(Vector2) }, true);
-            if (drawFilterButton is null || !(AccessTools.TypeByName("MaterialFilter.MaterialFilterWindow") is Type type)
-                                         || !(AccessTools.Constructor(type, new[] { typeof(ThingFilter), typeof(float), typeof(float), typeof(WindowLayer) }) is
-                                                ConstructorInfo ctor))
-                return;
-            _ = harmony.Patch(drawFilterButton, new HarmonyMethod(typeof(HarmonyPatches), nameof(DrawMaterialFilterButton)));
-            materialFilterWindowType = type;
-            materialFilterWindowCtor = ctor;
             bool pickUpAndHaulActive = Compatibility.IsModActive("mehni.pickupandhaul");
-            if (!pickUpAndHaulActive)
-                return;
-            MethodInfo capacityAt = Compatibility.GetConsistentMethod("mehni.pickupandhaul", "PickUpAndHaul.WorkGiver_HaulToInventory", "CapacityAt",
-                new[] { typeof(Thing), typeof(IntVec3), typeof(Map) }, true);
-            if (!(capacityAt is null))
-                _ = harmony.Patch(capacityAt, new HarmonyMethod(typeof(HarmonyPatches), nameof(CapacityAt)));
-            MethodInfo tryFindBestBetterStoreCellFor = Compatibility.GetConsistentMethod("mehni.pickupandhaul", "PickUpAndHaul.WorkGiver_HaulToInventory",
-                "TryFindBestBetterStoreCellFor", new[] { typeof(Thing), typeof(Pawn), typeof(Map), typeof(StoragePriority), typeof(Faction), typeof(IntVec3) },
-                true);
-            if (!(tryFindBestBetterStoreCellFor is null))
-                _ = harmony.Patch(tryFindBestBetterStoreCellFor, new HarmonyMethod(typeof(HarmonyPatches), nameof(TryFindBestBetterStoreCellFor)));
+            if (pickUpAndHaulActive)
+            {
+                MethodInfo capacityAt = Compatibility.GetConsistentMethod("mehni.pickupandhaul", "PickUpAndHaul.WorkGiver_HaulToInventory", "CapacityAt",
+                    new[] { typeof(Thing), typeof(IntVec3), typeof(Map) }, true);
+                if (capacityAt != null)
+                    _ = harmony.Patch(capacityAt, new HarmonyMethod(typeof(ModCompatibility), nameof(CapacityAt)));
+                MethodInfo tryFindBestBetterStoreCellFor = Compatibility.GetConsistentMethod("mehni.pickupandhaul", "PickUpAndHaul.WorkGiver_HaulToInventory",
+                    "TryFindBestBetterStoreCellFor",
+                    new[] { typeof(Thing), typeof(Pawn), typeof(Map), typeof(StoragePriority), typeof(Faction), typeof(IntVec3) }, true);
+                if (tryFindBestBetterStoreCellFor != null)
+                    _ = harmony.Patch(tryFindBestBetterStoreCellFor, new HarmonyMethod(typeof(ModCompatibility), nameof(TryFindBestBetterStoreCellFor)));
+            }
+            materialFilterActive = Compatibility.IsModActive("kamikatze.materialfilter");
+            if (materialFilterActive)
+            {
+                MethodInfo drawFilterButton = Compatibility.GetConsistentMethod("kamikatze.materialfilter", "MaterialFilter.ITab_Storage_FillTab_Patch",
+                    "drawFilterButton", new[] { typeof(ITab_Storage), typeof(Vector2) }, true);
+                if (drawFilterButton == null || !(AccessTools.TypeByName("MaterialFilter.MaterialFilterWindow") is Type type)
+                                             || !(AccessTools.Constructor(type,
+                                                    new[] { typeof(ThingFilter), typeof(float), typeof(float), typeof(WindowLayer) }) is ConstructorInfo ctor))
+                    return;
+                _ = harmony.Patch(drawFilterButton, new HarmonyMethod(typeof(ModCompatibility), nameof(DrawMaterialFilterButton)));
+                materialFilterWindowType = type;
+                materialFilterWindowCtor = ctor;
+            }
         }
 
         internal static void SetMaterialFilterWindowActive(ThingFilter filter = null, Vector2 position = default, bool toggle = true, bool active = false)
@@ -93,7 +95,8 @@ namespace StorageFilters
 
         internal static void CapacityAt(Thing thing, IntVec3 storeCell, Map map, ref int __result)
         {
-            if (__result <= 0 || !(storeCell.GetSlotGroup(map)?.parent is IStoreSettingsParent owner)) return;
+            if (__result <= 0 || !(storeCell.GetSlotGroup(map)?.parent is IStoreSettingsParent owner))
+                return;
             owner.GetStackLimitsForThing(thing, out _, out int stackSizeLimit);
             if (stackSizeLimit > 0)
                 __result = 0;

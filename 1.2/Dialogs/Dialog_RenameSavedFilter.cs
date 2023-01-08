@@ -55,14 +55,10 @@ namespace StorageFilters.Dialogs
                     _ = Find.WindowStack.TryRemove(this);
                 }
                 else
-                {
                     Messages.Message("ASF_SavedFilterExists".Translate(curName), MessageTypeDefOf.RejectInput, false);
-                }
             }
             else
-            {
                 Messages.Message("ASF_InvalidString".Translate(), MessageTypeDefOf.RejectInput, false);
-            }
         }
 
         public override void DoWindowContents(Rect winRect)
