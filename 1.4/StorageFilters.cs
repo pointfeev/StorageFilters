@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Runtime.CompilerServices;
 using RimWorld;
 using StorageFilters.Dialogs;
@@ -15,8 +14,6 @@ namespace StorageFilters
     public static class StorageFilters
     {
         public static Rect? StorageTabRect;
-
-        private static MethodInfo getTopAreaHeight;
 
         private static ExtraThingFilters copiedFilters;
         private static string copiedMainFilterString;
@@ -41,23 +38,13 @@ namespace StorageFilters
 
         public static Rect? FillTab(ITab_Storage instance, Vector2 size)
         {
-            try
-            {
-                if (getTopAreaHeight is null)
-                    getTopAreaHeight = typeof(ITab_Storage).GetMethod("get_TopAreaHeight", (BindingFlags)(-1));
-                _ = (float)getTopAreaHeight?.Invoke(instance, new object[] { });
-            }
-            catch
-            {
-                return null;
-            }
             IStoreSettingsParent owner = GenUtils.GetSelectedStoreSettingsParent().GetStorageGroupOwner();
             if (owner is null)
             {
                 Log.Warning("ASF_ModPrefix".Translate() + "ASF_StoreSettingsParentError".Translate());
                 return null;
             }
-            if (!(owner is IHaulDestination) || !(owner is ISlotGroupParent))
+            if (!(owner is ISlotGroupParent)) //&& !(owner is Blueprint_Storage)) need to add support for migrating settings when blueprint finishes
                 return null;
             ExtraThingFilters tabFilters = StorageFiltersData.GetExtraThingFilters(owner);
             if (tabFilters is null)
